@@ -21,10 +21,22 @@ public class UserController : ControllerBase
     [AllowAnonymous]
     [HttpPost]
     [Route("student/sign-up")]
-    public async Task<ActionResult<BaseResponseModel<RegisterStudentResponseModel>>> SignUpStudent(
-        [FromBody] RegisterStudentRequestModel request)
+    public async Task<ActionResult<BaseResponseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>>>
+        SignUpStudent(
+            [FromBody] RegisterStudentRequestModel request)
     {
         var response = await _userService.SignUpStudentAsync(request);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [AllowAnonymous]
+    [HttpPost]
+    [Route("mentor/sign-up")]
+    public async Task<ActionResult<BaseResponseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>>>
+        SignUpStudent(
+            [FromBody] RegisterMentorRequestModel request)
+    {
+        var response = await _userService.SignUpMentorAsync(request);
         return StatusCode(response.StatusCode, response);
     }
 }

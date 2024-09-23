@@ -21,5 +21,4 @@ public static class MessageResponseHelper
         stringBuilder.Append(" was already existed.");
         return stringBuilder.ToString();
     }
-    
 }
