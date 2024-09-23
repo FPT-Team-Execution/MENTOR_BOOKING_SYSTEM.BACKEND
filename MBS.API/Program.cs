@@ -1,4 +1,3 @@
-
 using MBS.API.ApiDependencyInjections;
 using MBS.Application;
 using MBS.DataAccess;

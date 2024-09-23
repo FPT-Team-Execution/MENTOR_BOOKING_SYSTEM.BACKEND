@@ -21,7 +21,7 @@ public class UserController : ControllerBase
     [AllowAnonymous]
     [HttpPost]
     [Route("student/sign-up")]
-    public async Task<ActionResult<BaseResponseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>>>
+    public async Task<ActionResult<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>>>
         SignUpStudent(
             [FromBody] RegisterStudentRequestModel request)
     {
@@ -32,7 +32,7 @@ public class UserController : ControllerBase
     [AllowAnonymous]
     [HttpPost]
     [Route("mentor/sign-up")]
-    public async Task<ActionResult<BaseResponseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>>>
+    public async Task<ActionResult<BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>>>
         SignUpStudent(
             [FromBody] RegisterMentorRequestModel request)
     {

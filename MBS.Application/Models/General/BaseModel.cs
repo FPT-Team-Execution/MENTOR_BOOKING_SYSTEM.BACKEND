@@ -2,7 +2,7 @@
 
 namespace MBS.Application.Models.General;
 
-public class BaseResponseModel<TResponseModel, TRequestModel> where TResponseModel : class where TRequestModel : class
+public class BaseModel<TResponseModel, TRequestModel> where TResponseModel : class where TRequestModel : class
 {
     public bool IsSuccess { get; set; }
     public required string Message { get; set; }

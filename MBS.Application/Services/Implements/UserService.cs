@@ -9,6 +9,7 @@ using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 namespace MBS.Application.Services.Implements;
 
@@ -18,20 +19,22 @@ public class UserService : IUserService
     private readonly IMentorRepository _mentorRepository;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly IConfiguration _configuration;
 
     public UserService
     (
         IStudentRepository studentRepository,
         RoleManager<IdentityRole> roleManager,
-        UserManager<ApplicationUser> userManager, IMentorRepository mentorRepository)
+        UserManager<ApplicationUser> userManager, IMentorRepository mentorRepository, IConfiguration configuration)
     {
         _studentRepository = studentRepository;
         _roleManager = roleManager;
         _userManager = userManager;
         _mentorRepository = mentorRepository;
+        _configuration = configuration;
     }
 
-    public async Task<BaseResponseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>> SignUpStudentAsync(
+    public async Task<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>> SignUpStudentAsync(
         RegisterStudentRequestModel request)
     {
         try
@@ -87,7 +90,7 @@ public class UserService : IUserService
                 throw new DatabaseInsertException("student");
             }
 
-            return new BaseResponseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>()
+            return new BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>()
             {
                 Message = MessageResponseHelper.Register("student"),
                 StatusCode = StatusCodes.Status201Created,
@@ -100,7 +103,7 @@ public class UserService : IUserService
         }
         catch (Exception e)
         {
-            return new BaseResponseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>()
+            return new BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>()
             {
                 Message = e.Message,
                 StatusCode = StatusCodes.Status500InternalServerError,
@@ -110,7 +113,7 @@ public class UserService : IUserService
         }
     }
 
-    public async Task<BaseResponseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>> SignUpMentorAsync(
+    public async Task<BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>> SignUpMentorAsync(
         RegisterMentorRequestModel request)
     {
         try
@@ -165,7 +168,7 @@ public class UserService : IUserService
                 throw new DatabaseInsertException("mentor");
             }
 
-            return new BaseResponseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>()
+            return new BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>()
             {
                 Message = MessageResponseHelper.Register("mentor"),
                 StatusCode = StatusCodes.Status201Created,
@@ -178,7 +181,85 @@ public class UserService : IUserService
         }
         catch (Exception e)
         {
-            return new BaseResponseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>()
+            return new BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>()
+            {
+                Message = e.Message,
+                StatusCode = StatusCodes.Status500InternalServerError,
+                IsSuccess = false,
+                RequestModel = request
+            };
+        }
+    }
+
+    public async Task<BaseModel<SignInResponseModel, SignInRequestModel>> SignIn(SignInRequestModel request)
+    {
+        try
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+            if (user is null)
+            {
+                return new BaseModel<SignInResponseModel, SignInRequestModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    RequestModel = request,
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+            }
+
+            var isPasswordCorrect = await _userManager.CheckPasswordAsync(user, request.Password);
+
+            if (!isPasswordCorrect)
+            {
+                return new BaseModel<SignInResponseModel, SignInRequestModel>()
+                {
+                    Message = MessageResponseHelper.IncorrectEmailOrPassword(),
+                    IsSuccess = false,
+                    RequestModel = request,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                };
+            }
+
+            if (!user.EmailConfirmed)
+            {
+                return new BaseModel<SignInResponseModel, SignInRequestModel>()
+                {
+                    Message = MessageResponseHelper.EmailNotConfirmed(),
+                    IsSuccess = false,
+                    RequestModel = request,
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
+            }
+
+            if (user.LockoutEnd is not null)
+            {
+                return new BaseModel<SignInResponseModel, SignInRequestModel>()
+                {
+                    Message = MessageResponseHelper.UserLocked(),
+                    IsSuccess = false,
+                    RequestModel = request,
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
+            }
+
+            var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(user, _userManager, _configuration);
+            var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(user, _configuration);
+
+            return new BaseModel<SignInResponseModel, SignInRequestModel>()
+            {
+                Message = MessageResponseHelper.Login(),
+                IsSuccess = true,
+                ResponseModel = new SignInResponseModel()
+                {
+                    AccessToken = accessToken,
+                    RefreshToken = refreshToken
+                },
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<SignInResponseModel, SignInRequestModel>()
             {
                 Message = e.Message,
                 StatusCode = StatusCodes.Status500InternalServerError,

@@ -5,9 +5,11 @@ namespace MBS.Application.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<BaseResponseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>> SignUpStudentAsync(
+    Task<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>> SignUpStudentAsync(
         RegisterStudentRequestModel request);
 
-    Task<BaseResponseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>> SignUpMentorAsync(
+    Task<BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>> SignUpMentorAsync(
         RegisterMentorRequestModel request);
+
+    Task<BaseModel<SignInResponseModel, SignInRequestModel>> SignIn(SignInRequestModel request);
 }
