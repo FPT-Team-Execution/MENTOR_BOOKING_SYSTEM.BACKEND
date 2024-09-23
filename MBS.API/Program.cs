@@ -1,4 +1,4 @@
-using MBS.API.Extensions;
+using MBS.API.ApiDependencyInjections;
 
 namespace MBS.API
 {

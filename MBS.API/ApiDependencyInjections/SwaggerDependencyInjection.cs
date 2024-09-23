@@ -1,6 +1,6 @@
 ﻿using Microsoft.OpenApi.Models;
 
-namespace MBS.API.Extensions
+namespace MBS.API.ApiDependencyInjections
 {
     public static class SwaggerDependencyInjection
     {
