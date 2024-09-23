@@ -1,8 +1,9 @@
-﻿using MBS.Application.Models.User;
+﻿using MBS.Application.Models.General;
+using MBS.Application.Models.User;
 
 namespace MBS.Application.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<RegisterStudentResponseModel> SignUpStudent(RegisterStudentModel registerStudentModel);
+    Task<BaseResponseModel<RegisterStudentResponseModel>> SignUpStudentAsync(RegisterStudentRequestModel registerStudentModel);
 }

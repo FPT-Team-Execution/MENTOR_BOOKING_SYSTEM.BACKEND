@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MBS.Core.Enums
 {
-    public enum UserEnum
+    public enum UserRoleEnum
     {
         Admin,
         Student,

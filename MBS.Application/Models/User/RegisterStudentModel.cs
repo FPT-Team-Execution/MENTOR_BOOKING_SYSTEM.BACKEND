@@ -7,11 +7,8 @@ using System.Threading.Tasks;
 
 namespace MBS.Application.Models.User
 {
-    public class RegisterStudentModel
+    public class RegisterStudentRequestModel
     {
-        [Required]
-        public required string UserName { get; set; }
-
         [Required]
         [DataType(DataType.EmailAddress)]
         public required string Email { get; set; }
