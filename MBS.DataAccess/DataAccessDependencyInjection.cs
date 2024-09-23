@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using MBS.Core.Entities;
+using MBS.DataAccess.Repositories.Interfaces;
+using MBS.DataAccess.Repositories.Implements;
 namespace MBS.DataAccess
 {
     public static class DataAccessDependencyInjection
@@ -13,7 +15,7 @@ namespace MBS.DataAccess
 
             services.AddIdentity();
 
-            //services.AddRepositories();
+            services.AddRepositories();
 
             return services;
         }
@@ -22,6 +24,12 @@ namespace MBS.DataAccess
             services.AddDbContext<MBSContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("MBS"),
                     opt => opt.MigrationsAssembly(typeof(MBSContext).Assembly.FullName)));
+        }
+
+        private static void AddRepositories(this IServiceCollection services)
+        {
+            services.AddScoped<IMentorRepository, MentorRepository>();
+            services.AddScoped<IStudentRepository, StudentRepository>();
         }
 
         private static void AddIdentity(this IServiceCollection services)
