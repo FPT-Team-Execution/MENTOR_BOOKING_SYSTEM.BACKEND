@@ -1,4 +1,3 @@
-
 using MBS.API.Extensions;
 
 namespace MBS.API
@@ -15,8 +14,11 @@ namespace MBS.API
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
 
-            // Register app swaggergen
+            // Register app swagger
             builder.AddSwaggerGen();
+
+            // Register app services
+            builder.AddAppServices();
 
             // Register app authentication
             builder.AddAppAuthentication();
