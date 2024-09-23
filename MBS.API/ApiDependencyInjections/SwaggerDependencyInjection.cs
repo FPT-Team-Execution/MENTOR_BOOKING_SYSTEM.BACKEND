@@ -4,9 +4,9 @@ namespace MBS.API.ApiDependencyInjections
 {
     public static class SwaggerDependencyInjection
     {
-        public static WebApplicationBuilder AddAppSwaggerGen(this WebApplicationBuilder builder)
+        public static IServiceCollection AddAppSwaggerGen(this IServiceCollection services)
         {
-            builder.Services.AddSwaggerGen(options =>
+            services.AddSwaggerGen(options =>
             {
                 options.AddSecurityDefinition(name: "Bearer", securityScheme: new OpenApiSecurityScheme()
                 {
@@ -18,7 +18,7 @@ namespace MBS.API.ApiDependencyInjections
                     Scheme = "bearer"
                 });
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement()
-            {
+                {
                 {
                     new OpenApiSecurityScheme()
                     {
@@ -35,7 +35,7 @@ namespace MBS.API.ApiDependencyInjections
             });
             });
 
-            return builder;
+            return services;
         }
     }
 }
