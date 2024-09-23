@@ -1,5 +1,8 @@
 
 using MBS.API.Extensions;
+using MBS.Application;
+using MBS.DataAccess;
+using MBS.DataAccess.Persistents.Configurations;
 
 namespace MBS.API
 {
@@ -10,7 +13,6 @@ namespace MBS.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -18,10 +20,18 @@ namespace MBS.API
             // Register app swaggergen
             builder.AddSwaggerGen();
 
-            // Register app authentication
-            builder.AddAppAuthentication();
+            builder.Services
+                            // Register app authentication
+                            .AddAppAuthentication(builder.Configuration)
+                            //register application services
+                            .AddApplication()
+                            //Register data config
+                            .AddDataAccess(builder.Configuration);
 
             var app = builder.Build();
+            //seed data by automated migration
+            using var scope = app.Services.CreateScope();
+            AutomatedMigration.MigrateAsync(scope.ServiceProvider).GetAwaiter().GetResult();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

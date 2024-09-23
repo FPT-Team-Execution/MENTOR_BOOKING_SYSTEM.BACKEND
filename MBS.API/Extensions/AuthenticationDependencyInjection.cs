@@ -2,9 +2,9 @@
 {
     public static class AuthenticationDependencyInjection
     {
-        public static WebApplicationBuilder AddAppAuthentication(this WebApplicationBuilder builder)
+        public static IServiceCollection AddAppAuthentication(this IServiceCollection services, IConfiguration configuration)
         {
-            builder.Services.AddAuthentication(options =>
+            services.AddAuthentication(options =>
             {
                 options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -17,13 +17,13 @@
                 {
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-                    ValidAudience = builder.Configuration["JWT:ValidAudience"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"]!))
+                    ValidIssuer = configuration["JWT:ValidIssuer"],
+                    ValidAudience = configuration["JWT:ValidAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!))
                 };
             });
 
-            return builder;
+            return services;
         }
     }
 }

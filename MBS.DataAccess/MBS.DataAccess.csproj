@@ -7,9 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MBS.Core\MBS.Core.csproj" />
-    <ProjectReference Include="..\MBS.Shared\MBS.Shared.csproj" />
-	
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MBS.Core\MBS.Core.csproj">
+    </ProjectReference>
+    <ProjectReference Include="..\MBS.Shared\MBS.Shared.csproj">
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
 
 </Project>
