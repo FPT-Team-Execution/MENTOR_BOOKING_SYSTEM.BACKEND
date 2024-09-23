@@ -1,4 +1,6 @@
 
+using MBS.API.Extensions;
+
 namespace MBS.API
 {
     public class Program
@@ -12,7 +14,12 @@ namespace MBS.API
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+
+            // Register app swaggergen
+            builder.AddSwaggerGen();
+
+            // Register app authentication
+            builder.AddAppAuthentication();
 
             var app = builder.Build();
 
@@ -25,8 +32,9 @@ namespace MBS.API
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseAuthentication();
 
+            app.UseAuthorization();
 
             app.MapControllers();
 
