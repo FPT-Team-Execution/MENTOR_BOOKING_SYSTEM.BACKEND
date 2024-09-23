@@ -1,4 +1,4 @@
-using MBS.API.Extensions;
+using MBS.API.ApiDependencyInjections;
 
 namespace MBS.API
 {
@@ -15,7 +15,7 @@ namespace MBS.API
             builder.Services.AddEndpointsApiExplorer();
 
             // Register app swagger
-            builder.AddSwaggerGen();
+            builder.AddAppSwaggerGen();
 
             // Register app services
             builder.AddAppServices();

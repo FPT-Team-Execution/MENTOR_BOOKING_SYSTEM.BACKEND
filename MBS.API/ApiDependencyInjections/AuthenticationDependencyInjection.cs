@@ -1,4 +1,4 @@
-﻿namespace MBS.API.Extensions
+﻿namespace MBS.API.ApiDependencyInjections
 {
     public static class AuthenticationDependencyInjection
     {
