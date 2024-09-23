@@ -39,4 +39,14 @@ public class UserController : ControllerBase
         var response = await _userService.SignUpMentorAsync(request);
         return StatusCode(response.StatusCode, response);
     }
+
+    [AllowAnonymous]
+    [HttpPost]
+    [Route("sign-in")]
+    public async Task<ActionResult<BaseModel<SignInResponseModel, SignInRequestModel>>> SignIn(
+        SignInRequestModel request)
+    {
+        var response = await _userService.SignIn(request);
+        return StatusCode(response.StatusCode, response);
+    }
 }

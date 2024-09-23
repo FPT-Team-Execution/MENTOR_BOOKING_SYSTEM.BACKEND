@@ -251,8 +251,11 @@ public class UserService : IUserService
                 IsSuccess = true,
                 ResponseModel = new SignInResponseModel()
                 {
-                    AccessToken = accessToken,
-                    RefreshToken = refreshToken
+                    JwtToken = new JwtModel()
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = refreshToken
+                    }
                 },
                 StatusCode = StatusCodes.Status200OK
             };

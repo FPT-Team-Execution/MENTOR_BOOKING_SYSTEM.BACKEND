@@ -1,6 +1,6 @@
-﻿namespace MBS.Application.Models.User;
+﻿namespace MBS.Application.Models.General;
 
-public class SignInResponseModel
+public class JwtModel
 {
     public required string AccessToken { get; set; }
     public required string RefreshToken { get; set; }
