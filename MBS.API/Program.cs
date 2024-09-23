@@ -15,7 +15,7 @@ namespace MBS.API
             builder.Services.AddEndpointsApiExplorer();
 
             // Register app swagger
-            builder.AddSwaggerGen();
+            builder.AddAppSwaggerGen();
 
             // Register app services
             builder.AddAppServices();

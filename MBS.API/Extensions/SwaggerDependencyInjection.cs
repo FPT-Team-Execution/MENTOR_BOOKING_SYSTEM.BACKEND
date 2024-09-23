@@ -4,7 +4,7 @@ namespace MBS.API.Extensions
 {
     public static class SwaggerDependencyInjection
     {
-        public static WebApplicationBuilder AddSwaggerGen(this WebApplicationBuilder builder)
+        public static WebApplicationBuilder AddAppSwaggerGen(this WebApplicationBuilder builder)
         {
             builder.Services.AddSwaggerGen(options =>
             {
