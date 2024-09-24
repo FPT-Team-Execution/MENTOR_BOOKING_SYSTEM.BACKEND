@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .email-container {
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            margin: 20px auto;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            background-color: #4CAF50;
+            padding: 20px;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+        }
+
+        .header h1 {
+            color: #ffffff;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .content {
+            padding: 20px;
+            color: #333333;
+            line-height: 1.6;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: #777777;
+        }
+    </style>
+</head>
+<body>
+
+<div class="email-container">
+    <!-- Email Header -->
+    <div class="header">
+        <h1>Confirmation</h1>
+    </div>
+
+    <!-- Email Content -->
+    <div class="content">
+        <p>Hi {FullName},</p>
+        <p>Thank you for [action, e.g., "registering with us" or "your purchase"].</p>
+        <p>Here are your confirmation details:</p>
+
+        <p>If you have any questions, feel free to reach out to our support team.</p>
+        <p>To review your order or account, click the button below:</p>
+
+        <p style="text-align: center;">
+            <a href="{ConfirmationLink}" class="button">Verify</a>
+        </p>
+
+        <p>Best regards,<br>MBS</p>
+    </div>
+
+    <!-- Email Footer -->
+    <div class="footer">
+        <p>&copy; 2024 MBS. All rights reserved.</p>
+        <p>If you didn't perform this action, please contact us immediately.</p>
+    </div>
+</div>
+
+</body>
+</html>
