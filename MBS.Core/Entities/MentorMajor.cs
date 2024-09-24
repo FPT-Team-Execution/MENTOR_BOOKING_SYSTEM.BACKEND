@@ -1,5 +1,4 @@
-﻿
-using MBS.Core.Entities;
+﻿using MBS.Core.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -10,17 +9,15 @@ using System.Threading.Tasks;
 
 namespace MBS.Core.Entities
 {
-    public class Student 
+    public class MentorMajor : BaseEntity
     {
-        [Key]
-        public string UserId { get; set; }
-        [ForeignKey("UserId")]
-        public ApplicationUser User { get; set; }
-        public string? University { get; set; } = default;
-        public int WalletPoint { get; set; } = default;
-
         public Guid MajorId { get; set; }
         [ForeignKey(nameof(MajorId))]
         public Major Major { get; set; }
+
+        [MaxLength(450)]
+        public string MentorId { get; set; }
+        [ForeignKey(nameof(MentorId))]
+        public Mentor Mentor { get; set; }
     }
 }

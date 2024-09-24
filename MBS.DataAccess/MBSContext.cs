@@ -1,17 +1,10 @@
 ﻿using MBS.Core.Common;
 using MBS.Core.Entities;
-using MBS.Core.Enums;
 using MBS.Shared.Services;
-using MBS.Shared.Services.Implements;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace MBS.DataAccess
 {
@@ -25,14 +18,26 @@ namespace MBS.DataAccess
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
-
+            //seed data by builder
+            MBSContextSeed.SeedPositionAsync(builder);
             base.OnModelCreating(builder);
         }
 
         public DbSet<Mentor> Mentors { get; set; }
-
         public DbSet<Student> Students { get; set; }
-
+        public DbSet<CalendarEvent> CalendarEvents { get; set; }
+        public DbSet<Degree> Degrees { get; set; }
+        public DbSet<Feedback> Feedbacks { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<Major> Majors { get; set; }
+        public DbSet<Meeting> Meetings { get; set; }
+        public DbSet<MeetingMember> MeetingMembers { get; set; }
+        public DbSet<MentorMajor> MentorMajors { get; set; }
+        public DbSet<Position> Positions { get; set; }
+        public DbSet<Progress> Progresses { get; set; }
+        public DbSet<Project> Projects { get; set; }
+        public DbSet<Request> Requests { get; set; }
+ 
         public new async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
         {
             foreach (var entry in ChangeTracker.Entries<IAuditedEntity>())
@@ -50,6 +55,6 @@ namespace MBS.DataAccess
 
             return await base.SaveChangesAsync(cancellationToken);
         }
-       
+
     }
 }

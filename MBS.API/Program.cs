@@ -29,8 +29,8 @@ namespace MBS.API
             // Register application swagger gen
             builder.Services.AddAppSwaggerGen();
 
-
             var app = builder.Build();
+          
             //seed data by automated migration
             using var scope = app.Services.CreateScope();
             AutomatedMigration.MigrateAsync(scope.ServiceProvider).GetAwaiter().GetResult();
