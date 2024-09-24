@@ -2,6 +2,7 @@
 using MBS.Application.Models.General;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,9 +52,9 @@ public class UserController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
-    [Authorize]
     [HttpGet]
     [Route("test-auth-student")]
+    [Authorize(Roles = nameof(UserRoleEnum.Student))]
     public async Task<IActionResult> TestAuthStudent()
     {
         return Ok("Hello");
@@ -62,9 +63,9 @@ public class UserController : ControllerBase
 
     [HttpGet]
     [Route("test-auth-mentor")]
+    [Authorize(Roles = nameof(UserRoleEnum.Admin))]
     public async Task<IActionResult> TestAuthMentor()
     {
-        var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
-        return Ok(userId);
+        return Ok("Hello");
     }
 }

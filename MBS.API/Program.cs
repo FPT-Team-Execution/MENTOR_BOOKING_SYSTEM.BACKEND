@@ -13,23 +13,22 @@ namespace MBS.API
 
             // Add services to the container.
             builder.Services.AddControllers();
-            
+
+            // Register data config
+            builder.Services.AddDataAccess(builder.Configuration);
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
 
             // Register application authentication
             builder.Services.AddAppAuthentication(builder.Configuration);
-            
-            builder.Services.AddAuthorization();
-            
+
             // Register application services
             builder.Services.AddApplication();
 
             // Register application swagger gen
             builder.Services.AddAppSwaggerGen();
 
-            // Register data config
-            builder.Services.AddDataAccess(builder.Configuration);
 
             var app = builder.Build();
             //seed data by automated migration
