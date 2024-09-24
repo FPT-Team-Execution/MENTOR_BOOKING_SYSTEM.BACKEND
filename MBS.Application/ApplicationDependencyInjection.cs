@@ -2,6 +2,8 @@
 using MBS.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using MBS.Application.Services.Interfaces;
+using MBS.Application.Services.Implements;
 
 
 namespace MBS.Application
@@ -18,6 +20,7 @@ namespace MBS.Application
         public static void AddServices(this IServiceCollection services)
         {
             services.AddScoped<IClaimService, ClaimService>();
+            services.AddScoped<IUserService, UserService>();
             // services.AddScoped<IWeatherForecastService, WeatherForecastService>();
             // services.AddScoped<ITodoListService, TodoListService>();
             // services.AddScoped<ITodoItemService, TodoItemService>();

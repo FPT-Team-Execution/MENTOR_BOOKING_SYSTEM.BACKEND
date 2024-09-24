@@ -1,4 +1,8 @@
-﻿namespace MBS.API.ApiDependencyInjections
+﻿using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
+namespace MBS.API.ApiDependencyInjections
 {
     public static class AuthenticationDependencyInjection
     {
@@ -23,6 +27,8 @@
                 };
             });
 
+            services.AddAuthorization();
+            
             return services;
         }
     }
