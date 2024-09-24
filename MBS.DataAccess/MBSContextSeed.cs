@@ -44,7 +44,7 @@ namespace MBS.DataAccess
                 var result = await userManager.CreateAsync(adminUser, "123456aA@");
                 //await context.SaveChangesAsync();
                 //assign role to admin user
-                var role = UserEnum.Admin.ToString();
+                var role = UserRoleEnum.Admin.ToString();
                 await userManager.AddToRoleAsync(adminUser, role);
             }
 
@@ -60,23 +60,23 @@ namespace MBS.DataAccess
                         new IdentityRole
                         {
                             Id = "67c005ba-ad72-4c3e-8a96-deb253d8bb12",
-                            ConcurrencyStamp = UserEnum.Admin.ToString(),
-                            Name = UserEnum.Admin.ToString(),
-                            NormalizedName = UserEnum.Admin.ToString(),
+                            ConcurrencyStamp = UserRoleEnum.Admin.ToString(),
+                            Name = UserRoleEnum.Admin.ToString(),
+                            NormalizedName = UserRoleEnum.Admin.ToString(),
                         },
                         new IdentityRole
                         {
                             Id = "06b905a4-d0e8-4b19-b0e0-09208504bdbb",
-                            ConcurrencyStamp = UserEnum.Student.ToString(),
-                            Name = UserEnum.Student.ToString(),
-                            NormalizedName = UserEnum.Student.ToString(),
+                            ConcurrencyStamp = UserRoleEnum.Student.ToString(),
+                            Name = UserRoleEnum.Student.ToString(),
+                            NormalizedName = UserRoleEnum.Student.ToString(),
                         },
                         new IdentityRole
                         {
                             Id = "8d2e6f28-0a37-42d7-8452-a560fe694ac7",
-                            ConcurrencyStamp = UserEnum.Mentor.ToString(),
-                            Name = UserEnum.Mentor.ToString(),
-                            NormalizedName = UserEnum.Mentor.ToString(),
+                            ConcurrencyStamp = UserRoleEnum.Mentor.ToString(),
+                            Name = UserRoleEnum.Mentor.ToString(),
+                            NormalizedName = UserRoleEnum.Mentor.ToString(),
                         },
                     };
 
