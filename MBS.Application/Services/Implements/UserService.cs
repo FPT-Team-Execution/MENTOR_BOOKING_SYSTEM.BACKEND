@@ -80,6 +80,7 @@ public class UserService : IUserService
             {
                 UserId = newUser.Id,
                 University = request.University,
+                MajorId = request.MajorId,
                 WalletPoint = 0
             };
 
