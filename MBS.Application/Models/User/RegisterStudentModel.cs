@@ -13,18 +13,15 @@ namespace MBS.Application.Models.User
         [DataType(DataType.EmailAddress)]
         public required string Email { get; set; }
 
-        [Required]
-        public required string Password { get; set; }
+        [Required] public required string Password { get; set; }
 
-        [MaxLength(100)]
-        [Required]
-        public required string FullName { get; set; }
+        [MaxLength(100)] [Required] public required string FullName { get; set; }
 
         public string? AvatarUrl { get; set; }
 
-        [MaxLength(10)]
-        [Required]
-        public required string Gender { get; set; }
+        [MaxLength(10)] [Required] public required string Gender { get; set; }
+
+        public required Guid MajorId { get; set; }
 
         public string? University { get; set; }
     }
