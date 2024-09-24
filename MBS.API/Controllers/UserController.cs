@@ -1,4 +1,5 @@
-﻿using MBS.Application.Models.General;
+﻿using System.Security.Claims;
+using MBS.Application.Models.General;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -48,5 +49,22 @@ public class UserController : ControllerBase
     {
         var response = await _userService.SignIn(request);
         return StatusCode(response.StatusCode, response);
+    }
+
+    [Authorize]
+    [HttpGet]
+    [Route("test-auth-student")]
+    public async Task<IActionResult> TestAuthStudent()
+    {
+        return Ok("Hello");
+    }
+
+
+    [HttpGet]
+    [Route("test-auth-mentor")]
+    public async Task<IActionResult> TestAuthMentor()
+    {
+        var userId = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
+        return Ok(userId);
     }
 }

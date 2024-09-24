@@ -22,7 +22,6 @@
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!))
                 };
             });
-
             return services;
         }
     }
