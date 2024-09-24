@@ -10,4 +10,9 @@
     <ProjectReference Include="..\MBS.DataAccess\MBS.DataAccess.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.7.1.1" />
+    <PackageReference Include="MimeKit" Version="4.7.1" />
+  </ItemGroup>
+
 </Project>

@@ -52,6 +52,17 @@ public class UserController : ControllerBase
         return StatusCode(response.StatusCode, response);
     }
 
+    [AllowAnonymous]
+    [HttpPut]
+    [Route("confirm-email")]
+    public async Task<ActionResult<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>>> ConfirmEmail(
+        ConfirmEmailRequestModel request)
+    {
+        var response = await _userService.ConfirmEmailAsync(request);
+        return StatusCode(response.StatusCode, response);
+    }
+
+
     [HttpGet]
     [Route("test-auth-student")]
     [Authorize(Roles = nameof(UserRoleEnum.Student))]

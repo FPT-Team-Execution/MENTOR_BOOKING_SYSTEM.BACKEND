@@ -49,11 +49,38 @@ public static class MessageResponseHelper
         stringBuilder.Append("Email was not confirmed.");
         return stringBuilder.ToString();
     }
-    
+
     public static string UserLocked()
     {
         var stringBuilder = new StringBuilder();
         stringBuilder.Append("User have been locked.");
+        return stringBuilder.ToString();
+    }
+
+    public static string UserNotFound(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("User with email ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" was not found.");
+        return stringBuilder.ToString();
+    }
+
+    public static string ConfirmEmailSucceeded(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Confirm email for user ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" successfully.");
+        return stringBuilder.ToString();
+    }
+
+    public static string ConfirmEmailFailed(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Confirm email for user ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" failed.");
         return stringBuilder.ToString();
     }
 }

@@ -8,7 +8,7 @@ namespace MBS.Core.Enums
 {
     public enum StatusEnum
     {
-        Active,
-        Deactive
+        Activated,
+        Deactivated
     }
 }
