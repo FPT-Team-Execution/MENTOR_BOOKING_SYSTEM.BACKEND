@@ -8,8 +8,8 @@ namespace MBS.Core.Enums
 {
     public enum ProjectStatusEnum
     {
-        Active,
-        Deactive,
+        Activated,
+        Deactivated,
         Pending,
         Suspended,
         Closed

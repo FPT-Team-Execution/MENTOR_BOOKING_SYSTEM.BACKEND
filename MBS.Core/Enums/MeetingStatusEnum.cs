@@ -9,7 +9,7 @@ namespace MBS.Core.Enums
     public enum MeetingStatusEnum
     {
         New,
-        Done, 
+        Done,
         Delayed,
         Canceled
     }

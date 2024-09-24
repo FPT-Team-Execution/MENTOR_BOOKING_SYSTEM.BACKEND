@@ -8,8 +8,8 @@ namespace MBS.Core.Enums
 {
     public enum RequestStatusEnum
     {
-        Accept,
-        Reject,
+        Accepted,
+        Rejected,
         Pending
     }
 }
