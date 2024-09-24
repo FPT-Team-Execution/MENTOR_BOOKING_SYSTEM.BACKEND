@@ -1,8 +1,10 @@
-﻿using MBS.Application.Exceptions;
+﻿using MBS.Application.Common.Email;
+using MBS.Application.Exceptions;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
+using MBS.Application.Templates;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
@@ -17,6 +19,8 @@ public class UserService : IUserService
 {
     private readonly IStudentRepository _studentRepository;
     private readonly IMentorRepository _mentorRepository;
+    private readonly IEmailService _emailService;
+    private readonly ITemplateService _templateService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
@@ -25,13 +29,16 @@ public class UserService : IUserService
     (
         IStudentRepository studentRepository,
         RoleManager<IdentityRole> roleManager,
-        UserManager<ApplicationUser> userManager, IMentorRepository mentorRepository, IConfiguration configuration)
+        UserManager<ApplicationUser> userManager, IMentorRepository mentorRepository, IConfiguration configuration,
+        IEmailService emailService, ITemplateService templateService)
     {
         _studentRepository = studentRepository;
         _roleManager = roleManager;
         _userManager = userManager;
         _mentorRepository = mentorRepository;
         _configuration = configuration;
+        _emailService = emailService;
+        _templateService = templateService;
     }
 
     public async Task<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>> SignUpStudentAsync(
@@ -90,6 +97,8 @@ public class UserService : IUserService
             {
                 throw new DatabaseInsertException("student");
             }
+
+            await SendVerifyEmail(newUser);
 
             return new BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>()
             {
@@ -168,6 +177,8 @@ public class UserService : IUserService
             {
                 throw new DatabaseInsertException("mentor");
             }
+
+            await SendVerifyEmail(newUser);
 
             return new BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>()
             {
@@ -271,5 +282,17 @@ public class UserService : IUserService
                 RequestModel = request
             };
         }
+    }
+
+    private async Task SendVerifyEmail(ApplicationUser user)
+    {
+        var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+        var emailTemplate = await _templateService.GetTemplateAsync(TemplateConstants.ConfirmationEmail);
+
+        var emailBody = _templateService.ReplaceInTemplate(emailTemplate,
+            new Dictionary<string, string> { { "{Email}", user.Email! }, { "{Token}", token } });
+
+        await _emailService.SendEmailAsync(EmailMessage.Create(user.Email!, emailBody, "[MBS]Confirm your email"));
     }
 }

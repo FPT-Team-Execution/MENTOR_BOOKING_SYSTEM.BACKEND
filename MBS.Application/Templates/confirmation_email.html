@@ -41,15 +41,6 @@
             line-height: 1.6;
         }
 
-        .button {
-            display: inline-block;
-            padding: 12px 20px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-        }
-
         .footer {
             text-align: center;
             padding: 20px;
@@ -68,15 +59,13 @@
 
     <!-- Email Content -->
     <div class="content">
-        <p>Hi {FullName},</p>
-        <p>Thank you for [action, e.g., "registering with us" or "your purchase"].</p>
-        <p>Here are your confirmation details:</p>
+        <p>Hi {Email},</p>
+        <p>Thank you for registering with us.</p>
 
-        <p>If you have any questions, feel free to reach out to our support team.</p>
-        <p>To review your order or account, click the button below:</p>
+        <p>Here is your token:</p>
 
         <p style="text-align: center;">
-            <a href="{ConfirmationLink}" class="button">Verify</a>
+            {Token}
         </p>
 
         <p>Best regards,<br>MBS</p>

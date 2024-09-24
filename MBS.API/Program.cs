@@ -29,6 +29,9 @@ namespace MBS.API
             // Register application swagger gen
             builder.Services.AddAppSwaggerGen();
 
+            // Register application smtp setting
+            builder.Services.AddEmailConfiguration(builder.Configuration);
+
             var app = builder.Build();
           
             //seed data by automated migration

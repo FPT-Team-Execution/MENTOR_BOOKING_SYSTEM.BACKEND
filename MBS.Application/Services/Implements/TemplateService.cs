@@ -24,10 +24,12 @@ public class TemplateService : ITemplateService
 
     public string ReplaceInTemplate(string input, IDictionary<string, string> replaceWords)
     {
-        var response = string.Empty;
+        var response = input;
 
         foreach (var temp in replaceWords)
-            response = input.Replace(temp.Key, temp.Value);
+        {
+            response = response.Replace(temp.Key, temp.Value);
+        }
 
         return response;
     }
