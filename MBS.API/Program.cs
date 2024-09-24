@@ -21,7 +21,6 @@ namespace MBS.API
             // Register app swaggergen
             builder.AddSwaggerGen();
 
-
             builder.Services
                             // Register app authentication
                             .AddAppAuthentication(builder.Configuration)
