@@ -284,6 +284,68 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>> ConfirmEmailAsync(
+        ConfirmEmailRequestModel request)
+    {
+        try
+        {
+            var user = await _userManager.FindByEmailAsync(request.Email);
+
+            if (user is null)
+            {
+                return new BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(request.Email),
+                    StatusCode = StatusCodes.Status404NotFound,
+                    IsSuccess = false,
+                    RequestModel = request
+                };
+            }
+
+            var confirmResult = await _userManager.ConfirmEmailAsync(user, request.Token);
+
+            if (!confirmResult.Succeeded)
+            {
+                return new BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>()
+                {
+                    Message = MessageResponseHelper.ConfirmEmailFailed(request.Email),
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    IsSuccess = false,
+                    ResponseModel = new ConfirmEmailResponseModel()
+                    {
+                        Confirmed = false
+                    },
+                    RequestModel = request
+                };
+            }
+
+            return new BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>()
+            {
+                Message = MessageResponseHelper.ConfirmEmailSucceeded(request.Email),
+                IsSuccess = true,
+                ResponseModel = new ConfirmEmailResponseModel()
+                {
+                    Confirmed = true
+                },
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>()
+            {
+                Message = e.Message,
+                StatusCode = StatusCodes.Status500InternalServerError,
+                IsSuccess = false,
+                RequestModel = request,
+                ResponseModel = new ConfirmEmailResponseModel()
+                {
+                    Confirmed = false
+                }
+            };
+        }
+    }
+
     private async Task SendVerifyEmail(ApplicationUser user)
     {
         var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);

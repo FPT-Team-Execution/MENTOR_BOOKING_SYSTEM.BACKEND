@@ -12,5 +12,7 @@ public interface IUserService
         RegisterMentorRequestModel request);
 
     Task<BaseModel<SignInResponseModel, SignInRequestModel>> SignIn(SignInRequestModel request);
-    
+
+    Task<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>> ConfirmEmailAsync(
+        ConfirmEmailRequestModel request);
 }
