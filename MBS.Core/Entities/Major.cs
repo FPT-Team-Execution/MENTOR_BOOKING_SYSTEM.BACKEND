@@ -1,25 +1,28 @@
 ﻿using MBS.Core.Common;
-using Microsoft.AspNetCore.Identity;
+using MBS.Core.Enums;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace MBS.Core.Entities
 {
-    public class ApplicationUser : IdentityUser, IAuditedEntity
+    public class Major : BaseEntity, IAuditedEntity
     {
-        [MaxLength(100)]
-        public string FullName { get; set; } = default;
-        public string? AvatarUrl { get; set; } = default;
-        [MaxLength(10)]
-        public string Gender { get; set; } = default;
-        public DateTime? Birthday { get; set; }
+        [MaxLength(225), Required]
+        public string Name { get; set; }
+      
+        public Guid ParentId { get; set; }
+        [ForeignKey(nameof(ParentId))]
+        public Major ParentMajor { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public string UpdatedBy { get; set; }
         public DateTime? UpdatedOn { get; set; }
+        [MaxLength(20), Required]
+        public StatusEnum Status { get; set; }
     }
 }

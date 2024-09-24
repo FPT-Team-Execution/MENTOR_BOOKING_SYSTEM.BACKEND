@@ -1,6 +1,7 @@
 ﻿using MBS.Core.Entities;
 using MBS.Core.Enums;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -83,10 +84,35 @@ namespace MBS.DataAccess
                 {
                     await roleManager.CreateAsync(roles[i]);
                 }
-              
+
             }
 
             await context.SaveChangesAsync();
+        }
+
+        public static async Task SeedPositionAsync(ModelBuilder modelBuilder)
+        {
+            List<Position> defaultPosition = [
+                new Position {
+                    Id = Guid.Parse("f6964510-6671-43ed-b0dc-bdb413c56fd5"),
+                    Name = PositionNameEnum.Leader.ToString(),
+                    Description = PositionNameEnum.Leader.ToString(),
+                    Status = StatusEnum.Active
+                },
+                new Position {
+                    Id = Guid.Parse("d90a1dba-cc6c-466c-96e5-8eaf98809d8d"),
+                    Name = PositionNameEnum.Member.ToString(),
+                    Description = PositionNameEnum.Member.ToString(),
+                    Status = StatusEnum.Active
+                },
+                new Position {
+                    Id = Guid.Parse("ce90cd84-42f4-461e-8c92-1a1854dc52ac"),
+                    Name = PositionNameEnum.Read.ToString(),
+                    Description = PositionNameEnum.Read.ToString(),
+                    Status = StatusEnum.Active
+                }
+                ];
+            modelBuilder.Entity<Position>().HasData(defaultPosition);
         }
     }
 }
