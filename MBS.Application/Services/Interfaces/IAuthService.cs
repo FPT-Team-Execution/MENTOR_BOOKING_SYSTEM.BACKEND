@@ -4,7 +4,7 @@ using MBS.Application.Models.User;
 
 namespace MBS.Application.Services.Interfaces;
 
-public interface IUserService
+public interface IAuthService
 {
     Task<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>> SignUpStudentAsync(
         RegisterStudentRequestModel request);
@@ -20,8 +20,5 @@ public interface IUserService
     Task<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>> ConfirmEmailAsync(
         ConfirmEmailRequestModel request);
 
-    Task<BaseModel<GetStudentOwnProfileResponseModel>> GetStudentOwnProfile(
-        ClaimsPrincipal claimsPrincipal);
-
-    Task<BaseModel<GetMentorOwnProfileResponseModel>> GetMentorOwnProfile(ClaimsPrincipal claimsPrincipal);
+   
 }

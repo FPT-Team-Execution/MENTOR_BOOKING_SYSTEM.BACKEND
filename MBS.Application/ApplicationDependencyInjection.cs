@@ -22,13 +22,13 @@ namespace MBS.Application
         public static void AddServices(this IServiceCollection services)
         {
             services.AddScoped<IClaimService, ClaimService>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ITemplateService, TemplateService>();
             // services.AddScoped<IWeatherForecastService, WeatherForecastService>();
             // services.AddScoped<ITodoListService, TodoListService>();
             // services.AddScoped<ITodoItemService, TodoItemService>();
-            // services.AddScoped<IUserService, UserService>();
+            // services.AddScoped<IAuthService, AuthService>();
             // services.AddScoped<IClaimService, ClaimService>();
             // services.AddScoped<ITemplateService, TemplateService>();
 

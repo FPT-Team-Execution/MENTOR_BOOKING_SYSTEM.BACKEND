@@ -10,13 +10,13 @@ namespace MBS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController : ControllerBase
+public class AuthController : ControllerBase
 {
-    private readonly IUserService _userService;
+    private readonly IAuthService _authService;
 
-    public UserController(IUserService userService)
+    public AuthController(IAuthService authService)
     {
-        _userService = userService;
+        _authService = authService;
     }
 
 
@@ -27,7 +27,7 @@ public class UserController : ControllerBase
         SignUpStudent(
             [FromBody] RegisterStudentRequestModel request)
     {
-        var response = await _userService.SignUpStudentAsync(request);
+        var response = await _authService.SignUpStudentAsync(request);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -38,7 +38,7 @@ public class UserController : ControllerBase
         SignUpStudent(
             [FromBody] RegisterMentorRequestModel request)
     {
-        var response = await _userService.SignUpMentorAsync(request);
+        var response = await _authService.SignUpMentorAsync(request);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -48,7 +48,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<BaseModel<SignInResponseModel, SignInRequestModel>>> SignIn(
         SignInRequestModel request)
     {
-        var response = await _userService.SignIn(request);
+        var response = await _authService.SignIn(request);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -58,7 +58,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>>> Refresh(
         GetRefreshTokenRequestModel request)
     {
-        var response = await _userService.Refresh(request);
+        var response = await _authService.Refresh(request);
         return StatusCode(response.StatusCode, response);
     }
 
@@ -68,25 +68,7 @@ public class UserController : ControllerBase
     public async Task<ActionResult<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>>> ConfirmEmail(
         ConfirmEmailRequestModel request)
     {
-        var response = await _userService.ConfirmEmailAsync(request);
+        var response = await _authService.ConfirmEmailAsync(request);
         return StatusCode(response.StatusCode, response);
-    }
-
-
-    [HttpGet]
-    [Route("test-auth-student")]
-    [Authorize(Roles = nameof(UserRoleEnum.Student))]
-    public async Task<IActionResult> TestAuthStudent()
-    {
-        return Ok("Hello");
-    }
-
-
-    [HttpGet]
-    [Route("test-auth-mentor")]
-    [Authorize(Roles = nameof(UserRoleEnum.Admin))]
-    public async Task<IActionResult> TestAuthMentor()
-    {
-        return Ok("Hello");
     }
 }

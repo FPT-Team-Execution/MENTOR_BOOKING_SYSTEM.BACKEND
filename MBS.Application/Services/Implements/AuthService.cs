@@ -15,7 +15,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace MBS.Application.Services.Implements;
 
-public class UserService : IUserService
+public class AuthService : IAuthService
 {
     private readonly IStudentRepository _studentRepository;
     private readonly IMentorRepository _mentorRepository;
@@ -25,7 +25,7 @@ public class UserService : IUserService
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
 
-    public UserService
+    public AuthService
     (
         IStudentRepository studentRepository,
         RoleManager<IdentityRole> roleManager,
@@ -418,69 +418,6 @@ public class UserService : IUserService
                 }
             };
         }
-    }
-
-    public async Task<BaseModel<GetStudentOwnProfileResponseModel>> GetStudentOwnProfile(
-        ClaimsPrincipal claimsPrincipal)
-    {
-        try
-        {
-            var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
-
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                return new BaseModel<GetStudentOwnProfileResponseModel>()
-                {
-                    Message = MessageResponseHelper.UserNotFound(),
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status404NotFound,
-                };
-            }
-
-            var student = await _studentRepository.GetAsync(x => x.UserId == userId);
-
-            if (student is null)
-            {
-                return new BaseModel<GetStudentOwnProfileResponseModel>()
-                {
-                    Message = MessageResponseHelper.UserNotFound(),
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status404NotFound,
-                };
-            }
-
-            return new BaseModel<GetStudentOwnProfileResponseModel>()
-            {
-                Message = MessageResponseHelper.Login(),
-                IsSuccess = true,
-                StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new GetStudentOwnProfileResponseModel()
-                {
-                    Gender = user.Gender,
-                    FullName = user.FullName,
-                    Birthday = user.Birthday,
-                    AvatarUrl = user.AvatarUrl,
-                    University = student.University,
-                    WalletPoint = student.WalletPoint
-                }
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseModel<GetStudentOwnProfileResponseModel>()
-            {
-                Message = e.Message,
-                StatusCode = StatusCodes.Status500InternalServerError,
-                IsSuccess = false,
-            };
-        }
-    }
-
-    public Task<BaseModel<GetMentorOwnProfileResponseModel>> GetMentorOwnProfile(ClaimsPrincipal claimsPrincipal)
-    {
-        throw new NotImplementedException();
     }
 
     private async Task SendVerifyEmail(ApplicationUser user)
