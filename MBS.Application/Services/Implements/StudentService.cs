@@ -21,7 +21,7 @@ public class StudentService : IStudentService
         _studentRepository = studentRepository;
     }
 
-    public async Task<BaseModel<GetStudentOwnProfileResponseModel>> GetStudentOwnProfile(
+    public async Task<BaseModel<GetStudentOwnProfileResponseModel>> GetOwnProfile(
         ClaimsPrincipal claimsPrincipal)
     {
         try
@@ -54,7 +54,7 @@ public class StudentService : IStudentService
 
             return new BaseModel<GetStudentOwnProfileResponseModel>()
             {
-                Message = MessageResponseHelper.Login(),
+                Message = MessageResponseHelper.GetSuccessfully("student profile"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = new GetStudentOwnProfileResponseModel()

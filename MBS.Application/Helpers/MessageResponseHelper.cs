@@ -97,4 +97,13 @@ public static class MessageResponseHelper
         stringBuilder.Append("Refresh token successfully.");
         return stringBuilder.ToString();
     }
+
+    public static string GetSuccessfully(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Get ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" successfully.");
+        return stringBuilder.ToString();
+    }
 }

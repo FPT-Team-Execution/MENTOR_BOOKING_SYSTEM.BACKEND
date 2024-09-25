@@ -12,12 +12,12 @@ namespace MBS.API.Controllers
         }
 
         [HttpGet]
-        [Route("student/profile")]
+        [Route("profile")]
         [Authorize(Roles = nameof(UserRoleEnum.Student))]
         public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel>>>
-            GetStudentOwnProfile()
+            GetOwnProfile()
         {
-            var response = await _studentService.GetStudentOwnProfile(User);
+            var response = await _studentService.GetOwnProfile(User);
             return StatusCode(response.StatusCode, response);
         }
     }

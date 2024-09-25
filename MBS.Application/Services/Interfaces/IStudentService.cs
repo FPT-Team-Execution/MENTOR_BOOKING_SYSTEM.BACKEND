@@ -6,6 +6,6 @@ namespace MBS.Application.Services.Interfaces;
 
 public interface IStudentService
 {
-    Task<BaseModel<GetStudentOwnProfileResponseModel>> GetStudentOwnProfile(
+    Task<BaseModel<GetStudentOwnProfileResponseModel>> GetOwnProfile(
         ClaimsPrincipal claimsPrincipal);
 }
