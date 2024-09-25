@@ -24,7 +24,7 @@ namespace MBS.API
             builder.Services.AddAppAuthentication(builder.Configuration);
 
             // Register application services
-            builder.Services.AddApplication();
+            builder.Services.AddServices();
 
             // Register application swagger gen
             builder.Services.AddAppSwaggerGen();
@@ -33,7 +33,7 @@ namespace MBS.API
             builder.Services.AddEmailConfiguration(builder.Configuration);
 
             var app = builder.Build();
-          
+
             //seed data by automated migration
             using var scope = app.Services.CreateScope();
             AutomatedMigration.MigrateAsync(scope.ServiceProvider).GetAwaiter().GetResult();

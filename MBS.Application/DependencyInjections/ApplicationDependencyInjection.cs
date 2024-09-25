@@ -11,14 +11,7 @@ namespace MBS.Application
 {
     public static class ApplicationDependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
-        {
-            services.AddServices();
-            //services.RegisterAutoMapper();
-
-            return services;
-        }
-
+        
         public static void AddServices(this IServiceCollection services)
         {
             services.AddScoped<IClaimService, ClaimService>();

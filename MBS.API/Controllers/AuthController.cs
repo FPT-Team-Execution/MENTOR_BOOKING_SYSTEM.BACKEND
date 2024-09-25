@@ -1,12 +1,4 @@
-﻿using System.Security.Claims;
-using MBS.Application.Models.General;
-using MBS.Application.Models.User;
-using MBS.Application.Services.Interfaces;
-using MBS.Core.Enums;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace MBS.API.Controllers;
+﻿namespace MBS.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
