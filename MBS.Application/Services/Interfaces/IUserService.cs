@@ -22,4 +22,6 @@ public interface IUserService
 
     Task<BaseModel<GetStudentOwnProfileResponseModel>> GetStudentOwnProfile(
         ClaimsPrincipal claimsPrincipal);
+
+    Task<BaseModel<GetMentorOwnProfileResponseModel>> GetMentorOwnProfile(ClaimsPrincipal claimsPrincipal);
 }

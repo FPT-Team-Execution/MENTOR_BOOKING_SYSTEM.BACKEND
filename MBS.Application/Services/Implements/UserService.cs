@@ -234,6 +234,7 @@ public class UserService : IUserService
 
             if (!user.EmailConfirmed)
             {
+                await SendVerifyEmail(user);
                 return new BaseModel<SignInResponseModel, SignInRequestModel>()
                 {
                     Message = MessageResponseHelper.EmailNotConfirmed(),
@@ -419,7 +420,65 @@ public class UserService : IUserService
         }
     }
 
-    public Task<BaseModel<GetStudentOwnProfileResponseModel>> GetStudentOwnProfile(ClaimsPrincipal claimsPrincipal)
+    public async Task<BaseModel<GetStudentOwnProfileResponseModel>> GetStudentOwnProfile(
+        ClaimsPrincipal claimsPrincipal)
+    {
+        try
+        {
+            var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                return new BaseModel<GetStudentOwnProfileResponseModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+
+            var student = await _studentRepository.GetAsync(x => x.UserId == userId);
+
+            if (student is null)
+            {
+                return new BaseModel<GetStudentOwnProfileResponseModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+
+            return new BaseModel<GetStudentOwnProfileResponseModel>()
+            {
+                Message = MessageResponseHelper.Login(),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = new GetStudentOwnProfileResponseModel()
+                {
+                    Gender = user.Gender,
+                    FullName = user.FullName,
+                    Birthday = user.Birthday,
+                    AvatarUrl = user.AvatarUrl,
+                    University = student.University,
+                    WalletPoint = student.WalletPoint
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetStudentOwnProfileResponseModel>()
+            {
+                Message = e.Message,
+                StatusCode = StatusCodes.Status500InternalServerError,
+                IsSuccess = false,
+            };
+        }
+    }
+
+    public Task<BaseModel<GetMentorOwnProfileResponseModel>> GetMentorOwnProfile(ClaimsPrincipal claimsPrincipal)
     {
         throw new NotImplementedException();
     }
