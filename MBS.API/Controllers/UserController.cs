@@ -53,6 +53,16 @@ public class UserController : ControllerBase
     }
 
     [AllowAnonymous]
+    [HttpPost]
+    [Route("refresh")]
+    public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>>> Refresh(
+        GetRefreshTokenRequestModel request)
+    {
+        var response = await _userService.Refresh(request);
+        return StatusCode(response.StatusCode, response);
+    }
+
+    [AllowAnonymous]
     [HttpPut]
     [Route("confirm-email")]
     public async Task<ActionResult<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>>> ConfirmEmail(

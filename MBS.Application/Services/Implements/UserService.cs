@@ -1,4 +1,5 @@
-﻿using MBS.Application.Common.Email;
+﻿using System.Security.Claims;
+using MBS.Application.Common.Email;
 using MBS.Application.Exceptions;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
@@ -10,7 +11,6 @@ using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
 namespace MBS.Application.Services.Implements;
@@ -284,6 +284,79 @@ public class UserService : IUserService
         }
     }
 
+    public async Task<BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>> Refresh(
+        GetRefreshTokenRequestModel request)
+    {
+        try
+        {
+            ClaimsPrincipal? claimsPrincipal = JwtHelper.GetPrincipalFromJwtToken(request.RefreshToken, _configuration);
+
+            if (claimsPrincipal is null)
+            {
+                return new BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>()
+                {
+                    Message = MessageResponseHelper.TokenInvalid(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    RequestModel = request
+                };
+            }
+
+            var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return new BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>()
+                {
+                    Message = MessageResponseHelper.TokenInvalid(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    RequestModel = request
+                };
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                return new BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    RequestModel = request
+                };
+            }
+
+            var jwtModel = new JwtModel()
+            {
+                AccessToken = JwtHelper.GenerateJwtAccessTokenAsync(user, _userManager, _configuration),
+                RefreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(user, _configuration)
+            };
+
+            return new BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>()
+            {
+                Message = MessageResponseHelper.RefreshTokenSuccessfully(),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseModel = new GetRefreshTokenResponseModel()
+                {
+                    NewJwtToken = jwtModel
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>()
+            {
+                Message = e.Message,
+                StatusCode = StatusCodes.Status500InternalServerError,
+                IsSuccess = false,
+                RequestModel = request
+            };
+        }
+    }
+
     public async Task<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>> ConfirmEmailAsync(
         ConfirmEmailRequestModel request)
     {
@@ -344,6 +417,11 @@ public class UserService : IUserService
                 }
             };
         }
+    }
+
+    public Task<BaseModel<GetStudentOwnProfileResponseModel>> GetStudentOwnProfile(ClaimsPrincipal claimsPrincipal)
+    {
+        throw new NotImplementedException();
     }
 
     private async Task SendVerifyEmail(ApplicationUser user)

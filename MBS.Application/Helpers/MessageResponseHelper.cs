@@ -83,4 +83,18 @@ public static class MessageResponseHelper
         stringBuilder.Append(" failed.");
         return stringBuilder.ToString();
     }
+
+    public static string TokenInvalid()
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Token was invalid.");
+        return stringBuilder.ToString();
+    }
+
+    public static string RefreshTokenSuccessfully()
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Refresh token successfully.");
+        return stringBuilder.ToString();
+    }
 }
