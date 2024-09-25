@@ -9,26 +9,20 @@ using MBS.Application.Services.Implements;
 
 namespace MBS.Application
 {
-    public static class ApplicationDependencyInjection
+    public static class ServiceDependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
-        {
-            services.AddServices();
-            //services.RegisterAutoMapper();
-
-            return services;
-        }
-
         public static void AddServices(this IServiceCollection services)
         {
             services.AddScoped<IClaimService, ClaimService>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<IMentorService, MentorService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ITemplateService, TemplateService>();
             // services.AddScoped<IWeatherForecastService, WeatherForecastService>();
             // services.AddScoped<ITodoListService, TodoListService>();
             // services.AddScoped<ITodoItemService, TodoItemService>();
-            // services.AddScoped<IUserService, UserService>();
+            // services.AddScoped<IAuthService, AuthService>();
             // services.AddScoped<IClaimService, ClaimService>();
             // services.AddScoped<ITemplateService, TemplateService>();
 

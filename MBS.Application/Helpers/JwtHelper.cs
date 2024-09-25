@@ -10,7 +10,8 @@ namespace MBS.Application.Helpers;
 
 public static class JwtHelper
 {
-    public static string GenerateJwtAccessTokenAsync(ApplicationUser user, UserManager<ApplicationUser> userManager, IConfiguration configuration)
+    public static string GenerateJwtAccessTokenAsync(ApplicationUser user, UserManager<ApplicationUser> userManager,
+        IConfiguration configuration)
     {
         var userRoles = userManager.GetRolesAsync(user).GetAwaiter().GetResult();
 
@@ -64,5 +65,31 @@ public static class JwtHelper
         var refreshToken = new JwtSecurityTokenHandler().WriteToken(tokenObject);
 
         return refreshToken;
+    }
+
+    public static ClaimsPrincipal? GetPrincipalFromJwtToken(string token, IConfiguration configuration)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var key = Encoding.UTF8.GetBytes(configuration["JWT:Secret"]);
+
+        try
+        {
+            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = configuration["JWT:ValidIssuer"],
+                ValidAudience = configuration["JWT:ValidAudience"],
+                IssuerSigningKey = new SymmetricSecurityKey(key)
+            }, out SecurityToken validatedToken);
+            return principal;
+        }
+        catch
+        {
+            // Token validation failed
+            return null;
+        }
     }
 }
