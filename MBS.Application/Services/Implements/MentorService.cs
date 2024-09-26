@@ -105,8 +105,9 @@ public class MentorService : IMentorService
             var fileByte = await FileHelper.ConvertIFormFileToByteArrayAsync(request.File);
             var fileName = request.File.FileName;
             var filePath = $"Mentors/{userId}/Degrees/{fileName}";
-            var degreeUrl = await _supabaseService.UploadFile(fileByte, filePath, bucketName);
-            
+            var degreePath = await _supabaseService.UploadFile(fileByte, filePath, bucketName);
+            var degreeUrl = _supabaseService.RetrievePublicUrl(bucketName, degreePath);
+
             return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
             {
                 Message = degreeUrl,

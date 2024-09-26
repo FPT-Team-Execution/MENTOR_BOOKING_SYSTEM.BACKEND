@@ -35,4 +35,9 @@ public class SupabaseService : ISupabaseService
                 }
             );
     }
+
+    public string RetrievePublicUrl(string bucketName, string filePath)
+    {
+        return _supabaseClient.Storage.From(bucketName).GetPublicUrl(filePath);
+    }
 }
