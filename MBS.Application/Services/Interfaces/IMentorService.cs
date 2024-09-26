@@ -7,4 +7,5 @@ namespace MBS.Application.Services.Interfaces;
 public interface IMentorService
 {
     Task<BaseModel<GetMentorOwnProfileResponseModel>> GetOwnProfile(ClaimsPrincipal claimsPrincipal);
+    
 }
