@@ -14,20 +14,14 @@ public class SupabaseService : ISupabaseService
     private readonly ISupabaseClient<User, Session, RealtimeSocket, RealtimeChannel, Bucket, FileObject>
         _supabaseClient;
 
-    private readonly IFileService _fileService;
-
     public SupabaseService(
-        ISupabaseClient<User, Session, RealtimeSocket, RealtimeChannel, Bucket, FileObject> supabaseClient,
-        IFileService fileService)
+        ISupabaseClient<User, Session, RealtimeSocket, RealtimeChannel, Bucket, FileObject> supabaseClient)
     {
         _supabaseClient = supabaseClient;
-        _fileService = fileService;
     }
 
-    public async Task<string> UploadFile(IFormFile formFile, string filePath, string bucketName)
+    public async Task<string> UploadFile(byte[] fileByte, string filePath, string bucketName)
     {
-        var fileByte = await _fileService.ConvertIFormFileToByteArrayAsync(formFile);
-
         return await _supabaseClient.Storage.From(bucketName)
             .Upload
             (

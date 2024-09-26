@@ -27,8 +27,8 @@ namespace MBS.API.Controllers
         public async Task<ActionResult<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>>>
             UploadOwnDegree(UploadOwnDegreeRequestModel request)
         {
-            await Task.Delay(1000);
-            return Ok();
+            var response = await _mentorService.UploadOwnDegree(request, User);
+            return StatusCode(response.StatusCode, response);
         }
     }
 }

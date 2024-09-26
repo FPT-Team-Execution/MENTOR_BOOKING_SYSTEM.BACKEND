@@ -1,6 +1,8 @@
-﻿namespace MBS.Shared.Services.Interfaces;
+﻿using Microsoft.AspNetCore.Http;
 
-public class ISupabaseService
+namespace MBS.Shared.Services.Interfaces;
+
+public interface ISupabaseService
 {
-
+    Task<string> UploadFile(byte[] fileByte, string filePath, string bucketName);
 }
