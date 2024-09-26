@@ -14,7 +14,7 @@ namespace MBS.API.Controllers
         [HttpGet]
         [Route("profile")]
         [Authorize(Roles = nameof(UserRoleEnum.Mentor))]
-        public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel>>>
+        public async Task<ActionResult<BaseModel<GetMentorOwnProfileResponseModel>>>
             GetOwnProfile()
         {
             var response = await _mentorService.GetOwnProfile(User);
