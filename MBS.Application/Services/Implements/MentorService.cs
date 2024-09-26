@@ -16,16 +16,18 @@ public class MentorService : IMentorService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMentorRepository _mentorRepository;
+    private readonly IDegreeRepository _degreeRepository;
     private readonly ISupabaseService _supabaseService;
     private readonly IConfiguration _configuration;
 
     public MentorService(UserManager<ApplicationUser> userManager, IMentorRepository mentorRepository,
-        ISupabaseService supabaseService, IConfiguration configuration)
+        ISupabaseService supabaseService, IConfiguration configuration, IDegreeRepository degreeRepository)
     {
         _userManager = userManager;
         _mentorRepository = mentorRepository;
         _supabaseService = supabaseService;
         _configuration = configuration;
+        _degreeRepository = degreeRepository;
     }
 
     public async Task<BaseModel<GetMentorOwnProfileResponseModel>> GetOwnProfile(ClaimsPrincipal claimsPrincipal)
@@ -105,16 +107,30 @@ public class MentorService : IMentorService
             var fileByte = await FileHelper.ConvertIFormFileToByteArrayAsync(request.File);
             var fileName = request.File.FileName;
             var filePath = $"Mentors/{userId}/Degrees/{fileName}";
-            var degreeUrl = await _supabaseService.UploadFile(fileByte, filePath, bucketName);
-            
+            await _supabaseService.UploadFile(fileByte, filePath, bucketName);
+            var degreeUrl = _supabaseService.RetrievePublicUrl(bucketName, filePath);
+
+            var degree = new Degree()
+            {
+                Id = Guid.NewGuid(),
+                Insitution = request.Institution,
+                Name = request.Name,
+                MentorId = userId,
+                ImageUrl = degreeUrl
+            };
+
+            await _degreeRepository.AddAsync(degree);
+
             return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
             {
-                Message = degreeUrl,
+                Message = MessageResponseHelper.UploadSuccessfully("degree"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status201Created,
                 ResponseModel = new UploadOwnDegreeResponseModel()
                 {
-                    Completed = true
+                    DegreeId = degree.Id,
+                    DegreeName = degree.Name,
+                    DegreeUrl = degree.ImageUrl
                 }
             };
         }
