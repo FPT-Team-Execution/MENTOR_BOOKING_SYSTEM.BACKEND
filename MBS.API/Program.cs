@@ -1,5 +1,6 @@
 using MBS.API.ApiDependencyInjections;
 using MBS.Application;
+using MBS.Application.DependencyInjections;
 using MBS.DataAccess;
 using MBS.DataAccess.Persistents.Configurations;
 
@@ -22,6 +23,9 @@ namespace MBS.API
 
             // Register application authentication
             builder.Services.AddAppAuthentication(builder.Configuration);
+
+            // Register supabase
+            builder.Services.AddSupabase(builder.Configuration);
 
             // Register application services
             builder.Services.AddServices();
