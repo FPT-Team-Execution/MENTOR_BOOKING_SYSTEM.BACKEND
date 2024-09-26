@@ -123,7 +123,7 @@ public class MentorService : IMentorService
 
             return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
             {
-                Message = "Upload degree successfully",
+                Message = MessageResponseHelper.UploadSuccessfully("degree"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status201Created,
                 ResponseModel = new UploadOwnDegreeResponseModel()
