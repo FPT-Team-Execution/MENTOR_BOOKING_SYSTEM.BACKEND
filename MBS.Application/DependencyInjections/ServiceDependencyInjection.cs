@@ -1,10 +1,10 @@
-﻿using MBS.Application.Common.Email;
-using MBS.Shared.Services.Implements;
-using MBS.Shared.Services;
+﻿using MBS.Shared.Services.Implements;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MBS.Application.Services.Interfaces;
 using MBS.Application.Services.Implements;
+using MBS.Shared.Common.Email;
+using MBS.Shared.Services.Interfaces;
 
 
 namespace MBS.Application

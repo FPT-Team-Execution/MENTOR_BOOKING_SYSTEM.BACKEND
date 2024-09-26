@@ -20,5 +20,15 @@ namespace MBS.API.Controllers
             var response = await _mentorService.GetOwnProfile(User);
             return StatusCode(response.StatusCode, response);
         }
+
+        [HttpPost]
+        [Route("degree")]
+        [Authorize(Roles = nameof(UserRoleEnum.Mentor))]
+        public async Task<ActionResult<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>>>
+            UploadOwnDegree(UploadOwnDegreeRequestModel request)
+        {
+            await Task.Delay(1000);
+            return Ok();
+        }
     }
 }

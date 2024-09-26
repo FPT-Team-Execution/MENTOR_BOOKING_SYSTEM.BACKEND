@@ -87,4 +87,27 @@ public class MentorService : IMentorService
             };
         }
     }
+
+    public async Task<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>> UploadOwnDegree(
+        UploadOwnDegreeRequestModel request, ClaimsPrincipal claimsPrincipal)
+    {
+        try
+        {
+            return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
+            {
+                Message = "",
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
+            {
+                Message = "",
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
 }

@@ -1,4 +1,4 @@
-﻿namespace MBS.Application.Services.Interfaces;
+﻿namespace MBS.Shared.Services.Interfaces;
 
 public interface ITemplateService
 {

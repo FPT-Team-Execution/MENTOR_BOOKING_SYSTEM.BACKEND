@@ -1,6 +1,6 @@
-﻿using MBS.Application.Common.Email;
+﻿using MBS.Shared.Common.Email;
 
-namespace MBS.Application.Services.Interfaces;
+namespace MBS.Shared.Services.Interfaces;
 
 public interface IEmailService
 {

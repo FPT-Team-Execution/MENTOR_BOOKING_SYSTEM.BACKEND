@@ -18,3 +18,10 @@ public class BaseModel<TResponseRequestModel> where TResponseRequestModel : clas
     public int StatusCode { get; set; }
     public TResponseRequestModel? ResponseRequestModel { get; set; }
 };
+
+public class BaseModel
+{
+    public bool IsSuccess { get; set; }
+    public required string Message { get; set; }
+    public int StatusCode { get; set; }
+};

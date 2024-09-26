@@ -1,9 +1,9 @@
 ﻿using MailKit.Net.Smtp;
-using MBS.Application.Common.Email;
-using MBS.Application.Services.Interfaces;
+using MBS.Shared.Common.Email;
+using MBS.Shared.Services.Interfaces;
 using MimeKit;
 
-namespace MBS.Application.Services.Implements;
+namespace MBS.Shared.Services.Implements;
 
 public class EmailService : IEmailService
 {

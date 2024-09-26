@@ -1,14 +1,15 @@
 ﻿using System.Security.Claims;
-using MBS.Application.Common.Email;
 using MBS.Application.Exceptions;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
-using MBS.Application.Templates;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
+using MBS.Shared.Common.Email;
+using MBS.Shared.Services.Interfaces;
+using MBS.Shared.Templates;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;

@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
-using MBS.Application.Services.Interfaces;
+using MBS.Shared.Services.Interfaces;
 
-namespace MBS.Application.Services.Implements;
+namespace MBS.Shared.Services.Implements;
 
 public class TemplateService : ITemplateService
 {
@@ -9,7 +9,7 @@ public class TemplateService : ITemplateService
 
     public TemplateService()
     {
-        var projectPath = Directory.GetParent(Directory.GetCurrentDirectory()).FullName;
+        var projectPath = Directory.GetParent(Directory.GetCurrentDirectory())!.FullName;
         var templateProject = Assembly.GetExecutingAssembly().GetName().Name;
 
         _templatesPath = Path.Combine(projectPath, templateProject, "Templates");
