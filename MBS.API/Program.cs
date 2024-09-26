@@ -1,8 +1,10 @@
 using MBS.API.ApiDependencyInjections;
 using MBS.Application;
+using MBS.Application.Exceptions;
 using MBS.Application.DependencyInjections;
 using MBS.DataAccess;
 using MBS.DataAccess.Persistents.Configurations;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace MBS.API
 {
@@ -11,7 +13,11 @@ namespace MBS.API
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(name: "MyPolicy",
+                    policy => { policy.WithOrigins("*").AllowAnyHeader().AllowAnyMethod(); });
+            });
             // Add services to the container.
             builder.Services.AddControllers();
 
@@ -22,7 +28,7 @@ namespace MBS.API
             builder.Services.AddEndpointsApiExplorer();
 
             // Register application authentication
-            builder.Services.AddAppAuthentication(builder.Configuration);
+            builder.Services.AddAppAuthentication();
 
             // Register supabase
             builder.Services.AddSupabase(builder.Configuration);
@@ -35,7 +41,7 @@ namespace MBS.API
 
             // Register application smtp setting
             builder.Services.AddEmailConfiguration(builder.Configuration);
-
+            builder.Services.AddAuthorization();
             var app = builder.Build();
 
             //seed data by automated migration
@@ -48,9 +54,9 @@ namespace MBS.API
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseHttpsRedirection();
-
+            app.UseCors("MyPolicy");
             app.UseAuthentication();
 
             app.UseAuthorization();

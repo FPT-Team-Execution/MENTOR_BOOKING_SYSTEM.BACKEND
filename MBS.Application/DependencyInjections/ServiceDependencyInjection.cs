@@ -20,16 +20,9 @@ namespace MBS.Application
             services.AddScoped<IMentorService, MentorService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ITemplateService, TemplateService>();
+            services.AddScoped<IGoogleAuthenticationService, GoogleAuthenticationService>();
             services.AddScoped<ISupabaseService, SupabaseService>();
-            // services.AddScoped<IWeatherForecastService, WeatherForecastService>();
-            // services.AddScoped<ITodoListService, TodoListService>();
-            // services.AddScoped<ITodoItemService, TodoItemService>();
-            // services.AddScoped<IAuthService, AuthService>();
-            // services.AddScoped<IClaimService, ClaimService>();
-            // services.AddScoped<ITemplateService, TemplateService>();
 
-            // Kiểm tra môi trường để đăng ký dịch vụ email
-            //services.AddScoped<IEmailService, EmailService>();
         }
 
         //private static void RegisterAutoMapper(this IServiceCollection services)
