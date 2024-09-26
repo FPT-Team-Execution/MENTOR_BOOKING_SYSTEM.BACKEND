@@ -8,11 +8,11 @@ using MBS.Shared.Services.Interfaces;
 
 namespace MBS.Shared.Services.Implements
 {
-    public class ContextService : IContextService
+    public class ClaimService : IClaimService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public ContextService(IHttpContextAccessor httpContextAccessor)
+        public ClaimService(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
         }

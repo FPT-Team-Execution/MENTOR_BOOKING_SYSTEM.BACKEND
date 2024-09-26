@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 ﻿namespace MBS.Shared.Services.Interfaces
 {
-    public interface IContextService
+    public interface IClaimService
     {
         string GetUserId();
 
