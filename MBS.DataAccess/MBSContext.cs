@@ -1,6 +1,6 @@
 ﻿using MBS.Core.Common;
 using MBS.Core.Entities;
-using MBS.Shared.Services;
+using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;

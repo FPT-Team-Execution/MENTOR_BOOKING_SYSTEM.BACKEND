@@ -1,10 +1,10 @@
 ﻿using MBS.Application.Common.Email;
 using MBS.Shared.Services.Implements;
-using MBS.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MBS.Application.Services.Interfaces;
 using MBS.Application.Services.Implements;
+using MBS.Shared.Services.Interfaces;
 
 
 namespace MBS.Application
@@ -25,15 +25,8 @@ namespace MBS.Application
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ITemplateService, TemplateService>();
-            // services.AddScoped<IWeatherForecastService, WeatherForecastService>();
-            // services.AddScoped<ITodoListService, TodoListService>();
-            // services.AddScoped<ITodoItemService, TodoItemService>();
-            // services.AddScoped<IUserService, UserService>();
-            // services.AddScoped<IClaimService, ClaimService>();
-            // services.AddScoped<ITemplateService, TemplateService>();
+            services.AddScoped<IGoogleAuthenticationService, GoogleAuthenticationService>();
 
-            // Kiểm tra môi trường để đăng ký dịch vụ email
-            //services.AddScoped<IEmailService, EmailService>();
         }
 
         //private static void RegisterAutoMapper(this IServiceCollection services)
