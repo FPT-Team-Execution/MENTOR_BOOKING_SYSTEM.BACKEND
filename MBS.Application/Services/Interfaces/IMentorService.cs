@@ -7,4 +7,7 @@ namespace MBS.Application.Services.Interfaces;
 public interface IMentorService
 {
     Task<BaseModel<GetMentorOwnProfileResponseModel>> GetOwnProfile(ClaimsPrincipal claimsPrincipal);
+
+    Task<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>> UploadOwnDegree(
+        UploadOwnDegreeRequestModel request, ClaimsPrincipal claimsPrincipal);
 }

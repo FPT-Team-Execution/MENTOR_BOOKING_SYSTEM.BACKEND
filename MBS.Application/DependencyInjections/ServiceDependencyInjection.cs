@@ -1,10 +1,11 @@
-﻿using MBS.Application.Common.Email;
+﻿using MBS.Application.DependencyInjections;
 using MBS.Shared.Services.Implements;
-using MBS.Shared.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MBS.Application.Services.Interfaces;
 using MBS.Application.Services.Implements;
+using MBS.Shared.Common.Email;
+using MBS.Shared.Services.Interfaces;
 
 
 namespace MBS.Application
@@ -19,6 +20,7 @@ namespace MBS.Application
             services.AddScoped<IMentorService, MentorService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ITemplateService, TemplateService>();
+            services.AddScoped<ISupabaseService, SupabaseService>();
             // services.AddScoped<IWeatherForecastService, WeatherForecastService>();
             // services.AddScoped<ITodoListService, TodoListService>();
             // services.AddScoped<ITodoItemService, TodoItemService>();

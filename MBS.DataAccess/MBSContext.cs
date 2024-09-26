@@ -1,9 +1,9 @@
 ﻿using MBS.Core.Common;
 using MBS.Core.Entities;
-using MBS.Shared.Services;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using MBS.Shared.Services.Interfaces;
 
 
 namespace MBS.DataAccess

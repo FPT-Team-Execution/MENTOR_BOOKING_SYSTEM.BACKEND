@@ -1,4 +1,4 @@
-﻿namespace MBS.Application.Common.Email;
+﻿namespace MBS.Shared.Common.Email;
 
 public class SmtpSettings
 {
