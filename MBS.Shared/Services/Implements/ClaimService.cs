@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
+using MBS.Shared.Services.Interfaces;
 
 namespace MBS.Shared.Services.Implements
 {

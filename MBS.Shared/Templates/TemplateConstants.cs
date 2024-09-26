@@ -1,4 +1,4 @@
-﻿namespace MBS.Application.Templates;
+﻿namespace MBS.Shared.Templates;
 
 public static class TemplateConstants
 {

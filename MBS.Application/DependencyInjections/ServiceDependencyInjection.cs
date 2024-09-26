@@ -1,31 +1,27 @@
-﻿using MBS.Application.Common.Email;
+﻿using MBS.Application.DependencyInjections;
 using MBS.Shared.Services.Implements;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MBS.Application.Services.Interfaces;
 using MBS.Application.Services.Implements;
+using MBS.Shared.Common.Email;
 using MBS.Shared.Services.Interfaces;
 
 
 namespace MBS.Application
 {
-    public static class ApplicationDependencyInjection
+    public static class ServiceDependencyInjection
     {
-        public static IServiceCollection AddApplication(this IServiceCollection services)
-        {
-            services.AddServices();
-            //services.RegisterAutoMapper();
-
-            return services;
-        }
-
         public static void AddServices(this IServiceCollection services)
         {
             services.AddScoped<IClaimService, ClaimService>();
-            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IStudentService, StudentService>();
+            services.AddScoped<IMentorService, MentorService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<IGoogleAuthenticationService, GoogleAuthenticationService>();
+            services.AddScoped<ISupabaseService, SupabaseService>();
 
         }
 

@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MBS.API.ApiDependencyInjections
@@ -50,10 +52,6 @@ namespace MBS.API.ApiDependencyInjections
                   //options.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
                   options.SaveTokens = true;
               });
-
-
-
-
 
             return services;
         }

@@ -1,6 +1,7 @@
 using MBS.API.ApiDependencyInjections;
 using MBS.Application;
 using MBS.Application.Exceptions;
+using MBS.Application.DependencyInjections;
 using MBS.DataAccess;
 using MBS.DataAccess.Persistents.Configurations;
 using Microsoft.AspNetCore.Cors.Infrastructure;
@@ -29,8 +30,11 @@ namespace MBS.API
             // Register application authentication
             builder.Services.AddAppAuthentication();
 
+            // Register supabase
+            builder.Services.AddSupabase(builder.Configuration);
+
             // Register application services
-            builder.Services.AddApplication();
+            builder.Services.AddServices();
 
             // Register application swagger gen
             builder.Services.AddAppSwaggerGen();
@@ -39,7 +43,7 @@ namespace MBS.API
             builder.Services.AddEmailConfiguration(builder.Configuration);
             builder.Services.AddAuthorization();
             var app = builder.Build();
-          
+
             //seed data by automated migration
             using var scope = app.Services.CreateScope();
             AutomatedMigration.MigrateAsync(scope.ServiceProvider).GetAwaiter().GetResult();
