@@ -15,9 +15,9 @@ namespace MBS.Core.Entities
         [MaxLength(225), Required]
         public string Name { get; set; }
       
-        public Guid ParentId { get; set; }
+        public Guid? ParentId { get; set; }
         [ForeignKey(nameof(ParentId))]
-        public Major ParentMajor { get; set; }
+        public Major? ParentMajor { get; set; }
         public string CreatedBy { get; set; }
         public DateTime CreatedOn { get; set; }
         public string UpdatedBy { get; set; }
