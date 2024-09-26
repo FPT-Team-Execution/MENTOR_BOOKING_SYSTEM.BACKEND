@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using MBS.Core.Entities;
 using MBS.DataAccess.Repositories.Interfaces;
 using MBS.DataAccess.Repositories.Implements;
+
 namespace MBS.DataAccess
 {
     public static class DataAccessDependencyInjection
@@ -19,6 +20,7 @@ namespace MBS.DataAccess
 
             return services;
         }
+
         private static void AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<MBSContext>(options =>
@@ -30,6 +32,7 @@ namespace MBS.DataAccess
         {
             services.AddScoped<IMentorRepository, MentorRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IDegreeRepository, DegreeRepository>();
         }
 
         private static void AddIdentity(this IServiceCollection services)
