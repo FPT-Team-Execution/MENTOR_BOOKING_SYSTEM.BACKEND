@@ -98,28 +98,31 @@ public class MentorService : IMentorService
     public async Task<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>> UploadOwnDegree(
         UploadOwnDegreeRequestModel request, ClaimsPrincipal claimsPrincipal)
     {
-        var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
-
-        var bucketName = _configuration["Supabase:MainBucket"]!;
-        var fileByte = await FileHelper.ConvertIFormFileToByteArrayAsync(request.File);
-        var fileName = request.File.FileName;
-        var filePath = $"Mentors/{userId}/Degrees/{fileName}";
-        var degreeUrl = await _supabaseService.UploadFile(fileByte, filePath, bucketName);
-
         try
         {
+            var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
+            var bucketName = _configuration["Supabase:MainBucket"]!;
+            var fileByte = await FileHelper.ConvertIFormFileToByteArrayAsync(request.File);
+            var fileName = request.File.FileName;
+            var filePath = $"Mentors/{userId}/Degrees/{fileName}";
+            var degreeUrl = await _supabaseService.UploadFile(fileByte, filePath, bucketName);
+            
             return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
             {
-                Message = "",
+                Message = degreeUrl,
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status201Created,
+                ResponseModel = new UploadOwnDegreeResponseModel()
+                {
+                    Completed = true
+                }
             };
         }
         catch (Exception e)
         {
             return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
             {
-                Message = "",
+                Message = e.Message,
                 IsSuccess = false,
                 StatusCode = StatusCodes.Status500InternalServerError,
             };
