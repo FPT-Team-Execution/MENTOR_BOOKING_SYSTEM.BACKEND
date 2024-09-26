@@ -38,6 +38,8 @@ namespace MBS.DataAccess
         public DbSet<Progress> Progresses { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Request> Requests { get; set; }
+        public DbSet<Skill> Skills { get; set; }
+        public DbSet<PointTransaction> PointTransactions { get; set; }
  
         public new async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new())
         {

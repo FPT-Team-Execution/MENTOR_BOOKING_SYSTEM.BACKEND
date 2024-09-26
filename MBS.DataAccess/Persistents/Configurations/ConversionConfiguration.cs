@@ -76,4 +76,20 @@ namespace MBS.DataAccess.Persistents.Configurations
             );
         }
     }
+    public class PointTransactionConfiguration : IEntityTypeConfiguration<PointTransaction>
+    {
+        public void Configure(EntityTypeBuilder<PointTransaction> builder)
+        {
+            builder.Property(e => e.TransactionType)
+            .HasConversion(
+                v => v.ToString(),
+                v => (TransactionTypeEnum)Enum.Parse(typeof(TransactionTypeEnum), v)
+            );
+            builder.Property(e => e.Currency)
+            .HasConversion(
+                v => v.ToString(),
+                v => (PointCurrencyEnum)Enum.Parse(typeof(PointCurrencyEnum), v)
+            );
+        }
+    }
 }
