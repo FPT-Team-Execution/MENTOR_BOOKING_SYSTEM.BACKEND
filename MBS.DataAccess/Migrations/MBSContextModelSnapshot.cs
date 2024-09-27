@@ -4,19 +4,16 @@ using MBS.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MBS.DataAccess.Persistents.Migrations
+namespace MBS.DataAccess.Migrations
 {
     [DbContext(typeof(MBSContext))]
-    [Migration("20240924004815_InitSysEntities")]
-    partial class InitSysEntities
+    partial class MBSContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,24 +24,25 @@ namespace MBS.DataAccess.Persistents.Migrations
 
             modelBuilder.Entity("MBS.Core.Entities.CalendarEvent", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("EndTime")
+                    b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Label")
+                    b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LabelColor")
+                    b.Property<string>("HtmlLink")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("MeetingId")
+                    b.Property<string>("ICalUID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("MeetingId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("MentorId")
@@ -52,18 +50,17 @@ namespace MBS.DataAccess.Persistents.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -83,7 +80,7 @@ namespace MBS.DataAccess.Persistents.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Insitution")
+                    b.Property<string>("Institution")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -205,7 +202,7 @@ namespace MBS.DataAccess.Persistents.Migrations
                         .HasMaxLength(225)
                         .HasColumnType("nvarchar(225)");
 
-                    b.Property<Guid>("ParentId")
+                    b.Property<Guid?>("ParentId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Status")
@@ -340,6 +337,51 @@ namespace MBS.DataAccess.Persistents.Migrations
                     b.ToTable("MentorMajors");
                 });
 
+            modelBuilder.Entity("MBS.Core.Entities.PointTransaction", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Amount")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("TransactionType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PointTransactions");
+                });
+
             modelBuilder.Entity("MBS.Core.Entities.Position", b =>
                 {
                     b.Property<Guid>("Id")
@@ -371,21 +413,21 @@ namespace MBS.DataAccess.Persistents.Migrations
                             Id = new Guid("f6964510-6671-43ed-b0dc-bdb413c56fd5"),
                             Description = "Leader",
                             Name = "Leader",
-                            Status = "Active"
+                            Status = "Activated"
                         },
                         new
                         {
                             Id = new Guid("d90a1dba-cc6c-466c-96e5-8eaf98809d8d"),
                             Description = "Member",
                             Name = "Member",
-                            Status = "Active"
+                            Status = "Activated"
                         },
                         new
                         {
                             Id = new Guid("ce90cd84-42f4-461e-8c92-1a1854dc52ac"),
                             Description = "Read",
                             Name = "Read",
-                            Status = "Active"
+                            Status = "Activated"
                         });
                 });
 
@@ -488,8 +530,9 @@ namespace MBS.DataAccess.Persistents.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CalendarEventId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CalendarEventId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -527,6 +570,29 @@ namespace MBS.DataAccess.Persistents.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("Requests");
+                });
+
+            modelBuilder.Entity("MBS.Core.Entities.Skill", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MentorId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MentorId");
+
+                    b.ToTable("Skills");
                 });
 
             modelBuilder.Entity("MBS.Core.Entities.Student", b =>
@@ -801,9 +867,7 @@ namespace MBS.DataAccess.Persistents.Migrations
                 {
                     b.HasOne("MBS.Core.Entities.Meeting", "Meeting")
                         .WithMany()
-                        .HasForeignKey("MeetingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MeetingId");
 
                     b.HasOne("MBS.Core.Entities.Mentor", "Mentor")
                         .WithMany()
@@ -877,9 +941,7 @@ namespace MBS.DataAccess.Persistents.Migrations
                 {
                     b.HasOne("MBS.Core.Entities.Major", "ParentMajor")
                         .WithMany()
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ParentId");
 
                     b.Navigation("ParentMajor");
                 });
@@ -944,6 +1006,17 @@ namespace MBS.DataAccess.Persistents.Migrations
                     b.Navigation("Mentor");
                 });
 
+            modelBuilder.Entity("MBS.Core.Entities.PointTransaction", b =>
+                {
+                    b.HasOne("MBS.Core.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MBS.Core.Entities.Progress", b =>
                 {
                     b.HasOne("MBS.Core.Entities.Project", "Project")
@@ -989,6 +1062,17 @@ namespace MBS.DataAccess.Persistents.Migrations
                     b.Navigation("Creater");
 
                     b.Navigation("Project");
+                });
+
+            modelBuilder.Entity("MBS.Core.Entities.Skill", b =>
+                {
+                    b.HasOne("MBS.Core.Entities.Mentor", "Mentor")
+                        .WithMany()
+                        .HasForeignKey("MentorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Mentor");
                 });
 
             modelBuilder.Entity("MBS.Core.Entities.Student", b =>

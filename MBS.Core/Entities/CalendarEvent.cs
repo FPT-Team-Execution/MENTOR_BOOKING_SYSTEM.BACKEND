@@ -10,26 +10,26 @@ using System.Threading.Tasks;
 
 namespace MBS.Core.Entities
 {
-    public class CalendarEvent : BaseEntity
+    public class CalendarEvent 
     {
-        public Guid MeetingId { get; set; }
+        [Key]
+        public string Id { get; set; }
+        public string HtmlLink { get; set; }
+        public string Summary { get; set; } = default!;
+        public string Description { get; set; } = default!;
+        public string ICalUID { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime Updated { get; set; }
+        public Guid? MeetingId { get; set; }
         [ForeignKey(nameof(MeetingId))]
-        public Meeting Meeting { get; set; }
-
+        public Meeting? Meeting { get; set; }
         [MaxLength(450)]
         public string MentorId { get; set; }
         [ForeignKey(nameof(MentorId))]
         public Mentor Mentor { get; set; }
+        
         [MaxLength(20)]
-        public string Label { get; set; }
-        [MaxLength(20)]
-        public string LabelColor { get; set; }
-        [MaxLength(50)]
-        public string Name { get; set; }
-        public DateTime StartTime  { get; set; }
-        public DateTime? EndTime { get; set; }
-        [MaxLength(20)]
-        public StatusEnum Status { get; set; }
+        public EventStatus Status { get; set; }
 
     }
 }
