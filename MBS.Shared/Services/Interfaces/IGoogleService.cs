@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace MBS.Shared.Services.Interfaces
 {
-    public interface IGoogleCalendarService
+    public interface IGoogleService
     {
-        Task<GoogleAuthResponse> AuthenticateGoogleUser(HttpContext context);
+        Task<GoogleAuthResponse?> AuthenticateGoogleUserAsync(HttpContext context);
         Task<String> GetUserEvents(string accessToken);
     }
 }

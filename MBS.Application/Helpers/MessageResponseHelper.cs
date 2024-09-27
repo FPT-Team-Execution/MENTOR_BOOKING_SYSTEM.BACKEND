@@ -106,4 +106,16 @@ public static class MessageResponseHelper
         stringBuilder.Append(" successfully.");
         return stringBuilder.ToString();
     }
+    public static string AuthorizeSuccessfully()
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Authorization successfully.");
+        return stringBuilder.ToString();
+    }
+    public static string AuthorizeFail()
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Authorization failed.");
+        return stringBuilder.ToString();
+    }
 }

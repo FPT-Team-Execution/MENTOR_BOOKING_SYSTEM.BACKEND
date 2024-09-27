@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging;
+using MBS.Application.Helpers;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -14,18 +15,17 @@ namespace MBS.API.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IClaimService _claimService;
-        private readonly IGoogleCalendarService _googleCalendarService;
-        //private readonly ISendMailService _sendMailService;
-        public AuthController(IGoogleCalendarService googleCalendarService, IClaimService claimService, IAuthService authService)
+        private readonly IGoogleService _googleService;
+        public AuthController(IGoogleService googleService, IClaimService claimService, IAuthService authService)
         {
-            _googleCalendarService = googleCalendarService;
+            _googleService = googleService;
             _claimService = claimService;
             _authService = authService;
         }
 
 
         [HttpGet("login")]
-        [ProducesResponseType(typeof(ChallengeResult), statusCode: StatusCodes.Status200OK)]
+        [EndpointSummary("Mentor login by Google account")]
         public IActionResult Login()
         {
             //var props = new AuthenticationProperties { RedirectUri = "/api/auth/signin-google" };
@@ -47,79 +47,25 @@ namespace MBS.API.Controllers
 
 
         [HttpGet("signin-google")]
-        [ProducesResponseType(typeof(ContentResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> SignInAndSignUpByGoogle()
+        [EndpointSummary("Google call back uri")]
+        public async Task<ActionResult<BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>>>
+            SignInAndSignUpByGoogle()
         {
-            //var responseData = new object();
-            var googleAuthResponse = await _googleCalendarService.AuthenticateGoogleUser(HttpContext);
-            //            var accountByEmailResponse = await _accountService.GetAccountByEmail(googleAuthResponse.Email);
-            //            if (accountByEmailResponse == null)
-            //            {
-            //                var createAccountResponse = await _accountService.CreateNewUserAccountByGoogle(googleAuthResponse);
-            //                if (createAccountResponse == null)
-            //                {
-            //                    _logger.LogError("Create new user account failed with account");
-            //                    return Problem(MessageConstant.Account.CreateUserAccountFailMessage);
-            //                }
-            //                else
-            //                {
-            //                    _logger.LogInformation("Create new user account successful with account");
-            //                    responseData = new
-            //                    {
-            //                        name = createAccountResponse.Name,
-            //                        email = createAccountResponse.Email,
-            //                        token = await _accountService.CreateTokenByEmail(createAccountResponse.Email),
-            //                        refreshToken = createAccountResponse.RefreshToken
-            //                    };
-            //                }
-            //            }
-            //            else
-            //            {
-            //                responseData = new
-            //                {
-            //                    name = accountByEmailResponse.Name,
-            //                    email = accountByEmailResponse.Email,
-            //                    token = await _accountService.CreateTokenByEmail(googleAuthResponse.Email),
-            //                    refreshToken = await _accountService.CreateRefreshToken(googleAuthResponse.Email)
-            //                };
-            //            }
-            //            var jsonData = JsonSerializer.Serialize(responseData);
-            //            _logger.LogInformation($"{googleAuthResponse.AccessToken}");
-            //            var responseHtml = $@"
-            //<html>
-            //    <body>
-            //        <script>
-            //            var authData = {jsonData};
-            //            if (window.opener) {{
-            //                window.opener.postMessage(authData, '*');
-            //            }}
-            //            window.close();
-            //        </script>
-            //    </body>
-            //</html>";
+            var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
+            if (googleAuthResponse == null)
+                return new BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>
+                {
+                    Message = MessageResponseHelper.AuthorizeFail(),
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    IsSuccess = false,
+                    RequestModel = null,
+                };
+            var response = await _authService.LoginOrSignUpExternal(new ExternalSignInRequestModel()
+            {
+                ExternalInfo = googleAuthResponse
+            });
 
-            //var responseHtml = $@"
-            //<html>
-            //    <body>
-            //        <script>
-            //            var authData = {"jsonData"};
-            //            if (window.opener) {{
-            //                window.opener.postMessage(authData, '*');
-            //            }}
-            //            window.close();
-            //        </script>
-            //    </body>
-            //</html>";
-            //return Content(responseHtml, "text/html");
-            return Ok(googleAuthResponse);
-        }
-        [HttpGet("google/calendar")]
-        [ProducesResponseType(typeof(ChallengeResult), statusCode: StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetUserEvent(string accessToken)
-        {
-            var rs = await _googleCalendarService.GetUserEvents(accessToken);
-            return Ok(rs);
+            return StatusCode(response.StatusCode, response);
         }
 
         [AllowAnonymous]

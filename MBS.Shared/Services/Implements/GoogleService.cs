@@ -13,18 +13,18 @@ using System.Xml.Linq;
 
 namespace MBS.Shared.Services.Implements
 {
-    public class GoogleCalendarService : IGoogleCalendarService
+    public class GoogleService : IGoogleService
     {
         private readonly HttpClient _httpClient;
         private readonly IClaimService _claimService;
         private readonly IConfiguration _configuration;
-        public GoogleCalendarService(IClaimService claimService, IConfiguration configuration)
+        public GoogleService(IClaimService claimService, IConfiguration configuration)
         {
             _httpClient = new HttpClient();
             _claimService = claimService;
             _configuration = configuration;
         }
-        public async Task<GoogleAuthResponse> AuthenticateGoogleUser(HttpContext context)
+        public async Task<GoogleAuthResponse?> AuthenticateGoogleUserAsync(HttpContext context)
         {
             //var authenticateResult = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             var authenticateResult = await context.AuthenticateAsync("Identity.External");
@@ -36,17 +36,18 @@ namespace MBS.Shared.Services.Implements
             if (email == null) return null;
             var accessToken = authenticateResult.Properties.GetTokenValue("access_token");
             var refreshToken = authenticateResult.Properties.GetTokenValue("refresh_token");
-            var expireAt = DateTime.Parse(authenticateResult.Properties.GetTokenValue("expires_at"));
-            //Save to cookie
-            SetGoogleAccessToken(accessToken, expireAt);
 
+            var providerKey = authenticateResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var loginProvider = authenticateResult.Ticket.Principal.Identity.AuthenticationType;
             return new GoogleAuthResponse
             {
                 Name = name,
                 GivenName = givenName,
                 Email = email,
-                RefreshToken = refreshToken,
-                AccessToken = accessToken
+                GoogleRefreshToken = refreshToken,
+                GoogleAccessToken = accessToken,
+                ProviderKey = providerKey,
+                LoginProvider = loginProvider
             };
         }
 
