@@ -157,7 +157,7 @@ public class MentorService : IMentorService
             {
                 Id = x.Id,
                 Name = x.Name,
-                Institution = x.Insitution,
+                Institution = x.Institution,
                 ImageUrl = x.ImageUrl
             });
 
