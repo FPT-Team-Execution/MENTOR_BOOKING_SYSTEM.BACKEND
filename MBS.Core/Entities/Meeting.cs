@@ -19,9 +19,9 @@ namespace MBS.Core.Entities
         public string Description { get; set; }
         [MaxLength(200)]
         public string Location  { get; set; }
-        public string  MeetUp { get; set; }
-        public DateTime? StartTime { get; set; }
-        public DateTime? EndTime { get; set; }
+
+        public string MeetUp { get; set; }
+
         [MaxLength(20)]
         public MeetingStatusEnum  Status { get; set; }
     }

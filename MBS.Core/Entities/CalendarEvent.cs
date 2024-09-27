@@ -15,6 +15,7 @@ namespace MBS.Core.Entities
         [Key]
         public string Id { get; set; }
         public string HtmlLink { get; set; }
+        [MaxLength(255)]
         public string Summary { get; set; } = default!;
         public string Description { get; set; } = default!;
         public string ICalUID { get; set; }
@@ -27,7 +28,8 @@ namespace MBS.Core.Entities
         public string MentorId { get; set; }
         [ForeignKey(nameof(MentorId))]
         public Mentor Mentor { get; set; }
-        
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
         [MaxLength(20)]
         public EventStatus Status { get; set; }
 
