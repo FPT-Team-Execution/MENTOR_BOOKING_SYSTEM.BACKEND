@@ -127,4 +127,10 @@ public static class MessageResponseHelper
         stringBuilder.Append(" successfully.");
         return stringBuilder.ToString();
     }
+    public static string InvalidInputParameter()
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Invalid input parameters.");
+        return stringBuilder.ToString();
+    }
 }
