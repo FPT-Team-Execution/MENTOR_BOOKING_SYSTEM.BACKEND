@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MBS.Shared.Services.Interfaces;
+using MBS.Shared.Services.Implements;
 
 namespace MBS.API.Controllers
 {
@@ -13,11 +14,11 @@ namespace MBS.API.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IClaimService _claimService;
-        private readonly IGoogleAuthenticationService _googleAuthenticationService;
+        private readonly IGoogleCalendarService _googleCalendarService;
         //private readonly ISendMailService _sendMailService;
-        public AuthController(IGoogleAuthenticationService googleAuthenticationService, IClaimService claimService, IAuthService authService)
+        public AuthController(IGoogleCalendarService googleCalendarService, IClaimService claimService, IAuthService authService)
         {
-            _googleAuthenticationService = googleAuthenticationService;
+            _googleCalendarService = googleCalendarService;
             _claimService = claimService;
             _authService = authService;
         }
@@ -36,7 +37,8 @@ namespace MBS.API.Controllers
                         { "prompt", "consent" },
                         { "access_type", "offline" },
                         { "scope", "https://www.googleapis.com/auth/userinfo.email" +
-                                    " https://www.googleapis.com/auth/userinfo.profile" 
+                                    " https://www.googleapis.com/auth/userinfo.profile" +
+                                    " https://www.googleapis.com/auth/calendar"
                         }
                     }
             };
@@ -50,7 +52,7 @@ namespace MBS.API.Controllers
         public async Task<IActionResult> SignInAndSignUpByGoogle()
         {
             //var responseData = new object();
-            var googleAuthResponse = await _googleAuthenticationService.AuthenticateGoogleUser(HttpContext);
+            var googleAuthResponse = await _googleCalendarService.AuthenticateGoogleUser(HttpContext);
             //            var accountByEmailResponse = await _accountService.GetAccountByEmail(googleAuthResponse.Email);
             //            if (accountByEmailResponse == null)
             //            {
@@ -111,73 +113,66 @@ namespace MBS.API.Controllers
             //</html>";
             //return Content(responseHtml, "text/html");
             return Ok(googleAuthResponse);
-            //return Ok("Back");
+        }
+        [HttpGet("google/calendar")]
+        [ProducesResponseType(typeof(ChallengeResult), statusCode: StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetUserEvent(string accessToken)
+        {
+            var rs = await _googleCalendarService.GetUserEvents(accessToken);
+            return Ok(rs);
         }
 
-        [HttpGet("demo-google-claim")]
-        [ProducesResponseType(typeof(ContentResult), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetGoogleUserClaim()
-        {
-            var rs = _claimService.GetCookieValue("Google.AccessToken");
-            var rsE = _claimService.GetCookieExpiredTime("Google.AccessToken");
-            return Ok(new
-            {
-                rs,
-                rsE
-            });
-        }
         [AllowAnonymous]
-    [HttpPost]
-    [Route("student/sign-up")]
-    public async Task<ActionResult<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>>>
+        [HttpPost]
+        [Route("student/sign-up")]
+        public async Task<ActionResult<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>>>
         SignUpStudent(
             [FromBody] RegisterStudentRequestModel request)
-    {
-        var response = await _authService.SignUpStudentAsync(request);
-        return StatusCode(response.StatusCode, response);
-    }
+        {
+            var response = await _authService.SignUpStudentAsync(request);
+            return StatusCode(response.StatusCode, response);
+        }
 
-    [AllowAnonymous]
-    [HttpPost]
-    [Route("mentor/sign-up")]
-    public async Task<ActionResult<BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>>>
-        SignUpStudent(
-            [FromBody] RegisterMentorRequestModel request)
-    {
-        var response = await _authService.SignUpMentorAsync(request);
-        return StatusCode(response.StatusCode, response);
-    }
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("mentor/sign-up")]
+        public async Task<ActionResult<BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>>>
+            SignUpStudent(
+                [FromBody] RegisterMentorRequestModel request)
+        {
+            var response = await _authService.SignUpMentorAsync(request);
+            return StatusCode(response.StatusCode, response);
+        }
 
-    [AllowAnonymous]
-    [HttpPost]
-    [Route("sign-in")]
-    public async Task<ActionResult<BaseModel<SignInResponseModel, SignInRequestModel>>> SignIn(
-        SignInRequestModel request)
-    {
-        var response = await _authService.SignIn(request);
-        return StatusCode(response.StatusCode, response);
-    }
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("sign-in")]
+        public async Task<ActionResult<BaseModel<SignInResponseModel, SignInRequestModel>>> SignIn(
+            SignInRequestModel request)
+        {
+            var response = await _authService.SignIn(request);
+            return StatusCode(response.StatusCode, response);
+        }
 
-    [AllowAnonymous]
-    [HttpPost]
-    [Route("refresh")]
-    public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>>> Refresh(
-        GetRefreshTokenRequestModel request)
-    {
-        var response = await _authService.Refresh(request);
-        return StatusCode(response.StatusCode, response);
-    }
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("refresh")]
+        public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>>> Refresh(
+            GetRefreshTokenRequestModel request)
+        {
+            var response = await _authService.Refresh(request);
+            return StatusCode(response.StatusCode, response);
+        }
 
-    [AllowAnonymous]
-    [HttpPut]
-    [Route("confirm-email")]
-    public async Task<ActionResult<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>>> ConfirmEmail(
-        ConfirmEmailRequestModel request)
-    {
-        var response = await _authService.ConfirmEmailAsync(request);
-        return StatusCode(response.StatusCode, response);
-    }
+        [AllowAnonymous]
+        [HttpPut]
+        [Route("confirm-email")]
+        public async Task<ActionResult<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>>> ConfirmEmail(
+            ConfirmEmailRequestModel request)
+        {
+            var response = await _authService.ConfirmEmailAsync(request);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 
 }
