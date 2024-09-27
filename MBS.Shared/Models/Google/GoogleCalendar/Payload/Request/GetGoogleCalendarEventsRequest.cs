@@ -1,6 +1,6 @@
 namespace MBS.Shared.Models.Google.Payload;
 
-public class GoogleCalendarEventRequest
+public class GetGoogleCalendarEventsRequest
 {
     public string Email { get; set; }
     public string AccessToken { get; set; }

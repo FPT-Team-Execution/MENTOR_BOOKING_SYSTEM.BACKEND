@@ -11,7 +11,6 @@ public class GoogleCalendarEvent
     public string Summary { get; set; }
     //event Id in calendar
     public string ICalUID { get; set; }
-
     public EventTime Start { get; set; }
     public EventTime End { get; set; }
     //number of modification of this event
@@ -20,5 +19,6 @@ public class GoogleCalendarEvent
 public class EventTime
 {
     public DateTime DateTime { get; set; }
-    public string TimeZone { get; set; }
+    //* default for now
+    public string TimeZone { get; set; } = "Asia/Ho_Chi_Minh";
 }

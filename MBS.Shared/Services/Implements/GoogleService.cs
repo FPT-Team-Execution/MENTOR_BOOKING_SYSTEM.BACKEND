@@ -58,14 +58,26 @@ namespace MBS.Shared.Services.Implements
         /// Get events from user calendar
         /// </summary>
         /// <returns>List of Google Calendar Event</returns>
-        public async Task<List<GoogleCalendarEvent>?> ListEvents(GoogleCalendarEventRequest calendarEventRequest)
+        public async Task<List<GoogleCalendarEvent>?> ListEvents(GetGoogleCalendarEventsRequest getRequest)
         {
-            string url = $"https://www.googleapis.com/calendar/v3/calendars/{calendarEventRequest.Email}/events";
-            var response = await WebUtils.GetAsync(url, calendarEventRequest.AccessToken, calendarEventRequest.TimeMin, calendarEventRequest.TimeMax);
+            string url = $"https://www.googleapis.com/calendar/v3/calendars/{getRequest.Email}/events";
+            var response = await WebUtils.GetAsync(url, getRequest.AccessToken, getRequest.TimeMin, getRequest.TimeMax);
             if (response == null) return null;
             List<GoogleCalendarEvent> calendarEventList = response.Items;
-            
             return calendarEventList;
+        }
+        /// <summary>
+        /// Create event in user calendar
+        /// </summary>
+        /// <returns>Google Calendar Event</returns>
+        /// https://www.googleapis.com/calendar/v3/calendars/datngx.dev%40gmail.com/events
+        public async Task<GoogleCalendarEvent?> InsertEvent(string email, string accessToken, CreateGoogleCalendarEventRequest createRequest)
+        {
+            string url = $"https://www.googleapis.com/calendar/v3/calendars/{email}/events";
+            var response = await WebUtils.PostAsync(url, accessToken, createRequest.Start, createRequest.End );
+            if (response == null) return null;
+            GoogleCalendarEvent calendarEvent = response;
+            return calendarEvent;
         }
     }
         

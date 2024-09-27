@@ -1,6 +1,6 @@
 namespace MBS.Shared.Models.Google.Payload.Response;
 
-public class GoogleCalendarEventResponse
+public class GetGoogleCalendarEventsResponse
 {
         public string Kind { get; set; }
         public string Etag { get; set; }
