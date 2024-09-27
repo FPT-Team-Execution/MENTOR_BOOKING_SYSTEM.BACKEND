@@ -483,10 +483,15 @@ public class AuthService : IAuthService
             FullName = externalInfo.Name,
             //TODO: get more info from email
          };
-         //create user and add external login 
+         //create user, add role,add external login 
+         //* create user
          var createResult = await _userManager.CreateAsync(userCreate);
          if (createResult.Succeeded)
          {
+             //*add role
+             var user = await _userManager.FindByEmailAsync(userCreate.Email);
+             await _userManager.AddToRoleAsync(user, UserRoleEnum.Mentor.ToString());
+             //*Add external login
              var userLoginInfo = new UserLoginInfo(providerKey: externalInfo.ProviderKey, loginProvider: externalInfo.LoginProvider, displayName: externalInfo.LoginProvider);
              var addResult = await _userManager.AddLoginAsync(userCreate, userLoginInfo);
              if (addResult.Succeeded)

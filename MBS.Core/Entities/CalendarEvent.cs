@@ -20,6 +20,7 @@ namespace MBS.Core.Entities
         public string Description { get; set; } = default!;
         public string ICalUID { get; set; }
         public DateTime Created { get; set; }
+        
         public DateTime Updated { get; set; }
         public Guid? MeetingId { get; set; }
         [ForeignKey(nameof(MeetingId))]

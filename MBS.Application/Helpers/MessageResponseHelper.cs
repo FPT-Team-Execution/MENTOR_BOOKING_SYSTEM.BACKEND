@@ -98,6 +98,7 @@ public static class MessageResponseHelper
         return stringBuilder.ToString();
     }
 
+    #region CRUD Message Helper
     public static string GetSuccessfully(string objectName)
     {
         var stringBuilder = new StringBuilder();
@@ -106,6 +107,50 @@ public static class MessageResponseHelper
         stringBuilder.Append(" successfully.");
         return stringBuilder.ToString();
     }
+    public static string CreateSuccessfully(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Create ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" successfully.");
+        return stringBuilder.ToString();
+    }
+    public static string CreateFailed(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Create ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" failed.");
+        return stringBuilder.ToString();
+    }
+    public static string UpdateSuccessfully(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Update ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" successfully.");
+        return stringBuilder.ToString();
+    }
+    public static string UpdateFailed(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Update ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" failed.");
+        return stringBuilder.ToString();
+    }
+    public static string DeleteFailed(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Delete ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" failed.");
+        return stringBuilder.ToString();
+    }
+    
+
+    #endregion
+    
 
     public static string AuthorizeSuccessfully()
     {
@@ -133,4 +178,34 @@ public static class MessageResponseHelper
         stringBuilder.Append("Invalid input parameters.");
         return stringBuilder.ToString();
     }
+
+    #region Meeting Message Helper
+    public static string MeetingNotFound(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Meeting with Id ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" was not found.");
+        return stringBuilder.ToString();
+    }
+    public static string InvalidMeetingSatus(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Meeting with Id ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" has invalid.");
+        return stringBuilder.ToString();
+    }
+    #endregion
+    #region Calendar Event Message Helper
+    public static string CalendarNotFound(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Calendar with Id ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" was not found.");
+        return stringBuilder.ToString();
+    }
+    #endregion
+   
 }
