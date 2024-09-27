@@ -19,6 +19,8 @@ namespace MBS.Application
             services.AddScoped<IStudentService, StudentService>();
             services.AddScoped<IMentorService, MentorService>();
             services.AddScoped<IEmailService, EmailService>();
+            //Major
+            services.AddScoped<IMajorService, MajorService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<IGoogleService, GoogleService>();
             services.AddScoped<ISupabaseService, SupabaseService>();

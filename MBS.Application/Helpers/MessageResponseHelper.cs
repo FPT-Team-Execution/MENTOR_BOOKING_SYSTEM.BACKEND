@@ -133,4 +133,21 @@ public static class MessageResponseHelper
         stringBuilder.Append("Invalid input parameters.");
         return stringBuilder.ToString();
     }
+    public static string Successfully(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        //stringBuilder.Append("Get ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" successfully.");
+        return stringBuilder.ToString();
+    }
+
+    public static string Fail(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        //stringBuilder.Append("Get ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" Fail.");
+        return stringBuilder.ToString();
+    }
 }

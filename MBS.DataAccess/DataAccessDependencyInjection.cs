@@ -33,6 +33,8 @@ namespace MBS.DataAccess
             services.AddScoped<IMentorRepository, MentorRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IDegreeRepository, DegreeRepository>();
+//Major
+services.AddScoped<IMajorRepository, MajorRepository>();
         }
 
         private static void AddIdentity(this IServiceCollection services)
