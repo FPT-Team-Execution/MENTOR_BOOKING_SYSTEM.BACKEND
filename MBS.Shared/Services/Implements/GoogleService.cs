@@ -1,15 +1,14 @@
-﻿using MBS.Shared.Models;
+﻿using System.Net;
+using System.Runtime.Serialization;
+using MBS.Shared.Models;
 using MBS.Shared.Models.Google;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using System.Security.Claims;
-using System.Text;
-using System.Xml.Linq;
-using MBS.Shared.Models.Google.Payload;
+using MBS.Shared.Models.Google.GoogleCalendar.Request;
+using MBS.Shared.Models.Google.GoogleCalendar.Response;
 
 
 namespace MBS.Shared.Services.Implements
@@ -54,30 +53,159 @@ namespace MBS.Shared.Services.Implements
         {
             _claimService.SetCookieValue("Google.AccessToken", accessToken, expiredTime);
         }
+        public string FormatDateTime( DateTime dateTime, String format)
+        {
+            return dateTime.ToString(format);
+        }
         /// <summary>
         /// Get events from user calendar
         /// </summary>
         /// <returns>List of Google Calendar Event</returns>
-        public async Task<List<GoogleCalendarEvent>?> ListEvents(GetGoogleCalendarEventsRequest getRequest)
+        public async Task<GoogleResponse> ListEvents(GetGoogleCalendarEventsRequest getRequest)
         {
             string url = $"https://www.googleapis.com/calendar/v3/calendars/{getRequest.Email}/events";
-            var response = await WebUtils.GetAsync(url, getRequest.AccessToken, getRequest.TimeMin, getRequest.TimeMax);
-            if (response == null) return null;
-            List<GoogleCalendarEvent> calendarEventList = response.Items;
-            return calendarEventList;
+            var queryParams = new Dictionary<string, string>
+            {
+                { "timeMin", FormatDateTime(getRequest.TimeMin, "yyyy-MM-ddTHH:mm:ssK") },
+                { "timeMax", FormatDateTime(getRequest.TimeMax, "yyyy-MM-ddTHH:mm:ssK") },
+            };
+            var headers = new Dictionary<string, string>
+            {
+                { "Accept-Charset", "utf-8" },
+                { "Authorization", $"Bearer {getRequest.AccessToken}" }
+            };
+            HttpResponseMessage response = await WebUtils.GetAsync(url, headers, getRequest.AccessToken, queryParams);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var successResult =  WebUtils.HandleResponse<GetGoogleCalendarEventsResponse>(response);
+                successResult.IsSuccess = true;
+                return successResult;
+            }
+            //Other response - error
+            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            errorResult.IsSuccess = false;
+            return errorResult;
         }
         /// <summary>
         /// Create event in user calendar
         /// </summary>
         /// <returns>Google Calendar Event</returns>
-        /// https://www.googleapis.com/calendar/v3/calendars/datngx.dev%40gmail.com/events
-        public async Task<GoogleCalendarEvent?> InsertEvent(string email, string accessToken, CreateGoogleCalendarEventRequest createRequest)
+         public async Task<GoogleResponse> InsertEvent(string email, string accessToken, CreateGoogleCalendarEventRequest createRequest)
+         {
+             string url = $"https://www.googleapis.com/calendar/v3/calendars/{email}/events";
+             var headers = new Dictionary<string, string>
+             {
+                 { "Accept-Charset", "utf-8" },
+                 { "Authorization", $"Bearer {accessToken}" }
+             };
+             //anonymous data object
+             var bodyData = new 
+             {
+               Start = new EventTime
+               {
+                   DateTime = FormatDateTime(createRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
+                   TimeZone = "Asia/Ho_Chi_Minh"
+               },
+               End = new EventTime
+               {
+                   DateTime = FormatDateTime(createRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
+                   TimeZone = "Asia/Ho_Chi_Minh"
+                }
+             };
+             var response = await WebUtils.PostAsync(
+                 url, 
+                 data: bodyData, 
+                 headers: headers,
+                 token: accessToken
+                 );
+            
+             if (response.StatusCode == HttpStatusCode.OK)
+             {
+                 var successResult =  WebUtils.HandleResponse<GoogleCalendarEvent>(response);
+                 successResult.IsSuccess = true;
+                 return successResult;
+             }
+             //Other response - error
+             var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+             errorResult.IsSuccess = false;
+             return errorResult;
+
+         }
+        /// <summary>
+        /// update event time in user calendar
+        /// </summary>
+        /// <returns>Google Calendar Event</returns>
+        public async Task<GoogleResponse> UpdateEvent(string email, string eventId, string accessToken, UpdateGoogleCalendarEventRequest updateRequest)
         {
-            string url = $"https://www.googleapis.com/calendar/v3/calendars/{email}/events";
-            var response = await WebUtils.PostAsync(url, accessToken, createRequest.Start, createRequest.End );
-            if (response == null) return null;
-            GoogleCalendarEvent calendarEvent = response;
-            return calendarEvent;
+            string url = $"https://www.googleapis.com/calendar/v3/calendars/{email}/events/{eventId}";
+            var headers = new Dictionary<string, string>
+            {
+                { "Accept-Charset", "utf-8" },
+                { "Authorization", $"Bearer {accessToken}" }
+            };
+            //anonymous data object
+            var bodyData = new 
+            {
+                Start = new EventTime
+                {
+                    DateTime = FormatDateTime(updateRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
+                    TimeZone = "Asia/Ho_Chi_Minh"
+                },
+                End = new EventTime
+                {
+                    DateTime = FormatDateTime(updateRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
+                    TimeZone = "Asia/Ho_Chi_Minh"
+                }
+            };
+            var response = await WebUtils.PutAsync(
+                url, 
+                data: bodyData, 
+                headers: headers,
+                token: accessToken
+            );
+            
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var successResult =  WebUtils.HandleResponse<GoogleCalendarEvent>(response);
+                successResult.IsSuccess = true;
+                return successResult;
+            }
+            //Other response - error
+            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            errorResult.IsSuccess = false;
+            return errorResult;
+
+        }
+        
+        /// <summary>
+        /// update event time in user calendar
+        /// </summary>
+        /// <returns>Google Calendar Event</returns>
+        public async Task<GoogleResponse> DeleteEvent(string email, string eventId, string accessToken)
+        {
+            string url = $"https://www.googleapis.com/calendar/v3/calendars/{email}/events/{eventId}";
+            var headers = new Dictionary<string, string>
+            {
+                { "Accept-Charset", "utf-8" },
+                { "Authorization", $"Bearer {accessToken}" }
+            };
+            var response = await WebUtils.DeleteAsync(
+                url, 
+                headers: headers,
+                token: accessToken
+            );
+            
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var successResult =  WebUtils.HandleResponse<GoogleCalendarEvent>(response);
+                successResult.IsSuccess = true;
+                return successResult;
+            }
+            //Other response - error
+            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            errorResult.IsSuccess = false;
+            return errorResult;
+
         }
     }
         
