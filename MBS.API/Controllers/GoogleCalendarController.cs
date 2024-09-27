@@ -1,8 +1,7 @@
 using MBS.Application.Helpers;
-using MBS.Shared.Models.Google;
-using MBS.Shared.Models.Google.Payload;
+using MBS.Shared.Models.Google.GoogleCalendar.Request;
+using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using MBS.Shared.Services.Interfaces;
-using Microsoft.AspNetCore.Mvc;
 
 namespace MBS.API.Controllers;
 
@@ -18,20 +17,14 @@ public class GoogleCalendarController : ControllerBase
     }
 
     [HttpGet("{email}/events")]
-    public async Task<ActionResult<BaseModel<List<GoogleCalendarEvent>, GoogleCalendarEventRequest>>> ListEvents(string email, string accessToken, DateTime timeMax, DateTime timeMin)
+    public async Task<IActionResult> ListEvents(string email, string accessToken, DateTime timeMax, DateTime timeMin)
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accessToken) || timeMin >= timeMax)
         {
-            return BadRequest(new BaseModel<List<GoogleCalendarEvent>, GoogleCalendarEventRequest>
-            {
-                Message = MessageResponseHelper.InvalidInputParameter(),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status400BadRequest,
-                RequestModel = null
-            });
+            return BadRequest(MessageResponseHelper.InvalidInputParameter());
         }
 
-        var request = new GoogleCalendarEventRequest
+        var request = new GetGoogleCalendarEventsRequest
         {
             Email = email,
             AccessToken = accessToken,
@@ -39,27 +32,64 @@ public class GoogleCalendarController : ControllerBase
             TimeMin = timeMin
         };
 
-        var events = await _googleService.ListEvents(request);
-        if (events == null)
-        {
-            return Unauthorized(new BaseModel<List<GoogleCalendarEvent>, GoogleCalendarEventRequest>
-            {
-                Message = MessageResponseHelper.AuthorizeFail(),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status401Unauthorized,
-                RequestModel = request
-            });
+        var result = await _googleService.ListEvents(request);
+        if(result.IsSuccess){
+            return StatusCode(StatusCodes.Status200OK, result);
         }
-
-        var response = new BaseModel<List<GoogleCalendarEvent>, GoogleCalendarEventRequest>
+        //error
+        return StatusCode(((GoogleErrorResponse)result).Error.Code, (GoogleErrorResponse)result);
+    }
+    [HttpPost("{email}/events")]
+    public async Task<IActionResult> InsertEvent(string email, [FromQuery] string accessToken, [FromBody]CreateGoogleCalendarEventRequest requestBody)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accessToken) || requestBody.End < requestBody.Start)
         {
-            Message = MessageResponseHelper.GetSuccessfully("events"),
-            IsSuccess = true,
-            StatusCode = StatusCodes.Status200OK,
-            RequestModel = request,
-            ResponseModel = events
-        };
-
-        return StatusCode(response.StatusCode, response);
+            return BadRequest(MessageResponseHelper.InvalidInputParameter());
+        }
+    
+        var result = await _googleService.InsertEvent(email, accessToken, requestBody);
+        if(result.IsSuccess){
+            return StatusCode(StatusCodes.Status200OK, result);
+        }
+        //error
+        return StatusCode(((GoogleErrorResponse)result).Error.Code, (GoogleErrorResponse)result);
+        
+    }
+    
+    [HttpPut("{email}/events/{eventId}")]
+    public async Task<IActionResult> UpdateEvent(string email, string eventId, [FromQuery] string accessToken, [FromBody]UpdateGoogleCalendarEventRequest requestBody)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accessToken) || requestBody.End < requestBody.Start)
+        {
+            return BadRequest(MessageResponseHelper.InvalidInputParameter());
+        }
+    
+        //TODO: check update time first - if they are the same in db -> return ~ do nothing
+        
+        var result = await _googleService.UpdateEvent(email,eventId, accessToken, requestBody);
+        if(result.IsSuccess){
+            return StatusCode(StatusCodes.Status200OK, result);
+        }
+        //error
+        return StatusCode(((GoogleErrorResponse)result).Error.Code, (GoogleErrorResponse)result);
+        
+    }
+    [HttpDelete("{email}/events/{eventId}")]
+    public async Task<IActionResult> InsertEvent(string email, string eventId, [FromQuery] string accessToken)
+    {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accessToken))
+        {
+            return BadRequest(MessageResponseHelper.InvalidInputParameter());
+        }
+        
+        var result = await _googleService.DeleteEvent(email,eventId, accessToken);
+        if(result.IsSuccess){
+            //TODO: delete event in db ~ update status to canceled
+            
+            return StatusCode(StatusCodes.Status204NoContent);
+        }
+        //error
+        return StatusCode(((GoogleErrorResponse)result).Error.Code, (GoogleErrorResponse)result);
+        
     }
 }
