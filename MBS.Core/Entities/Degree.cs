@@ -13,7 +13,7 @@ namespace MBS.Core.Entities
     {
         [MaxLength(100), Required] public string Name { get; set; } = default;
         public string? ImageUrl { get; set; } = default;
-        [MaxLength(100)] public string? Insitution { get; set; } = default;
+        [MaxLength(100)] public string? Institution { get; set; } = default;
         [MaxLength(450)] public string MentorId { get; set; }
         [ForeignKey(nameof(MentorId))] public Mentor Mentor { get; set; }
     }

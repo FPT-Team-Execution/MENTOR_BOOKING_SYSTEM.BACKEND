@@ -113,7 +113,7 @@ public class MentorService : IMentorService
             var degree = new Degree()
             {
                 Id = Guid.NewGuid(),
-                Insitution = request.Institution,
+                Institution = request.Institution,
                 Name = request.Name,
                 MentorId = userId,
                 ImageUrl = degreeUrl

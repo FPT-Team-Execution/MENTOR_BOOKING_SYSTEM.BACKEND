@@ -12,7 +12,7 @@ namespace MBS.Core.Entities
 {
     public class Request : BaseEntity, IAuditedEntity
     {
-        public  Guid CalendarEventId { get; set; }
+        public  string CalendarEventId { get; set; }
         [ForeignKey(nameof(CalendarEventId))]
         public CalendarEvent CalendarEvent { get; set; }
         public Guid? ProjectId { get; set; }

@@ -72,7 +72,7 @@ namespace MBS.DataAccess.Persistents.Configurations
             builder.Property(e => e.Status)
             .HasConversion(
                 v => v.ToString(),
-                v => (StatusEnum)Enum.Parse(typeof(StatusEnum), v)
+                v => (EventStatus)Enum.Parse(typeof(EventStatus), v)
             );
         }
     }

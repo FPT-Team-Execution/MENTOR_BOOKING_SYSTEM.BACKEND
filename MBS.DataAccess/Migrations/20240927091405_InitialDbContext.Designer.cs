@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace MBS.DataAccess.Persistents.Migrations
+namespace MBS.DataAccess.Migrations
 {
     [DbContext(typeof(MBSContext))]
-    [Migration("20240926084635_UpdateEntities")]
-    partial class UpdateEntities
+    [Migration("20240927091405_InitialDbContext")]
+    partial class InitialDbContext
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,24 +27,25 @@ namespace MBS.DataAccess.Persistents.Migrations
 
             modelBuilder.Entity("MBS.Core.Entities.CalendarEvent", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime?>("EndTime")
+                    b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Label")
+                    b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LabelColor")
+                    b.Property<string>("HtmlLink")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("MeetingId")
+                    b.Property<string>("ICalUID")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("MeetingId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("MentorId")
@@ -52,18 +53,17 @@ namespace MBS.DataAccess.Persistents.Migrations
                         .HasMaxLength(450)
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<DateTime>("StartTime")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Summary")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -83,7 +83,7 @@ namespace MBS.DataAccess.Persistents.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Insitution")
+                    b.Property<string>("Institution")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -533,8 +533,9 @@ namespace MBS.DataAccess.Persistents.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CalendarEventId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("CalendarEventId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
@@ -869,9 +870,7 @@ namespace MBS.DataAccess.Persistents.Migrations
                 {
                     b.HasOne("MBS.Core.Entities.Meeting", "Meeting")
                         .WithMany()
-                        .HasForeignKey("MeetingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("MeetingId");
 
                     b.HasOne("MBS.Core.Entities.Mentor", "Mentor")
                         .WithMany()
