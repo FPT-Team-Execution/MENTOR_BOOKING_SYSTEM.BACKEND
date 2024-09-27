@@ -33,11 +33,20 @@ namespace MBS.Application.Services.Implements
         public async Task<BaseModel<GetAllMajorResponseModel, GetAllMajorReuqestModel>> GetAllMajor()
         {
             var result = await _majorRepository.GetAllAsync();
+            if (result == null)
+            {
+                return new BaseModel<GetAllMajorResponseModel, GetAllMajorReuqestModel>()
+                {
+                    Message = MessageResponseHelper.Fail("Get all " + nameof(Major)),
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    IsSuccess = false
+                };
+            }
 
             return new BaseModel<GetAllMajorResponseModel, GetAllMajorReuqestModel>()
             {
-                Message = MessageResponseHelper.Fail("Get all " + nameof(Major)),
-                StatusCode = StatusCodes.Status400BadRequest,
+                Message = MessageResponseHelper.Successfully("Get all " + nameof(Major)),
+                StatusCode = StatusCodes.Status200OK,
                 IsSuccess = true,
                 ResponseModel = new GetAllMajorResponseModel()
                 {
