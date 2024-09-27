@@ -20,7 +20,7 @@ namespace MBS.Application
             services.AddScoped<IMentorService, MentorService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ITemplateService, TemplateService>();
-            services.AddScoped<IGoogleAuthenticationService, GoogleAuthenticationService>();
+            services.AddScoped<IGoogleCalendarService, GoogleCalendarService>();
             services.AddScoped<ISupabaseService, SupabaseService>();
 
         }
