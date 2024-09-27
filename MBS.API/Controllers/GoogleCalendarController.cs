@@ -75,7 +75,7 @@ public class GoogleCalendarController : ControllerBase
         
     }
     [HttpDelete("{email}/events/{eventId}")]
-    public async Task<IActionResult> InsertEvent(string email, string eventId, [FromQuery] string accessToken)
+    public async Task<IActionResult> DeleteEvent(string email, string eventId, [FromQuery] string accessToken)
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accessToken))
         {
