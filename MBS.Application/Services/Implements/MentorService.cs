@@ -144,4 +144,42 @@ public class MentorService : IMentorService
             };
         }
     }
+
+    public async Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(
+        ClaimsPrincipal claimsPrincipal)
+    {
+        try
+        {
+            var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
+            var degrees = await _degreeRepository.GetAllAsync(x => x.MentorId == userId);
+
+            var degreeResponseModels = degrees.Select(x => new GetOwnDegreeResponseModel()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Institution = x.Insitution,
+                ImageUrl = x.ImageUrl
+            });
+
+            return new BaseModel<GetOwnDegreesResponseModel>()
+            {
+                Message = MessageResponseHelper.GetSuccessfully("degrees"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = new GetOwnDegreesResponseModel()
+                {
+                    DegreeResponseModels = degreeResponseModels
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetOwnDegreesResponseModel>()
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
 }
