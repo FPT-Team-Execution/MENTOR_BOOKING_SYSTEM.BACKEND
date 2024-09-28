@@ -57,7 +57,7 @@ namespace MBS.Application.Services.Implements
         //OK
         public async Task<BaseModel<GetMajorResponseModel, GetMajorRequestModel>> GetMajor(GetMajorRequestModel request)
         {
-            var resultSet = await _majorRepository.GetAsync(i => i.Id.Equals(request));
+            var resultSet = await _majorRepository.GetAsync(i => i.Id == request.id);
             if (resultSet == null) 
             {
                 return new BaseModel<GetMajorResponseModel, GetMajorRequestModel>()
