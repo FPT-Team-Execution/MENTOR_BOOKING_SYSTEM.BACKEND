@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MBS.API.Controllers;
 
 [ApiController]
-[Route("api/calendar-event")]
+[Route("/api/calendar-event")]
 public class CalendarEventController : ControllerBase
 {
     private readonly ICalendarEventService _calendarEventService;
@@ -15,32 +15,32 @@ public class CalendarEventController : ControllerBase
     {
         _calendarEventService = calendarEventService;   
     }
-    [HttpPost("events")]
-    public async Task<ActionResult<Task<BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>>>> CreateEvent(CreateCalendarRequestModel requestModel)
+    [HttpPost("")]
+    public async Task<ActionResult<BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>>> CreateEvent([FromBody]CreateCalendarRequestModel requestModel)
     {
         var result = await _calendarEventService.CreateCalendarEvent(requestModel);
         return StatusCode(result.StatusCode, result);
    
     }
-    [HttpGet("events/mentors/{mentorId}")]
-    public async Task<ActionResult<BaseModel<GetCalendarEventsResponseModel, GetCalendarEventsRequestModel>>> GetEvents(GetCalendarEventsRequestModel requestModel)
+    [HttpGet("{mentorId}")]
+    public async Task<ActionResult<BaseModel<GetCalendarEventsResponseModel, GetCalendarEventsRequestModel>>> GetEventByMentorId([FromRoute] string mentorId)
     {
-        var result = await _calendarEventService.GetCalendarEventsByMentorId(requestModel);
+        var result = await _calendarEventService.GetCalendarEventsByMentorId(mentorId);
         return StatusCode(result.StatusCode, result);
         
     }
     
-    [HttpPut("events/{calendarEventId}")]
-    public async Task<ActionResult<BaseModel<UpdateCalendarEventResponseModel, UpdateCalendarEventRequestModel>>> UpdateEvent(UpdateCalendarEventRequestModel requestModel)
+    [HttpPut("{calendarEventId}")]
+    public async Task<ActionResult<BaseModel<UpdateCalendarEventResponseModel>>> UpdateEvent([FromRoute] string calendarEventId, UpdateCalendarEventRequestModel requestModel)
     {
-        var result = await _calendarEventService.UpdateCalendarEvent(requestModel);
+        var result = await _calendarEventService.UpdateCalendarEvent(calendarEventId, requestModel);
         return StatusCode(result.StatusCode, result);
         
     }
-    [HttpDelete("events/{calendarEventId}")]
-    public async Task<ActionResult<BaseModel<DeleteCalendarEventResponseModel, DeleteCalendarEventRequestModel>>> DeleteEvent(DeleteCalendarEventRequestModel requestModel)
+    [HttpDelete("{calendarEventId}")]
+    public async Task<ActionResult<BaseModel<DeleteCalendarEventResponseModel>>> DeleteEvent([FromRoute] string calendarEventId)
     {
-        var result = await _calendarEventService.DeleteCalendarEvent(requestModel);
+        var result = await _calendarEventService.DeleteCalendarEvent(calendarEventId);
         return StatusCode(result.StatusCode, result);
         
     }

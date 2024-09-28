@@ -6,8 +6,6 @@ namespace MBS.Application.Models.CalendarEvent;
 public class UpdateCalendarEventRequestModel
 {
     [Required]
-    public string CalendarEventId { get; set; }
-    [Required]
     [Description("new url's event after updating from Google Calendar")]
     public string newHtmlLink { get; set; }
     [Required]

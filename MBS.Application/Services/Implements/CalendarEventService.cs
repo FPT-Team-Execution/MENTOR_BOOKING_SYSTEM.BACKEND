@@ -107,14 +107,14 @@ public class CalendarEventService : ICalendarEventService
         }
     }
 
-    public async Task<BaseModel<GetCalendarEventsResponseModel, GetCalendarEventsRequestModel>> GetCalendarEventsByMentorId(GetCalendarEventsRequestModel request)
+    public async Task<BaseModel<GetCalendarEventsResponseModel>> GetCalendarEventsByMentorId(string mentorId)
     {
         try
         {
-            var mentor = await _mentorRepository.GetAsync(m => m.UserId == request.MentorId);
+            var mentor = await _mentorRepository.GetAsync(m => m.UserId == mentorId);
             if (mentor == null)
             {
-                return new BaseModel<GetCalendarEventsResponseModel, GetCalendarEventsRequestModel>
+                return new BaseModel<GetCalendarEventsResponseModel>
                 {
                     Message = MessageResponseHelper.UserNotFound(),
                     IsSuccess = false,
@@ -124,13 +124,12 @@ public class CalendarEventService : ICalendarEventService
             //find events by mentor
             var events = await _calendarEventRepository.GetAllAsync(e => e.MentorId == mentor.UserId);
   
-            return new BaseModel<GetCalendarEventsResponseModel, GetCalendarEventsRequestModel>
+            return new BaseModel<GetCalendarEventsResponseModel>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                RequestModel = request,
-                ResponseModel = new GetCalendarEventsResponseModel
+                ResponseRequestModel = new GetCalendarEventsResponseModel
                 {
                     Events = events
                 }
@@ -138,7 +137,7 @@ public class CalendarEventService : ICalendarEventService
         }
         catch (Exception e)
         {
-            return new BaseModel<GetCalendarEventsResponseModel, GetCalendarEventsRequestModel>
+            return new BaseModel<GetCalendarEventsResponseModel>
             {
                 Message = e.Message,
                 IsSuccess = true,
@@ -147,14 +146,14 @@ public class CalendarEventService : ICalendarEventService
         }
     }
 
-    public async Task<BaseModel<UpdateCalendarEventResponseModel, UpdateCalendarEventRequestModel>> UpdateCalendarEvent(UpdateCalendarEventRequestModel request)
+    public async Task<BaseModel<UpdateCalendarEventResponseModel>> UpdateCalendarEvent(string calendarEventId, UpdateCalendarEventRequestModel request)
     {
         try
         {
             //check meeting Id
         var meeting = await _meetingRepository.GetAsync(m => m.Id == request.MeetingId);
         if (meeting == null)
-            return new BaseModel<UpdateCalendarEventResponseModel, UpdateCalendarEventRequestModel>
+            return new BaseModel<UpdateCalendarEventResponseModel>
             {
                 Message = MessageResponseHelper.MeetingNotFound(request.MeetingId.ToString()),
                 IsSuccess = false,
@@ -162,7 +161,7 @@ public class CalendarEventService : ICalendarEventService
                 
             };
         if (meeting.Status != MeetingStatusEnum.New)
-            return new BaseModel<UpdateCalendarEventResponseModel, UpdateCalendarEventRequestModel>
+            return new BaseModel<UpdateCalendarEventResponseModel>
             {
                 Message = MessageResponseHelper.InvalidMeetingSatus(meeting.Id.ToString()),
                 IsSuccess = false,
@@ -170,11 +169,11 @@ public class CalendarEventService : ICalendarEventService
                 
             };
         //update calendar event
-        var calendarEvent = await _calendarEventRepository.GetAsync(m => m.Id == request.CalendarEventId);
+        var calendarEvent = await _calendarEventRepository.GetAsync(m => m.Id == calendarEventId);
         if(calendarEvent == null)
-            return new BaseModel<UpdateCalendarEventResponseModel, UpdateCalendarEventRequestModel>
+            return new BaseModel<UpdateCalendarEventResponseModel>
             {
-                Message = MessageResponseHelper.CalendarNotFound(request.CalendarEventId),
+                Message = MessageResponseHelper.CalendarNotFound(calendarEventId),
                 IsSuccess = false,
                 StatusCode = StatusCodes.Status404NotFound,
                 
@@ -192,18 +191,17 @@ public class CalendarEventService : ICalendarEventService
         calendarEvent.MeetingId = request.MeetingId;
         var updateSuccess = await _calendarEventRepository.UpdateAsync(calendarEvent);
         if (updateSuccess)
-            return new BaseModel<UpdateCalendarEventResponseModel, UpdateCalendarEventRequestModel>
+            return new BaseModel<UpdateCalendarEventResponseModel>
             {
                 Message = MessageResponseHelper.UpdateSuccessfully("event"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                RequestModel = request,
-                ResponseModel = new UpdateCalendarEventResponseModel
+                ResponseRequestModel = new UpdateCalendarEventResponseModel
                 {
                     Event = calendarEvent,
                 }
             };
-        return new BaseModel<UpdateCalendarEventResponseModel, UpdateCalendarEventRequestModel>
+        return new BaseModel<UpdateCalendarEventResponseModel>
         {
             Message = MessageResponseHelper.UpdateFailed("event"),
             IsSuccess = false,
@@ -212,7 +210,7 @@ public class CalendarEventService : ICalendarEventService
         }
         catch (Exception e)
         {
-            return new BaseModel<UpdateCalendarEventResponseModel, UpdateCalendarEventRequestModel>
+            return new BaseModel<UpdateCalendarEventResponseModel>
             {
                 Message = MessageResponseHelper.UpdateFailed("event"),
                 IsSuccess = false,
@@ -221,22 +219,22 @@ public class CalendarEventService : ICalendarEventService
         }
     }
 
-    public async Task<BaseModel<DeleteCalendarEventResponseModel, DeleteCalendarEventRequestModel>> DeleteCalendarEvent(DeleteCalendarEventRequestModel request)
+    public async Task<BaseModel<DeleteCalendarEventResponseModel>> DeleteCalendarEvent(string calendarEventId)
     {
         try
         {
             //check meeting status related to canlendar event ~ Cancled
             var calendarEvent =
-                await _calendarEventRepository.GetAsync(e => e.Id == request.calendarEventId, "Meeting");
+                await _calendarEventRepository.GetAsync(e => e.Id == calendarEventId, "Meeting");
             if (calendarEvent == null)
-                return new BaseModel<DeleteCalendarEventResponseModel, DeleteCalendarEventRequestModel>
+                return new BaseModel<DeleteCalendarEventResponseModel>
                 {
-                    Message = MessageResponseHelper.CalendarNotFound(request.calendarEventId),
+                    Message = MessageResponseHelper.CalendarNotFound(calendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             if (calendarEvent.Meeting!.Status != MeetingStatusEnum.Canceled)
-                return new BaseModel<DeleteCalendarEventResponseModel, DeleteCalendarEventRequestModel>
+                return new BaseModel<DeleteCalendarEventResponseModel>
                 {
                     Message = MessageResponseHelper.InvalidMeetingSatus(calendarEvent.MeetingId.ToString()),
                     IsSuccess = false,
@@ -247,26 +245,24 @@ public class CalendarEventService : ICalendarEventService
             calendarEvent.Status = EventStatus.Cancleled;
             var deleteSuccess = await _calendarEventRepository.UpdateAsync(calendarEvent);
             if(deleteSuccess)
-                return new BaseModel<DeleteCalendarEventResponseModel, DeleteCalendarEventRequestModel>
+                return new BaseModel<DeleteCalendarEventResponseModel>
                 {
                     Message = "",
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status204NoContent,
-                    RequestModel = request,
-                    ResponseModel = new (),
+                    ResponseRequestModel = new (),
                 };
-            return new BaseModel<DeleteCalendarEventResponseModel, DeleteCalendarEventRequestModel>
+            return new BaseModel<DeleteCalendarEventResponseModel>
             {
                 Message = MessageResponseHelper.DeleteFailed("event"),
                 IsSuccess = false,
                 StatusCode = StatusCodes.Status200OK,
-                RequestModel = request,
-                ResponseModel = new (),
+                ResponseRequestModel = new (),
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<DeleteCalendarEventResponseModel, DeleteCalendarEventRequestModel>
+            return new BaseModel<DeleteCalendarEventResponseModel>
             {
                 Message = e.Message,
                 IsSuccess = false,
