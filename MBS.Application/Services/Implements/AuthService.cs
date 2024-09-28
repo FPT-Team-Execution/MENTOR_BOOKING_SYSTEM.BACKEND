@@ -13,6 +13,7 @@ using MBS.Shared.Templates;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.OpenApi.Extensions;
 
 namespace MBS.Application.Services.Implements;
 
@@ -30,12 +31,12 @@ public class AuthService : IAuthService
     public AuthService
     (
         RoleManager<IdentityRole> roleManager,
-        UserManager<ApplicationUser> userManager, 
-        SignInManager<ApplicationUser> signInManager, 
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager,
         IStudentRepository studentRepository,
-        IMentorRepository mentorRepository, 
+        IMentorRepository mentorRepository,
         IConfiguration configuration,
-        IEmailService emailService, 
+        IEmailService emailService,
         ITemplateService templateService)
     {
         _studentRepository = studentRepository;
@@ -48,159 +49,105 @@ public class AuthService : IAuthService
         _signInManager = signInManager;
     }
 
-    public async Task<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>> SignUpStudentAsync(
-        RegisterStudentRequestModel request)
+    public async Task<BaseModel<RegisterResponseModel, RegisterRequestModel>> SignUpAsync(
+        RegisterRequestModel request)
     {
         try
         {
-            var existUser = await _userManager.FindByEmailAsync(request.Email);
-
-            if (existUser is not null)
+            switch (request.Role.Trim().ToUpper())
             {
-                return new()
+                case var role when role == nameof(UserRoleEnum.Student).ToUpper():
                 {
-                    Message = MessageResponseHelper.UserWasExisted(request.Email),
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    IsSuccess = false
-                };
-            }
+                    var existUser = await _userManager.FindByEmailAsync(request.Email);
 
-            var newUser = new ApplicationUser()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Email = request.Email,
-                UserName = request.Email,
-                Gender = request.Gender,
-                FullName = request.FullName,
-                CreatedBy = request.Email,
-                CreatedOn = DateTime.UtcNow,
-            };
+                    if (existUser is not null)
+                    {
+                        return new BaseModel<RegisterResponseModel, RegisterRequestModel>
+                        {
+                            Message = MessageResponseHelper.UserWasExisted(request.Email),
+                            StatusCode = StatusCodes.Status400BadRequest,
+                            IsSuccess = false
+                        };
+                    }
 
-            var createUserResult = await _userManager.CreateAsync(newUser, request.Password);
+                    var newUser = new ApplicationUser()
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Email = request.Email,
+                        UserName = request.Email,
+                        Gender = request.Gender,
+                        FullName = request.FullName,
+                        CreatedBy = request.Email,
+                        CreatedOn = DateTime.UtcNow,
+                    };
 
-            if (!createUserResult.Succeeded)
-            {
-                throw new DatabaseInsertException("user");
-            }
+                    var createUserResult = await _userManager.CreateAsync(newUser, request.Password);
 
-            var assignRoleResult = await _userManager.AddToRoleAsync(newUser, UserRoleEnum.Student.ToString());
+                    if (!createUserResult.Succeeded)
+                    {
+                        throw new DatabaseInsertException("user");
+                    }
 
-            if (!assignRoleResult.Succeeded)
-            {
-                throw new DatabaseInsertException("role");
-            }
+                    var assignRoleResult = await _userManager.AddToRoleAsync(newUser, UserRoleEnum.Student.ToString());
 
-            var newStudent = new Student()
-            {
-                UserId = newUser.Id,
-                University = request.University,
-                MajorId = request.MajorId,
-                WalletPoint = 0
-            };
+                    if (!assignRoleResult.Succeeded)
+                    {
+                        throw new DatabaseInsertException("role");
+                    }
 
-            var addStudentResult = await _studentRepository.AddAsync(newStudent);
+                    var newStudent = new Student()
+                    {
+                        UserId = newUser.Id,
+                        University = request.University,
+                        MajorId = request.MajorId,
+                        WalletPoint = 0
+                    };
 
-            if (addStudentResult is false)
-            {
-                throw new DatabaseInsertException("student");
-            }
+                    var addStudentResult = await _studentRepository.AddAsync(newStudent);
 
-            await SendVerifyEmail(newUser);
+                    if (addStudentResult is false)
+                    {
+                        throw new DatabaseInsertException("student");
+                    }
 
-            return new BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>()
-            {
-                Message = MessageResponseHelper.Register("student"),
-                StatusCode = StatusCodes.Status201Created,
-                IsSuccess = true,
-                ResponseModel = new RegisterStudentResponseModel()
-                {
-                    UserId = newUser.Id
+                    await SendVerifyEmail(newUser);
+
+                    return new BaseModel<RegisterResponseModel, RegisterRequestModel>()
+                    {
+                        Message = MessageResponseHelper.Register("student"),
+                        StatusCode = StatusCodes.Status201Created,
+                        IsSuccess = true,
+                        ResponseModel = new RegisterResponseModel()
+                        {
+                            UserId = newUser.Id
+                        }
+                    };
                 }
-            };
+                case var role when role == nameof(UserRoleEnum.Admin).ToUpper():
+                {
+                    return new BaseModel<RegisterResponseModel, RegisterRequestModel>()
+                    {
+                        Message = MessageResponseHelper.Invalid("role"),
+                        IsSuccess = false,
+                        RequestModel = request,
+                        StatusCode = StatusCodes.Status406NotAcceptable
+                    };
+                }
+                default:
+                {
+                    return new BaseModel<RegisterResponseModel, RegisterRequestModel>()
+                    {
+                        Message = MessageResponseHelper.Invalid("role"),
+                        IsSuccess = false,
+                        RequestModel = request,
+                        StatusCode = StatusCodes.Status400BadRequest
+                    };
+                }
+            }
         }
         catch (Exception e)
         {
-            return new BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>()
-            {
-                Message = e.Message,
-                StatusCode = StatusCodes.Status500InternalServerError,
-                IsSuccess = false,
-                RequestModel = request
-            };
-        }
-    }
-
-    public async Task<BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>> SignUpMentorAsync(
-        RegisterMentorRequestModel request)
-    {
-        try
-        {
-            var existUser = await _userManager.FindByEmailAsync(request.Email);
-
-            if (existUser is not null)
-            {
-                return new()
-                {
-                    Message = MessageResponseHelper.UserWasExisted(request.Email),
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    IsSuccess = false,
-                };
-            }
-
-            var newUser = new ApplicationUser()
-            {
-                Id = Guid.NewGuid().ToString(),
-                Email = request.Email,
-                UserName = request.Email,
-                Gender = request.Gender,
-                FullName = request.FullName,
-                CreatedBy = request.Email,
-                CreatedOn = DateTime.UtcNow,
-            };
-
-            var createUserResult = await _userManager.CreateAsync(newUser, request.Password);
-
-            if (!createUserResult.Succeeded)
-            {
-                throw new DatabaseInsertException("user");
-            }
-
-            var assignRoleResult = await _userManager.AddToRoleAsync(newUser, UserRoleEnum.Mentor.ToString());
-
-            if (!assignRoleResult.Succeeded)
-            {
-                throw new DatabaseInsertException("role");
-            }
-
-            var newMentor = new Mentor()
-            {
-                UserId = newUser.Id,
-                Industry = request.Industry
-            };
-
-            var addMentorResult = await _mentorRepository.AddAsync(newMentor);
-
-            if (addMentorResult is false)
-            {
-                throw new DatabaseInsertException("mentor");
-            }
-
-            await SendVerifyEmail(newUser);
-
-            return new BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>()
-            {
-                Message = MessageResponseHelper.Register("mentor"),
-                StatusCode = StatusCodes.Status201Created,
-                IsSuccess = true,
-                ResponseModel = new RegisterMentorResponseModel()
-                {
-                    UserId = newUser.Id
-                }
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>()
+            return new BaseModel<RegisterResponseModel, RegisterRequestModel>()
             {
                 Message = e.Message,
                 StatusCode = StatusCodes.Status500InternalServerError,
@@ -438,46 +385,51 @@ public class AuthService : IAuthService
 
         await _emailService.SendEmailAsync(EmailMessage.Create(user.Email!, emailBody, "[MBS]Confirm your email"));
     }
-     public async Task<BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>> LoginOrSignUpExternal(
-         ExternalSignInRequestModel request){
-         var externalInfo = request.ExternalInfo;
-         //Try Sign in by external information
-         var tryExternalLogin = await _signInManager.ExternalLoginSignInAsync(externalInfo.LoginProvider, externalInfo.ProviderKey, true);
-         //if success, get info user and return result
-         if (tryExternalLogin.Succeeded)
-         {
-             var user = await _userManager.FindByLoginAsync(externalInfo.LoginProvider, externalInfo.ProviderKey);
-             if (user == null)
-             {
-                 return new BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>
-                 {
-                     Message = MessageResponseHelper.UserNotFound(),
-                     StatusCode = StatusCodes.Status500InternalServerError,
-                     IsSuccess = false,
-                 };
-             }
-             var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(user, _userManager, _configuration);
-             var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(user, _configuration);
-             return new BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>
-             {
-                 Message = MessageResponseHelper.GetSuccessfully("athorization"),
-                 StatusCode = StatusCodes.Status200OK,
-                 IsSuccess = true, 
-                 ResponseModel = new ExternalSignInResponseModel
-                 {
-                     JwtModel = new JwtModel
-                     {
-                         AccessToken = accessToken,
-                         RefreshToken =   refreshToken,
-                     },
-                     //TODO: return refresh token
-                     AccessToken = externalInfo.GoogleAccessToken,
-                 }
-             };
-         }
-         //if user is new -> create new account
-         var userCreate = new ApplicationUser
-         {
+
+    public async Task<BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>> LoginOrSignUpExternal(
+        ExternalSignInRequestModel request)
+    {
+        var externalInfo = request.ExternalInfo;
+        //Try Sign in by external information
+        var tryExternalLogin =
+            await _signInManager.ExternalLoginSignInAsync(externalInfo.LoginProvider, externalInfo.ProviderKey, true);
+        //if success, get info user and return result
+        if (tryExternalLogin.Succeeded)
+        {
+            var user = await _userManager.FindByLoginAsync(externalInfo.LoginProvider, externalInfo.ProviderKey);
+            if (user == null)
+            {
+                return new BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    IsSuccess = false,
+                };
+            }
+
+            var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(user, _userManager, _configuration);
+            var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(user, _configuration);
+            return new BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("athorization"),
+                StatusCode = StatusCodes.Status200OK,
+                IsSuccess = true,
+                ResponseModel = new ExternalSignInResponseModel
+                {
+                    JwtModel = new JwtModel
+                    {
+                        AccessToken = accessToken,
+                        RefreshToken = refreshToken,
+                    },
+                    //TODO: return refresh token
+                    AccessToken = externalInfo.GoogleAccessToken,
+                }
+            };
+        }
+
+        //if user is new -> create new account
+        var userCreate = new ApplicationUser
+        {
             Email = externalInfo.Email,
             UserName = externalInfo.Email,
             FullName = externalInfo.Name,

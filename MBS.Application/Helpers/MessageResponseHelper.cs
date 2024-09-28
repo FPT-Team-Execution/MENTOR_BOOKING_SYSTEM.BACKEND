@@ -13,6 +13,15 @@ public static class MessageResponseHelper
         return stringBuilder.ToString();
     }
 
+    public static string Invalid(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("The ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" was invalid.");
+        return stringBuilder.ToString();
+    }
+
     public static string Login()
     {
         var stringBuilder = new StringBuilder();
@@ -158,12 +167,14 @@ public static class MessageResponseHelper
         stringBuilder.Append("Authorization successfully.");
         return stringBuilder.ToString();
     }
+
     public static string AuthorizeFail()
     {
         var stringBuilder = new StringBuilder();
         stringBuilder.Append("Authorization failed.");
         return stringBuilder.ToString();
     }
+
     public static string UploadSuccessfully(string objectName)
     {
         var stringBuilder = new StringBuilder();
@@ -172,6 +183,7 @@ public static class MessageResponseHelper
         stringBuilder.Append(" successfully.");
         return stringBuilder.ToString();
     }
+
     public static string InvalidInputParameter()
     {
         var stringBuilder = new StringBuilder();
