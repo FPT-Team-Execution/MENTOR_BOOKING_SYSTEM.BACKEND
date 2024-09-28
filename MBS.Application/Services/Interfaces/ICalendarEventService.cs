@@ -7,8 +7,10 @@ namespace MBS.Application.Services.Interfaces;
 public interface ICalendarEventService
 {
     Task<BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>> CreateCalendarEvent(CreateCalendarRequestModel request);
-    Task<BaseModel<GetCalendarEventsResponseModel, GetCalendarEventsRequestModel>> GetCalendarEventsByMentorId(GetCalendarEventsRequestModel request);
-    Task<BaseModel<UpdateCalendarEventResponseModel, UpdateCalendarEventRequestModel>> UpdateCalendarEvent(UpdateCalendarEventRequestModel request);
-    Task<BaseModel<DeleteCalendarEventResponseModel, DeleteCalendarEventRequestModel>> DeleteCalendarEvent(DeleteCalendarEventRequestModel request);
+    Task<BaseModel<GetCalendarEventsResponseModel>> GetCalendarEventsByMentorId(string mentorId);
+
+    Task<BaseModel<UpdateCalendarEventResponseModel>> UpdateCalendarEvent(string calendarEventId,
+        UpdateCalendarEventRequestModel request);
+    Task<BaseModel<DeleteCalendarEventResponseModel>> DeleteCalendarEvent(string calendarEventId);
 
 }

@@ -5,7 +5,7 @@ using MBS.Shared.Services.Interfaces;
 
 namespace MBS.API.Controllers;
 
-[Route("api/calendar")]
+[Route("api/calendars")]
 [ApiController]
 public class GoogleCalendarController : ControllerBase
 {
@@ -16,17 +16,17 @@ public class GoogleCalendarController : ControllerBase
         _googleService = googleService;
     }
 
-    [HttpGet("{email}/events")]
-    public async Task<IActionResult> ListEvents(string email, string accessToken, DateTime timeMax, DateTime timeMin)
+    [HttpGet("{calendarId}/events")]
+    public async Task<IActionResult> ListEvents([FromRoute] string calendarId, [FromQuery] string accessToken, DateTime timeMax, DateTime timeMin)
     {
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accessToken) || timeMin >= timeMax)
+        if (string.IsNullOrWhiteSpace(calendarId) || string.IsNullOrWhiteSpace(accessToken) || timeMin >= timeMax)
         {
             return BadRequest(MessageResponseHelper.InvalidInputParameter());
         }
 
         var request = new GetGoogleCalendarEventsRequest
         {
-            Email = email,
+            Email = calendarId,
             AccessToken = accessToken,
             TimeMax = timeMax,
             TimeMin = timeMin
@@ -39,15 +39,15 @@ public class GoogleCalendarController : ControllerBase
         //error
         return StatusCode(((GoogleErrorResponse)result).Error.Code, (GoogleErrorResponse)result);
     }
-    [HttpPost("{email}/events")]
-    public async Task<IActionResult> InsertEvent(string email, [FromQuery] string accessToken, [FromBody]CreateGoogleCalendarEventRequest requestBody)
+    [HttpPost("{calendarId}/event")]
+    public async Task<IActionResult> InsertEvent([FromRoute]string calendarId, [FromQuery] string accessToken, [FromBody]CreateGoogleCalendarEventRequest requestBody)
     {
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accessToken) || requestBody.End < requestBody.Start)
+        if (string.IsNullOrWhiteSpace(calendarId) || string.IsNullOrWhiteSpace(accessToken) || requestBody.End < requestBody.Start)
         {
             return BadRequest(MessageResponseHelper.InvalidInputParameter());
         }
     
-        var result = await _googleService.InsertEvent(email, accessToken, requestBody);
+        var result = await _googleService.InsertEvent(calendarId, accessToken, requestBody);
         if(result.IsSuccess){
             return StatusCode(StatusCodes.Status200OK, result);
         }
@@ -56,17 +56,17 @@ public class GoogleCalendarController : ControllerBase
         
     }
     
-    [HttpPut("{email}/events/{eventId}")]
-    public async Task<IActionResult> UpdateEvent(string email, string eventId, [FromQuery] string accessToken, [FromBody]UpdateGoogleCalendarEventRequest requestBody)
+    [HttpPut("{calendarId}/events/{eventId}")]
+    public async Task<IActionResult> UpdateEvent([FromRoute]string calendarId, [FromRoute] string eventId, [FromQuery] string accessToken, [FromBody]UpdateGoogleCalendarEventRequest requestBody)
     {
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accessToken) || requestBody.End < requestBody.Start)
+        if (string.IsNullOrWhiteSpace(calendarId) || string.IsNullOrWhiteSpace(accessToken) || requestBody.End < requestBody.Start)
         {
             return BadRequest(MessageResponseHelper.InvalidInputParameter());
         }
     
         //TODO: check update time first - if they are the same in db -> return ~ do nothing
         
-        var result = await _googleService.UpdateEvent(email,eventId, accessToken, requestBody);
+        var result = await _googleService.UpdateEvent(calendarId,eventId, accessToken, requestBody);
         if(result.IsSuccess){
             return StatusCode(StatusCodes.Status200OK, result);
         }
