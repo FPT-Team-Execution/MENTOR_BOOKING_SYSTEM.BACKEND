@@ -21,6 +21,7 @@ namespace MBS.Application
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<IGoogleService, GoogleService>();
+            services.AddScoped<ICalendarEventService, CalendarEventService>();
             services.AddScoped<ISupabaseService, SupabaseService>();
 
         }
