@@ -36,7 +36,7 @@ namespace MBS.DataAccess
             services.AddScoped<IMajorRepository, MajorRepository>();
             services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
             services.AddScoped<IMeetingRepository, MeetingRepository>();
-            services.AddScoped<IProjectRepository, IProjectRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
         }
 
