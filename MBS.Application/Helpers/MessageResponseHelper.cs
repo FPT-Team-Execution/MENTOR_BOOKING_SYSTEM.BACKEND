@@ -191,6 +191,24 @@ public static class MessageResponseHelper
         return stringBuilder.ToString();
     }
 
+    public static string Successfully(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        //stringBuilder.Append("Get ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" successfully.");
+        return stringBuilder.ToString();
+    }
+
+    public static string Fail(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        //stringBuilder.Append("Get ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" Fail.");
+        return stringBuilder.ToString();
+    }
+
     #region Meeting Message Helper
     public static string MeetingNotFound(string objectName)
     {
@@ -248,4 +266,5 @@ public static class MessageResponseHelper
     
     #endregion
    
+
 }
