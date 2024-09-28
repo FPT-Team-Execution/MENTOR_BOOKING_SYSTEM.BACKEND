@@ -6,11 +6,8 @@ namespace MBS.Application.Services.Interfaces;
 
 public interface IAuthService
 {
-    Task<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>> SignUpStudentAsync(
-        RegisterStudentRequestModel request);
-
-    Task<BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>> SignUpMentorAsync(
-        RegisterMentorRequestModel request);
+    Task<BaseModel<RegisterResponseModel, RegisterRequestModel>> SignUpAsync(
+        RegisterRequestModel request);
 
     Task<BaseModel<SignInResponseModel, SignInRequestModel>> SignIn(SignInRequestModel request);
 
