@@ -219,5 +219,33 @@ public static class MessageResponseHelper
         return stringBuilder.ToString();
     }
     #endregion
+
+    #region Project Message Helper
+    public static string ProjectNotFound(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Project with Id ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" was not found.");
+        return stringBuilder.ToString();
+    }
+    public static string ProjectClosed(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Project with Id ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" was closed.");
+        return stringBuilder.ToString();
+    }
+    public static string ProjectNotActivated(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Project with Id ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" was not activated.");
+        return stringBuilder.ToString();
+    }
+    
+    #endregion
    
 }
