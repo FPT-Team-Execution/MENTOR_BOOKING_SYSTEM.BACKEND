@@ -24,7 +24,8 @@ namespace MBS.Application
             services.AddScoped<IGoogleService, GoogleService>();
             services.AddScoped<ICalendarEventService, CalendarEventService>();
             services.AddScoped<ISupabaseService, SupabaseService>();
-           
+            services.AddScoped<IProjectService, ProjectService>();
+
 
         }
 

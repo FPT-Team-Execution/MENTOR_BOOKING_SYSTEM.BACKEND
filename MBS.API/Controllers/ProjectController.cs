@@ -16,7 +16,7 @@ namespace MBS.API.Controllers
         }
 
         // POST: api/projects
-        [HttpPost]
+        [HttpPost("")]
         public async Task<ActionResult<BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>>> CreateProject([FromBody] CreateProjectRequestModel request)
         {
             var result = await _projectService.CreateProject(request);
