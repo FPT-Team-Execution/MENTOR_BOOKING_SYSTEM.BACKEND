@@ -70,25 +70,14 @@ namespace MBS.API.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        [Route("student/sign-up")]
-        public async Task<ActionResult<BaseModel<RegisterStudentResponseModel, RegisterStudentRequestModel>>>
+        [Route("sign-up")]
+        public async Task<ActionResult<BaseModel<RegisterResponseModel, RegisterRequestModel>>>
         SignUpStudent(
-            [FromBody] RegisterStudentRequestModel request)
+            [FromBody] RegisterRequestModel request)
         {
-            var response = await _authService.SignUpStudentAsync(request);
+            var response = await _authService.SignUpAsync(request);
             return StatusCode(response.StatusCode, response);
         }
-
-        // [AllowAnonymous]
-        // [HttpPost]
-        // [Route("mentor/sign-up")]
-        // public async Task<ActionResult<BaseModel<RegisterMentorResponseModel, RegisterMentorRequestModel>>>
-        //     SignUpStudent(
-        //         [FromBody] RegisterMentorRequestModel request)
-        // {
-        //     var response = await _authService.SignUpMentorAsync(request);
-        //     return StatusCode(response.StatusCode, response);
-        // }
 
         [AllowAnonymous]
         [HttpPost]
