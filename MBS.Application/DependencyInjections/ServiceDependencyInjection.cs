@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using MBS.Application.Services.Interfaces;
 using MBS.Application.Services.Implements;
+using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Common.Email;
 using MBS.Shared.Services.Interfaces;
 
@@ -23,7 +24,9 @@ namespace MBS.Application
             services.AddScoped<IMajorService, MajorService>();
             services.AddScoped<ITemplateService, TemplateService>();
             services.AddScoped<IGoogleService, GoogleService>();
+            services.AddScoped<ICalendarEventService, CalendarEventService>();
             services.AddScoped<ISupabaseService, SupabaseService>();
+           
 
         }
 

@@ -1,11 +1,15 @@
+
+using System.ComponentModel.DataAnnotations;
+
 namespace MBS.Application.Models.CalendarEvent;
 
-public class GetCalendarEventRequestModel
+public class GetCalendarEventsRequestModel
 {
-    
+    [MaxLength(450), Required]
+    public string MentorId { get; set; }
 }
 
-public class GetCalendarEventResponseModel
+public class GetCalendarEventsResponseModel
 {
-    
+    public IEnumerable<Core.Entities.CalendarEvent> Events { get; set; }
 }
