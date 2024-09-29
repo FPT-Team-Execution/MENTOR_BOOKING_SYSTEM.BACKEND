@@ -17,31 +17,27 @@ namespace MBS.API.Controllers
         }
         //Tested
         [HttpGet]
-        [Route("/GetAll")]
         public async Task<IActionResult> GetAllMajors()
         {
             var response = await _majorService.GetAllMajor();
             return Ok(response);
         }
         //Tested
-        [HttpGet]
-        [Route("/GetMajor")]
-        public async Task<IActionResult> GetMajor(Guid resquestId)
+        [HttpGet ("{id}")]
+        public async Task<IActionResult> GetMajor(Guid id)
         {
-            var response = await _majorService.GetMajor(new GetMajorRequestModel { id = resquestId });
+            var response = await _majorService.GetMajor(new GetMajorRequestModel { id = id});
             return Ok(response);
         }
         //Tested
         [HttpPost]
-        [Route("/CreateMajor")]
         public async Task<IActionResult> CreateMajor([FromBody] CreateMajorRequestModel request)
         {
             var response = await _majorService.CreateNewMajorAsync(request);
             return StatusCode((int)response.StatusCode, response);
         }
         //Testing
-        [HttpPut]
-        [Route("/UpdateMajor/{id}")]
+        [HttpPut ("{id}")]
         public async Task<IActionResult> UpdateMajor(Guid id, [FromBody] UpdateMajorRequestModel request)
         {
             request.id = id;
@@ -49,11 +45,10 @@ namespace MBS.API.Controllers
             return StatusCode((int)response.StatusCode, response);
         }
         //Tested
-        [HttpDelete]
-        [Route("/DeleteMajor")]
-        public async Task<IActionResult> RemoveMajor(Guid resquestId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> RemoveMajor(Guid id)
         {
-            var response = await _majorService.RemoveMajor(new RemoveMajorRequestModel { id = resquestId});
+            var response = await _majorService.RemoveMajor(new RemoveMajorRequestModel { id = id});
             return StatusCode((int)response.StatusCode, response);
         }
     }
