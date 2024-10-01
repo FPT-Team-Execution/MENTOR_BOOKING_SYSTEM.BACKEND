@@ -116,6 +116,14 @@ public static class MessageResponseHelper
         stringBuilder.Append(" successfully.");
         return stringBuilder.ToString();
     }
+    public static string GetFailed(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Get ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" failed.");
+        return stringBuilder.ToString();
+    }
     public static string CreateSuccessfully(string objectName)
     {
         var stringBuilder = new StringBuilder();

@@ -1,11 +1,8 @@
-﻿using Azure.Messaging;
+﻿using System.Net;
 using MBS.Application.Helpers;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using MBS.Shared.Models.Google.GoogleOAuth.Response;
 using MBS.Shared.Services.Interfaces;
-using MBS.Shared.Services.Implements;
+
 
 namespace MBS.API.Controllers
 {
@@ -16,58 +13,74 @@ namespace MBS.API.Controllers
         private readonly IAuthService _authService;
         private readonly IClaimService _claimService;
         private readonly IGoogleService _googleService;
-        public AuthController(IGoogleService googleService, IClaimService claimService, IAuthService authService)
+        private readonly IConfiguration _configuration;
+        public AuthController(IGoogleService googleService, IClaimService claimService, IAuthService authService, IConfiguration configuration)
         {
             _googleService = googleService;
             _claimService = claimService;
             _authService = authService;
+            _configuration = configuration;
         }
-
-
-        [HttpGet("login")]
+        
+        [HttpGet("google-signin")]
         [EndpointSummary("Mentor login by Google account")]
-        public IActionResult Login()
-        {
-            //var props = new AuthenticationProperties { RedirectUri = "/api/auth/signin-google" };
-            var props = new AuthenticationProperties
-            {
-                RedirectUri = "/api/auth/signin-google",
-                Items =
-                    {
-                        { "prompt", "consent" },
-                        { "access_type", "offline" },
-                        { "scope", "https://www.googleapis.com/auth/userinfo.email" +
-                                    " https://www.googleapis.com/auth/userinfo.profile" +
-                                    " https://www.googleapis.com/auth/calendar"
-                        }
-                    }
-            };
-            return Challenge(props, GoogleDefaults.AuthenticationScheme);
+        public IActionResult GoogleLogin()
+        { 
+            var authUrl = _googleService.GenerateOauthUrl();
+            return Redirect(authUrl);
         }
-
-
+        
         [HttpGet("signin-google")]
         [EndpointSummary("Google call back uri")]
-        public async Task<ActionResult<BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>>>
-            SignInAndSignUpByGoogle()
+        public async Task<IActionResult> GoogleResponse(string code)
         {
-            var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
-            if (googleAuthResponse == null)
-                return new BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>
+            //Get Provider Info
+            // var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
+            // if (!googleAuthResponse.IsSuccess)
+            // {
+            //     return StatusCode(StatusCodes.Status401Unauthorized, new BaseModel
+            //     {
+            //         Message = MessageResponseHelper.GetFailed("provider"),
+            //         IsSuccess = false,
+            //         StatusCode = StatusCodes.Status401Unauthorized
+            //     });
+            // }
+            //get auth token
+            var tokenResponse = await _googleService.GetTokenGoogleUserAsync(code);
+            if (!tokenResponse.IsSuccess)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new BaseModel
                 {
                     Message = MessageResponseHelper.AuthorizeFail(),
-                    StatusCode = StatusCodes.Status500InternalServerError,
                     IsSuccess = false,
-                    RequestModel = null,
-                };
-            var response = await _authService.LoginOrSignUpExternal(new ExternalSignInRequestModel()
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            //get profile
+            var profileResponse = await _googleService.GetProfileGoogleUserAsync(((GoogleTokenResponse)tokenResponse).access_token);
+            if (!profileResponse.IsSuccess)
             {
-                ExternalInfo = googleAuthResponse
-            });
+                return StatusCode(StatusCodes.Status401Unauthorized, new BaseModel
+                {
+                    Message = MessageResponseHelper.AuthorizeFail(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            
+            
+            //SignUp Or Sign In 
+            var request = new ExternalSignInRequestModel
+            {
+                token = (GoogleTokenResponse)tokenResponse,
+                profile = (GoogleUserInfoResponse)profileResponse,
+            };
+            var response = await _authService.LoginOrSignUpExternal(request);
 
             return StatusCode(response.StatusCode, response);
         }
-
+        
+        
         [AllowAnonymous]
         [HttpPost]
         [Route("sign-up")]

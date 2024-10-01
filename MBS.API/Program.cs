@@ -37,7 +37,7 @@ namespace MBS.API
             builder.Services.AddServices();
 
             // Register application swagger gen
-            builder.Services.AddAppSwaggerGen();
+            builder.Services.AddAppSwaggerGen(builder.Configuration);
 
             // Register application smtp setting
             builder.Services.AddEmailConfiguration(builder.Configuration);
