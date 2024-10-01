@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using MBS.Shared.Models.Google.GoogleCalendar.Request;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
+using MBS.Shared.Models.Google.GoogleOAuth.Response;
 
 
 namespace MBS.Shared.Services.Implements
@@ -47,6 +48,28 @@ namespace MBS.Shared.Services.Implements
                 ProviderKey = providerKey,
                 LoginProvider = loginProvider
             };
+        }
+
+        public async Task<GoogleTokenResponse?> GetTokenGoogleUserAsync(string authenticatedCode)
+        {
+            string url = "https://oauth2.googleapis.com/token";
+            var requestBody = new Dictionary<string, string>
+            {
+                { "code", authenticatedCode },
+                { "client_id", _configuration["GoogleOauthConfig:ClientId"]! },
+                { "client_secret", _configuration["GoogleOauthConfig:ClientSecret"]! },
+                { "redirect_uri", _configuration["GoogleOauthConfig:CallbackUrl"]! },
+                { "grant_type", "authorization_code" }
+            };
+        
+            var response = await WebUtils.PostAsync(url, requestBody);
+        
+            if (!response.IsSuccessStatusCode)
+            {
+                return null; 
+            }
+            
+            return WebUtils.HandleResponse<GoogleTokenResponse>(response);
         }
 
         private void SetGoogleAccessToken(string accessToken, DateTime expiredTime)

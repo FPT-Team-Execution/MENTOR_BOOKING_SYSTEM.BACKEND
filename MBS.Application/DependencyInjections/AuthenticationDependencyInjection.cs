@@ -47,10 +47,6 @@ namespace MBS.API.ApiDependencyInjections
               {
                   options.ClientId = configuration.GetValue<string>("GoogleOauthConfig:ClientId"); 
                   options.ClientSecret = configuration.GetValue<string>("GoogleOauthConfig:ClientSecret");
-                  //options.CallbackPath = configuration.GetValue<string>("GoogleOauthConfig:CallbackUrl");
-                  //options.AccessType = configuration.GetValue<string>("GoogleOauthConfig:AccessType");
-                  //options.Scope.Add("https://www.googleapis.com/auth/userinfo.email");
-                  //options.Scope.Add("https://www.googleapis.com/auth/userinfo.profile");
                   options.SaveTokens = true;
               });
 

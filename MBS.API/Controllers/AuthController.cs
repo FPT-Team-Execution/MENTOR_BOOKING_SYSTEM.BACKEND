@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MBS.Shared.Services.Interfaces;
 using MBS.Shared.Services.Implements;
+using Newtonsoft.Json;
 
 namespace MBS.API.Controllers
 {
@@ -16,58 +17,96 @@ namespace MBS.API.Controllers
         private readonly IAuthService _authService;
         private readonly IClaimService _claimService;
         private readonly IGoogleService _googleService;
-        public AuthController(IGoogleService googleService, IClaimService claimService, IAuthService authService)
+        private readonly IConfiguration _configuration;
+        public AuthController(IGoogleService googleService, IClaimService claimService, IAuthService authService, IConfiguration configuration)
         {
             _googleService = googleService;
             _claimService = claimService;
             _authService = authService;
+            _configuration = configuration;
         }
 
-
-        [HttpGet("login")]
-        [EndpointSummary("Mentor login by Google account")]
-        public IActionResult Login()
+        //! Do not modify
+        // [HttpGet("login")]
+        // [EndpointSummary("Mentor login by Google account")]
+        // public IActionResult Login()
+        // {
+        //     var gScopes = _configuration.GetSection("googleOAuthConfig:GScopes").Get<Dictionary<string, string?>>()!;
+        //     var props = new AuthenticationProperties
+        //     {
+        //         RedirectUri = "/api/auth/signin-google",
+        //         Items =
+        //             {
+        //                 { "prompt", gScopes["prompt"] },
+        //                 { "access_type", gScopes["access_type"] },
+        //                 { "scope", gScopes["scope"] }
+        //             }
+        //     };
+        //     return Challenge(props, GoogleDefaults.AuthenticationScheme);
+        // }
+        //
+        //
+        // [HttpGet("signin-google")]
+        // [EndpointSummary("Google call back uri")]
+        // public async Task<ActionResult<BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>>>
+        //     SignInAndSignUpByGoogle()
+        // {
+        //     var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
+        //     if (googleAuthResponse == null)
+        //         return new BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>
+        //         {
+        //             Message = MessageResponseHelper.AuthorizeFail(),
+        //             StatusCode = StatusCodes.Status500InternalServerError,
+        //             IsSuccess = false,
+        //             RequestModel = null,
+        //         };
+        //     var response = await _authService.LoginOrSignUpExternal(new ExternalSignInRequestModel()
+        //     {
+        //         ExternalInfo = googleAuthResponse
+        //     });
+        //
+        //     return StatusCode(response.StatusCode, response);
+        // }
+        
+        [HttpGet("google-login")]
+        public IActionResult GoogleLogin()
         {
-            //var props = new AuthenticationProperties { RedirectUri = "/api/auth/signin-google" };
-            var props = new AuthenticationProperties
-            {
-                RedirectUri = "/api/auth/signin-google",
-                Items =
-                    {
-                        { "prompt", "consent" },
-                        { "access_type", "offline" },
-                        { "scope", "https://www.googleapis.com/auth/userinfo.email" +
-                                    " https://www.googleapis.com/auth/userinfo.profile" +
-                                    " https://www.googleapis.com/auth/calendar"
-                        }
-                    }
-            };
-            return Challenge(props, GoogleDefaults.AuthenticationScheme);
+            string authenticateUrl = "https://accounts.google.com/o/oauth2/auth?";
+
+            // The set of query string parameters supported by the Google Authorization Server
+            // Insert the new parameter if needed (following the default parameters below)
+            string scope = "scope=" + "https://www.googleapis.com/auth/calendar";
+            string redirectUri = "redirect_uri=" + "https://localhost:7554/api/auth/signin-google";
+            string accessType = "access_type=" + "offline";
+            string responseType = "response_type=" + "code";
+            string clientID = "client_id=" + _configuration["GoogleOauthConfig:ClientId"]; ;
+            string approvalPrompt = "approval_prompt=" + "force";
+            // string loginHint = "login_hint=" + emailAddress;
+
+            string finalAuthUrl = authenticateUrl + scope + "&" + responseType + "&"
+                                  + clientID + "&" + accessType + "&" + approvalPrompt + "&" + redirectUri;
+                                  // + "&" + loginHint;
+
+           return Redirect(finalAuthUrl);
         }
 
-
+        // Step 2: Endpoint to handle the Google response
         [HttpGet("signin-google")]
-        [EndpointSummary("Google call back uri")]
-        public async Task<ActionResult<BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>>>
-            SignInAndSignUpByGoogle()
+        public async Task<IActionResult> GoogleResponse(string code)
         {
-            var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
-            if (googleAuthResponse == null)
-                return new BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>
-                {
-                    Message = MessageResponseHelper.AuthorizeFail(),
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                    IsSuccess = false,
-                    RequestModel = null,
-                };
-            var response = await _authService.LoginOrSignUpExternal(new ExternalSignInRequestModel()
+            var tokenResponse = await _googleService.GetTokenGoogleUserAsync(code);
+            if (tokenResponse == null)
             {
-                ExternalInfo = googleAuthResponse
-            });
+                return BadRequest("Error retrieving token.");
+            }
 
-            return StatusCode(response.StatusCode, response);
+            // Optionally, you can now retrieve user information using the access token
+            // You may want to return the token or user info as needed
+
+            return Ok(tokenResponse);
         }
-
+        
+        
         [AllowAnonymous]
         [HttpPost]
         [Route("sign-up")]
