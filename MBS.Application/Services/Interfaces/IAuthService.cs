@@ -17,6 +17,6 @@ public interface IAuthService
     Task<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>> ConfirmEmailAsync(
         ConfirmEmailRequestModel request);
 
-    Task<BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>> LoginOrSignUpExternal(
+    Task<BaseModel<ExternalSignInResponseModel>> LoginOrSignUpExternal(
         ExternalSignInRequestModel request);
 }

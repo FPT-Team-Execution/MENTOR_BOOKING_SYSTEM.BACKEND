@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace MBS.Shared.Models.Google.GoogleOAuth.Response;
 
-public class GoogleTokenResponse
+public class GoogleTokenResponse : GoogleResponse
 {
         [JsonPropertyName("access_token")]
         public string access_token { get; set; }

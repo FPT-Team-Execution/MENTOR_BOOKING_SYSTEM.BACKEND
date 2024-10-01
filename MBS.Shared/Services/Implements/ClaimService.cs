@@ -15,11 +15,17 @@ namespace MBS.Shared.Services.Implements
         public ClaimService(IHttpContextAccessor httpContextAccessor)
         {
             _httpContextAccessor = httpContextAccessor;
+            
         }
 
         public string GetUserId()
         {
             return GetClaim(ClaimTypes.NameIdentifier);
+        }
+
+        public async Task<AuthenticateResult?> GetAuthenticationAsync(string authenticationScheme)
+        {
+            return await _httpContextAccessor.HttpContext.AuthenticateAsync();
         }
 
         public string GetClaim(string key)

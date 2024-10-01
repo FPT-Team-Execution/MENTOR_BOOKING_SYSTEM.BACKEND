@@ -1,4 +1,7 @@
-﻿using MBS.Shared.Services.Interfaces;
+﻿using System.Net;
+using MBS.Application.Helpers;
+using MBS.Shared.Models.Google.GoogleOAuth.Response;
+using MBS.Shared.Services.Interfaces;
 
 
 namespace MBS.API.Controllers
@@ -18,70 +21,63 @@ namespace MBS.API.Controllers
             _authService = authService;
             _configuration = configuration;
         }
-
-        //! Do not modify
-        // [HttpGet("login")]
-        // [EndpointSummary("Mentor login by Google account")]
-        // public IActionResult Login()
-        // {
-        //     var gScopes = _configuration.GetSection("googleOAuthConfig:GScopes").Get<Dictionary<string, string?>>()!;
-        //     var props = new AuthenticationProperties
-        //     {
-        //         RedirectUri = "/api/auth/signin-google",
-        //         Items =
-        //             {
-        //                 { "prompt", gScopes["prompt"] },
-        //                 { "access_type", gScopes["access_type"] },
-        //                 { "scope", gScopes["scope"] }
-        //             }
-        //     };
-        //     return Challenge(props, GoogleDefaults.AuthenticationScheme);
-        // }
-        //
-        //
-        // [HttpGet("signin-google")]
-        // [EndpointSummary("Google call back uri")]
-        // public async Task<ActionResult<BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>>>
-        //     SignInAndSignUpByGoogle()
-        // {
-        //     var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
-        //     if (googleAuthResponse == null)
-        //         return new BaseModel<ExternalSignInResponseModel, ExternalSignInRequestModel>
-        //         {
-        //             Message = MessageResponseHelper.AuthorizeFail(),
-        //             StatusCode = StatusCodes.Status500InternalServerError,
-        //             IsSuccess = false,
-        //             RequestModel = null,
-        //         };
-        //     var response = await _authService.LoginOrSignUpExternal(new ExternalSignInRequestModel()
-        //     {
-        //         ExternalInfo = googleAuthResponse
-        //     });
-        //
-        //     return StatusCode(response.StatusCode, response);
-        // }
         
-        [HttpGet("google-login")]
+        [HttpGet("google-signin")]
+        [EndpointSummary("Mentor login by Google account")]
         public IActionResult GoogleLogin()
         { 
             var authUrl = _googleService.GenerateOauthUrl();
-           return Redirect(authUrl);
+            return Redirect(authUrl);
         }
-
-        // Step 2: Endpoint to handle the Google response
+        
         [HttpGet("signin-google")]
+        [EndpointSummary("Google call back uri")]
         public async Task<IActionResult> GoogleResponse(string code)
         {
+            //Get Provider Info
+            // var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
+            // if (!googleAuthResponse.IsSuccess)
+            // {
+            //     return StatusCode(StatusCodes.Status401Unauthorized, new BaseModel
+            //     {
+            //         Message = MessageResponseHelper.GetFailed("provider"),
+            //         IsSuccess = false,
+            //         StatusCode = StatusCodes.Status401Unauthorized
+            //     });
+            // }
+            //get auth token
             var tokenResponse = await _googleService.GetTokenGoogleUserAsync(code);
-            if (tokenResponse == null)
+            if (!tokenResponse.IsSuccess)
             {
-                return BadRequest("Error retrieving token.");
+                return StatusCode(StatusCodes.Status401Unauthorized, new BaseModel
+                {
+                    Message = MessageResponseHelper.AuthorizeFail(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
             }
+            //get profile
+            var profileResponse = await _googleService.GetProfileGoogleUserAsync(((GoogleTokenResponse)tokenResponse).access_token);
+            if (!profileResponse.IsSuccess)
+            {
+                return StatusCode(StatusCodes.Status401Unauthorized, new BaseModel
+                {
+                    Message = MessageResponseHelper.AuthorizeFail(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status401Unauthorized
+                });
+            }
+            
+            
+            //SignUp Or Sign In 
+            var request = new ExternalSignInRequestModel
+            {
+                token = (GoogleTokenResponse)tokenResponse,
+                profile = (GoogleUserInfoResponse)profileResponse,
+            };
+            var response = await _authService.LoginOrSignUpExternal(request);
 
-            // Optionally, you can now retrieve user information using the access token
-            // You may want to return the token or user info as needed
-
-            return Ok(tokenResponse);
+            return StatusCode(response.StatusCode, response);
         }
         
         
