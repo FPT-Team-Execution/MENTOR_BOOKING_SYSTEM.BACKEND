@@ -7,6 +7,7 @@ namespace MBS.Shared.Services.Interfaces
 {
     public interface IGoogleService
     {
+        String GenerateOauthUrl();
         //* Google Auth
         Task<GoogleAuthResponse?> AuthenticateGoogleUserAsync(HttpContext context);
         Task<GoogleTokenResponse?> GetTokenGoogleUserAsync(string authenticatedCode);

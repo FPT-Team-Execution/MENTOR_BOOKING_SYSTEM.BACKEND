@@ -1,12 +1,5 @@
-﻿using Azure.Messaging;
-using MBS.Application.Helpers;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using MBS.Shared.Services.Interfaces;
-using MBS.Shared.Services.Implements;
-using Newtonsoft.Json;
+﻿using MBS.Shared.Services.Interfaces;
+
 
 namespace MBS.API.Controllers
 {
@@ -70,24 +63,9 @@ namespace MBS.API.Controllers
         
         [HttpGet("google-login")]
         public IActionResult GoogleLogin()
-        {
-            string authenticateUrl = "https://accounts.google.com/o/oauth2/auth?";
-
-            // The set of query string parameters supported by the Google Authorization Server
-            // Insert the new parameter if needed (following the default parameters below)
-            string scope = "scope=" + "https://www.googleapis.com/auth/calendar";
-            string redirectUri = "redirect_uri=" + "https://localhost:7554/api/auth/signin-google";
-            string accessType = "access_type=" + "offline";
-            string responseType = "response_type=" + "code";
-            string clientID = "client_id=" + _configuration["GoogleOauthConfig:ClientId"]; ;
-            string approvalPrompt = "approval_prompt=" + "force";
-            // string loginHint = "login_hint=" + emailAddress;
-
-            string finalAuthUrl = authenticateUrl + scope + "&" + responseType + "&"
-                                  + clientID + "&" + accessType + "&" + approvalPrompt + "&" + redirectUri;
-                                  // + "&" + loginHint;
-
-           return Redirect(finalAuthUrl);
+        { 
+            var authUrl = _googleService.GenerateOauthUrl();
+           return Redirect(authUrl);
         }
 
         // Step 2: Endpoint to handle the Google response

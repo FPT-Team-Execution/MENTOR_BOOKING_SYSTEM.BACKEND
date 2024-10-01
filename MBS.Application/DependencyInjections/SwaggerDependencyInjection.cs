@@ -14,12 +14,12 @@ namespace MBS.Application.DependencyInjections
         {
             services.AddSwaggerGen(options =>
             {
-                var googleOAuthConfig = configuration.GetSection("GoogleOauthConfig");
-                var clientId = googleOAuthConfig["ClientId"];
-                var clientSecret = googleOAuthConfig["ClientSecret"];
-                var authorizationUrl = googleOAuthConfig["AuthUri"];
-                var tokenUrl = googleOAuthConfig["TokenUri"];
-                var scopes = googleOAuthConfig.GetSection("Scopes").Get<Dictionary<string, string>>();
+                var googleOAuthConfig = configuration.GetSection("Google");
+                var clientId = googleOAuthConfig["Authentication:ClientId"];
+                var clientSecret = googleOAuthConfig["Authentication:ClientSecret"];
+                var authorizationUrl = googleOAuthConfig["Authentication:AuthUrl"];
+                var tokenUrl = googleOAuthConfig["Authentication:TokenUrl"];
+                var scopes = googleOAuthConfig.GetSection("Configuration:Scopes").Get<Dictionary<string, string>>();
 
                 // OAuth2 configuration
                 options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
@@ -58,7 +58,7 @@ namespace MBS.Application.DependencyInjections
                                 Id = "oauth2" // OAuth2 reference
                             }
                         },
-                        scopes.Keys.ToList()
+                        scopes!.Keys.ToList()
                     },
                     {
                         new OpenApiSecurityScheme
@@ -85,7 +85,7 @@ namespace MBS.Application.DependencyInjections
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             // Check if any AuthorizeAttribute exists on either the class or method
-            var hasAuthorize = context.MethodInfo.DeclaringType.GetCustomAttributes(true)
+            var hasAuthorize = context.MethodInfo.DeclaringType!.GetCustomAttributes(true)
                                .OfType<AuthorizeAttribute>().Any() ||
                             context.MethodInfo.GetCustomAttributes(true)
                                 .OfType<AuthorizeAttribute>().Any();

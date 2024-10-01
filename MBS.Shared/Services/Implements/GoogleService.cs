@@ -23,6 +23,21 @@ namespace MBS.Shared.Services.Implements
             _claimService = claimService;
             _configuration = configuration;
         }
+
+        public string GenerateOauthUrl()
+        {
+            string authenticateUrl = _configuration["Google:Authentication:AuthUrl"]!;
+            string scope = "scope=" + _configuration["Google:Authentication:Scope:calendar"]!;
+            string redirectUri = "redirect_uri=" + _configuration["Google:Authentication:CallbackUrl"]!;
+            string accessType = "access_type=" + "offline";
+            string responseType = "response_type=" + "code";
+            string clientId = "client_id=" + _configuration["Google:Authentication:ClientId"]!;
+            string approvalPrompt = "approval_prompt=" + "force";
+
+            string finalAuthUrl = $"{authenticateUrl}?{scope}&{responseType}&{clientId}&{accessType}&{approvalPrompt}&{redirectUri}";
+            return finalAuthUrl;
+        }
+
         public async Task<GoogleAuthResponse?> AuthenticateGoogleUserAsync(HttpContext context)
         {
             //var authenticateResult = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -33,32 +48,32 @@ namespace MBS.Shared.Services.Implements
             var givenName = authenticateResult.Principal.FindFirstValue(ClaimTypes.GivenName);
             var email = authenticateResult.Principal.FindFirstValue(ClaimTypes.Email);
             if (email == null) return null;
-            var accessToken = authenticateResult.Properties.GetTokenValue("access_token");
-            var refreshToken = authenticateResult.Properties.GetTokenValue("refresh_token");
+            var accessToken = authenticateResult.Properties!.GetTokenValue("access_token");
+            var refreshToken = authenticateResult.Properties!.GetTokenValue("refresh_token");
 
             var providerKey = authenticateResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            var loginProvider = authenticateResult.Ticket.Principal.Identity.AuthenticationType;
+            var loginProvider = authenticateResult.Ticket!.Principal.Identity!.AuthenticationType;
             return new GoogleAuthResponse
             {
-                Name = name,
-                GivenName = givenName,
+                Name = name!,
+                GivenName = givenName!,
                 Email = email,
-                GoogleRefreshToken = refreshToken,
-                GoogleAccessToken = accessToken,
-                ProviderKey = providerKey,
-                LoginProvider = loginProvider
+                GoogleRefreshToken = refreshToken!,
+                GoogleAccessToken = accessToken!,
+                ProviderKey = providerKey!,
+                LoginProvider = loginProvider!
             };
         }
 
         public async Task<GoogleTokenResponse?> GetTokenGoogleUserAsync(string authenticatedCode)
         {
-            string url = "https://oauth2.googleapis.com/token";
+            string url = _configuration["Google:Authentication:TokenUrl"]!;
             var requestBody = new Dictionary<string, string>
             {
                 { "code", authenticatedCode },
-                { "client_id", _configuration["GoogleOauthConfig:ClientId"]! },
-                { "client_secret", _configuration["GoogleOauthConfig:ClientSecret"]! },
-                { "redirect_uri", _configuration["GoogleOauthConfig:CallbackUrl"]! },
+                { "client_id", _configuration["Google:Authentication:ClientId"]! },
+                { "client_secret", _configuration["Google:Authentication:ClientSecret"]! },
+                { "redirect_uri", _configuration["Google:Authentication:CallbackUrl"]! },
                 { "grant_type", "authorization_code" }
             };
         
@@ -72,11 +87,11 @@ namespace MBS.Shared.Services.Implements
             return WebUtils.HandleResponse<GoogleTokenResponse>(response);
         }
 
-        private void SetGoogleAccessToken(string accessToken, DateTime expiredTime)
-        {
-            _claimService.SetCookieValue("Google.AccessToken", accessToken, expiredTime);
-        }
-        public string FormatDateTime( DateTime dateTime, String format)
+        // private void SetGoogleAccessToken(string accessToken, DateTime expiredTime)
+        // {
+        //     _claimService.SetCookieValue("Google.AccessToken", accessToken, expiredTime);
+        // }
+        private string FormatDateTime( DateTime dateTime, string format)
         {
             return dateTime.ToString(format);
         }

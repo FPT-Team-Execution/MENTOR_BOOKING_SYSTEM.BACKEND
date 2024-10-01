@@ -33,20 +33,19 @@ namespace MBS.API.ApiDependencyInjections
                       ValidateAudience = true,
                       ValidIssuer = configuration["JWT:ValidIssuer"],
                       ValidAudience = configuration["JWT:ValidAudience"],
-                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]))
+                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!))
                   };
               })
               .AddCookie(options =>
               {
                   options.Cookie.SameSite = SameSiteMode.Lax;
                   options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                  //options.Cookie.Name = "Identity.External";
               })
 
               .AddGoogle(options =>
               {
-                  options.ClientId = configuration.GetValue<string>("GoogleOauthConfig:ClientId"); 
-                  options.ClientSecret = configuration.GetValue<string>("GoogleOauthConfig:ClientSecret");
+                  options.ClientId = configuration["Google:Authentication:ClientId"]!; 
+                  options.ClientSecret = configuration["Google:Authentication:ClientSecret"]!;
                   options.SaveTokens = true;
               });
 
