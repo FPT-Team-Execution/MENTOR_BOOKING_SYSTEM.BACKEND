@@ -10,6 +10,7 @@ using System.Security.Claims;
 using MBS.Shared.Models.Google.GoogleCalendar.Request;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using MBS.Shared.Models.Google.GoogleOAuth.Response;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 
 
@@ -44,8 +45,8 @@ namespace MBS.Shared.Services.Implements
 
         public async Task<GoogleResponse> AuthenticateGoogleUserAsync(HttpContext context)
         {
-            //var authenticateResult = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            var authenticateResult = await context.AuthenticateAsync("Identity.External");
+            // var authenticateResult = await context.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var authenticateResult = await context.AuthenticateAsync(".AspNetCore.Identity.Application");
 
             if (authenticateResult?.Principal == null) return null;
             // var name = authenticateResult.Principal.FindFirstValue(ClaimTypes.Name);

@@ -405,7 +405,7 @@ public class AuthService : IAuthService
                 return new BaseModel<ExternalSignInResponseModel>
                 {
                     Message = MessageResponseHelper.UserNotFound(),
-                    StatusCode = StatusCodes.Status500InternalServerError,
+                    StatusCode = StatusCodes.Status404NotFound,
                     IsSuccess = false,
                 };
             }

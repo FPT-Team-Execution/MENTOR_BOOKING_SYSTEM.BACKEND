@@ -140,8 +140,8 @@ public class CalendarEventService : ICalendarEventService
             return new BaseModel<GetCalendarEventsResponseModel>
             {
                 Message = e.Message,
-                IsSuccess = true,
-                StatusCode = StatusCodes.Status200OK,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
     }
@@ -205,7 +205,7 @@ public class CalendarEventService : ICalendarEventService
         {
             Message = MessageResponseHelper.UpdateFailed("event"),
             IsSuccess = false,
-            StatusCode = StatusCodes.Status500InternalServerError,
+            StatusCode = StatusCodes.Status200OK,
         };
         }
         catch (Exception e)
@@ -214,7 +214,7 @@ public class CalendarEventService : ICalendarEventService
             {
                 Message = MessageResponseHelper.UpdateFailed("event"),
                 IsSuccess = false,
-                StatusCode = StatusCodes.Status200OK,
+                StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
     }
@@ -256,7 +256,7 @@ public class CalendarEventService : ICalendarEventService
             {
                 Message = MessageResponseHelper.DeleteFailed("event"),
                 IsSuccess = false,
-                StatusCode = StatusCodes.Status200OK,
+                StatusCode = StatusCodes.Status204NoContent,
                 ResponseRequestModel = new (),
             };
         }
