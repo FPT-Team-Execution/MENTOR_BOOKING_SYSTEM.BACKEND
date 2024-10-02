@@ -21,6 +21,7 @@ namespace MBS.Application.DependencyInjections
                 var tokenUrl = googleOAuthConfig["Authentication:TokenUrl"];
                 var scopes = googleOAuthConfig.GetSection("Configuration:Scopes").Get<Dictionary<string, string>>();
 
+                var serverCallbackUrl = googleOAuthConfig["Google:Authentication:CallbackUrl"];
                 // OAuth2 configuration
                 options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
                 {
@@ -30,6 +31,7 @@ namespace MBS.Application.DependencyInjections
                         AuthorizationCode = new OpenApiOAuthFlow
                         {
                             AuthorizationUrl = new Uri(authorizationUrl!),
+                            RefreshUrl = new Uri(tokenUrl!),
                             TokenUrl = new Uri(tokenUrl!),
                             Scopes = scopes
                         }
@@ -49,17 +51,17 @@ namespace MBS.Application.DependencyInjections
                 // Security requirements for OAuth2 and Bearer
                 options.AddSecurityRequirement(new OpenApiSecurityRequirement()
                 {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "oauth2" // OAuth2 reference
-                            }
-                        },
-                        scopes!.Keys.ToList()
-                    },
+                    // {
+                    //     new OpenApiSecurityScheme
+                    //     {
+                    //         Reference = new OpenApiReference
+                    //         {
+                    //             Type = ReferenceType.SecurityScheme,
+                    //             Id = "oauth2" // OAuth2 reference
+                    //         }
+                    //     },
+                    //     scopes!.Keys.ToList()
+                    // },
                     {
                         new OpenApiSecurityScheme
                         {
@@ -73,7 +75,7 @@ namespace MBS.Application.DependencyInjections
                     }
                 });
 
-                options.OperationFilter<AuthorizeCheckOperationFilter>();
+                // options.OperationFilter<AuthorizeCheckOperationFilter>();
             });
 
             return services;
