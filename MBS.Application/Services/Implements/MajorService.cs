@@ -85,7 +85,6 @@ namespace MBS.Application.Services.Implements
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 ParentId = request.ParentId,
-                Status = StatusEnum.Activated
             }; 
             if(major == null)
             {
@@ -106,10 +105,7 @@ namespace MBS.Application.Services.Implements
                 IsSuccess = true,
                 ResponseModel = new CreateMajorResponseModel()
                 {
-                    Id = major.Id,
-                    Name = major.Name,
-                    ParentId = major.ParentId,
-                    Status = major.Status
+                    Major = major
                 }
             };
         }
@@ -130,11 +126,6 @@ namespace MBS.Application.Services.Implements
             }
             majorSet.Name = request.Name;
             majorSet.ParentId = request.ParentId;
-            //majorSet.CreatedBy = _claimService.GetUserId();
-            //majorSet.CreatedOn = majorSet.CreatedOn;
-            //majorSet.UpdatedBy = _claimService.GetUserId();
-            //majorSet.UpdatedOn = DateTime.Now;
-            majorSet.Status = request.Status;
             await _majorRepository.UpdateAsync(majorSet);
             return new BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>()
             {

@@ -17,6 +17,7 @@ namespace MBS.API.Controllers
         }
         //Tested
         [HttpGet]
+        [EndpointSummary("Get all available major")]
         public async Task<IActionResult> GetAllMajors()
         {
             var response = await _majorService.GetAllMajor();
@@ -24,6 +25,8 @@ namespace MBS.API.Controllers
         }
         //Tested
         [HttpGet ("{id}")]
+        [EndpointSummary("Get specific major by id")]
+
         public async Task<IActionResult> GetMajor(Guid id)
         {
             var response = await _majorService.GetMajor(new GetMajorRequestModel { id = id});
@@ -31,6 +34,8 @@ namespace MBS.API.Controllers
         }
         //Tested
         [HttpPost]
+        [EndpointSummary("Create new major")]
+
         public async Task<IActionResult> CreateMajor([FromBody] CreateMajorRequestModel request)
         {
             var response = await _majorService.CreateNewMajorAsync(request);
@@ -38,6 +43,8 @@ namespace MBS.API.Controllers
         }
         //Testing
         [HttpPut ("{id}")]
+        [EndpointSummary("Update specific major by id")]
+
         public async Task<IActionResult> UpdateMajor(Guid id, [FromBody] UpdateMajorRequestModel request)
         {
             request.id = id;
@@ -46,6 +53,7 @@ namespace MBS.API.Controllers
         }
         //Tested
         [HttpDelete("{id}")]
+        [EndpointSummary("Delete specific major by id")]
         public async Task<IActionResult> RemoveMajor(Guid id)
         {
             var response = await _majorService.RemoveMajor(new RemoveMajorRequestModel { id = id});
