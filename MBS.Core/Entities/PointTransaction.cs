@@ -17,9 +17,9 @@ namespace MBS.Core.Entities
         public int Amount { get; set; }
         [MaxLength(10)]
         public PointCurrencyEnum Currency { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public string CreatedBy { get; set; }
-        public string UpdatedBy { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
         public DateTime? UpdatedOn { get; set; }
     }
 }

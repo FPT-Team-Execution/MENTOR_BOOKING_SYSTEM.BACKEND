@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MBS.API", "MBS.API\MBS.API.csproj", "{4C5B4857-8CCF-468B-AD56-71F88BB32041}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBS.API", "MBS.API\MBS.API.csproj", "{4C5B4857-8CCF-468B-AD56-71F88BB32041}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MBS.Application", "MBS.Application\MBS.Application.csproj", "{2D967021-4CF4-4545-8FD2-5F5380CD60E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBS.Application", "MBS.Application\MBS.Application.csproj", "{2D967021-4CF4-4545-8FD2-5F5380CD60E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MBS.DataAccess", "MBS.DataAccess\MBS.DataAccess.csproj", "{21A3F8DC-CBE7-4F30-9DBE-C5F96020A5AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBS.DataAccess", "MBS.DataAccess\MBS.DataAccess.csproj", "{21A3F8DC-CBE7-4F30-9DBE-C5F96020A5AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MBS.Core", "MBS.Core\MBS.Core.csproj", "{283E419B-B525-4483-A3E8-8B64EC61557E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBS.Core", "MBS.Core\MBS.Core.csproj", "{283E419B-B525-4483-A3E8-8B64EC61557E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MBS.Shared", "MBS.Shared\MBS.Shared.csproj", "{4F984DC9-2976-4124-AF10-DD3DCCBE69E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MBS.Shared", "MBS.Shared\MBS.Shared.csproj", "{4F984DC9-2976-4124-AF10-DD3DCCBE69E0}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{DD95D581-CE21-4D8C-BE91-524D2ACDA660}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{4F984DC9-2976-4124-AF10-DD3DCCBE69E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F984DC9-2976-4124-AF10-DD3DCCBE69E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F984DC9-2976-4124-AF10-DD3DCCBE69E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DD95D581-CE21-4D8C-BE91-524D2ACDA660}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DD95D581-CE21-4D8C-BE91-524D2ACDA660}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DD95D581-CE21-4D8C-BE91-524D2ACDA660}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DD95D581-CE21-4D8C-BE91-524D2ACDA660}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

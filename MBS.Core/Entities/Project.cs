@@ -19,13 +19,13 @@ namespace MBS.Core.Entities
         public DateTime DueDate { get; set; }
         [MaxLength(50)]
         public string Semester { get; set; }
-        public string CreatedBy { get; set; }
+        public string? CreatedBy { get; set; }
         [MaxLength(450)]
         public string MentorId { get; set; }
         [ForeignKey(nameof(MentorId))]
         public Mentor Mentor { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public string UpdatedBy { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public string? UpdatedBy { get; set; }
         public DateTime? UpdatedOn { get; set; }
         [MaxLength(20)]
         public ProjectStatusEnum Status { get; set; }

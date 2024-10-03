@@ -14,7 +14,7 @@
     <ProjectReference Include="..\MBS.Core\MBS.Core.csproj">
     </ProjectReference>
     <ProjectReference Include="..\MBS.Shared\MBS.Shared.csproj">
-      <Private>True</Private>
+      <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
 
