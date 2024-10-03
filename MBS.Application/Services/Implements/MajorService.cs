@@ -125,7 +125,6 @@ namespace MBS.Application.Services.Implements
                 };
             }
             majorSet.Name = request.Name;
-            majorSet.ParentId = request.ParentId;
             await _majorRepository.UpdateAsync(majorSet);
             return new BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>()
             {

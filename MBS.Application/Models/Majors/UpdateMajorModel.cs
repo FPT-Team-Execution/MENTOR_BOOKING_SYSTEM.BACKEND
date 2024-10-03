@@ -11,8 +11,7 @@ namespace MBS.Application.Models.Majors
 {
     public class UpdateMajorRequestModel
     {
-        [Required]
-        public Guid id {  get; set; }
+        public required Guid id {  get; set; }
         public string Name { get; set; }
         public Guid? ParentId { get; set; }
     }
