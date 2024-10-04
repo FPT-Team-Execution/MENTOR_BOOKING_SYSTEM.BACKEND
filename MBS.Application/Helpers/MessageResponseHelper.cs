@@ -298,12 +298,12 @@ public static class MessageResponseHelper
         stringBuilder.Append(" not found.");
         return stringBuilder.ToString();
     }
-    public static string RequestNotPending(string objectName)
+    public static string InvalidRequestStatus(string objectName, string status)
     {
         var stringBuilder = new StringBuilder();
         stringBuilder.Append("request with Id");
         stringBuilder.Append($" {objectName}");
-        stringBuilder.Append(" not pending.");
+        stringBuilder.Append($" not {status}.");
         return stringBuilder.ToString();
     }
     #endregion

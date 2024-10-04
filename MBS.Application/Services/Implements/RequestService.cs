@@ -190,7 +190,7 @@ public class RequestService : IRequestService
             if (request.Status != RequestStatusEnum.Pending)
                 return new BaseModel<RequestResponseModel>
                 {
-                    Message = MessageResponseHelper.RequestNotPending(requestId.ToString()),
+                    Message = MessageResponseHelper.InvalidRequestStatus(requestId.ToString(), nameof(RequestStatusEnum.Pending)),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status400BadRequest,
                     
