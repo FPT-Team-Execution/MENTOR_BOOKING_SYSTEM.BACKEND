@@ -9,7 +9,7 @@ using MBS.Shared.Common.Email;
 using MBS.Shared.Services.Interfaces;
 
 
-namespace MBS.Application
+namespace MBS.Application.DependencyInjections
 {
     public static class ServiceDependencyInjection
     {
@@ -29,6 +29,8 @@ namespace MBS.Application
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<IRequestService, RequestService>();
             services.AddScoped<IMeetingService, MeetingService>();
+            services.AddScoped<IFeedbackService, FeedbackService>();
+
         }
 
         //private static void RegisterAutoMapper(this IServiceCollection services)
