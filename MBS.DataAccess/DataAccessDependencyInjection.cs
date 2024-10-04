@@ -38,6 +38,8 @@ namespace MBS.DataAccess
             services.AddScoped<IMeetingRepository, MeetingRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
+            services.AddScoped<IRequestRepository, RequestRepository>();
+
         }
 
         private static void AddIdentity(this IServiceCollection services)
