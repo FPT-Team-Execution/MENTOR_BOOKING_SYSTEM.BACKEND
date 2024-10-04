@@ -12,6 +12,8 @@ namespace MBS.Core.Entities
 {
     public class Request : BaseEntity, IAuditedEntity
     {
+        [MaxLength(100)]
+        public string Title { get; set; }
         public  string CalendarEventId { get; set; }
         [ForeignKey(nameof(CalendarEventId))]
         public CalendarEvent CalendarEvent { get; set; }
