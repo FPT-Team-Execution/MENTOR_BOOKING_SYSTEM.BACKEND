@@ -82,6 +82,8 @@ public class MeetingController : ControllerBase
     }
     [HttpPost("{meetingId}/members")]
     [ProducesResponseType(typeof(BaseModel<MeetingResponseModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<BaseModel<MeetingResponseModel>>> UpdateMeetingMember(Guid memberMeetingId, UpdateMeetingMemberRequestModel request)
     {
