@@ -12,25 +12,11 @@ namespace MBS.Application.Models.Majors
     public class CreateMajorRequestModel
     {
         public string Name { get; set; }
-
         public Guid? ParentId { get; set; }
-        public string CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime? UpdatedOn { get; set; }
-        public StatusEnum Status { get; set; }
     }
 
     public class CreateMajorResponseModel
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-
-        public Guid? ParentId { get; set; }
-        public string CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public StatusEnum Status { get; set; }
-        public string UpdatedBy { get; set; }
-        public DateTime? UpdatedOn { get; set; }
+        public Major Major { get; set; }
     }
 }

@@ -11,14 +11,9 @@ namespace MBS.Application.Models.Majors
 {
     public class UpdateMajorRequestModel
     {
-        [Required]
-        public Guid id {  get; set; }
+        public required Guid id {  get; set; }
         public string Name { get; set; }
-
         public Guid? ParentId { get; set; }
-        public string? UpdatedBy { get; set; }
-        public DateTime? UpdatedOn { get; set; }
-        public StatusEnum Status { get; set; }
     }
 
     public class UpdateMajorResponseModel

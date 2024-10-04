@@ -22,11 +22,9 @@ namespace MBS.Application.Services.Implements
     public class MajorService : IMajorService
     {
         private IMajorRepository _majorRepository;
-        private readonly IClaimService _claimService;
-        public MajorService(IMajorRepository majorRepository, IClaimService claimService)
+        public MajorService(IMajorRepository majorRepository)
         {
             _majorRepository = majorRepository;
-            _claimService = claimService;
         }
 
         //OK
@@ -87,11 +85,6 @@ namespace MBS.Application.Services.Implements
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 ParentId = request.ParentId,
-                CreatedBy = _claimService.GetUserId(),
-                CreatedOn = DateTime.Now,
-                UpdatedBy = _claimService.GetUserId(),
-                UpdatedOn = DateTime.Now,
-                Status = StatusEnum.Activated
             }; 
             if(major == null)
             {
@@ -112,14 +105,7 @@ namespace MBS.Application.Services.Implements
                 IsSuccess = true,
                 ResponseModel = new CreateMajorResponseModel()
                 {
-                    Id = major.Id,
-                    Name = major.Name,
-                    ParentId = major.ParentId,
-                    CreatedBy = major.CreatedBy,
-                    UpdatedBy= major.UpdatedBy,
-                    UpdatedOn = major.UpdatedOn,
-                    CreatedOn = major.CreatedOn,
-                    Status = major.Status
+                    Major = major
                 }
             };
         }
@@ -139,12 +125,6 @@ namespace MBS.Application.Services.Implements
                 };
             }
             majorSet.Name = request.Name;
-            majorSet.ParentId = request.ParentId;
-            majorSet.CreatedBy = _claimService.GetUserId();
-            majorSet.CreatedOn = majorSet.CreatedOn;
-            majorSet.UpdatedBy = _claimService.GetUserId();
-            majorSet.UpdatedOn = DateTime.Now;
-            majorSet.Status = request.Status;
             await _majorRepository.UpdateAsync(majorSet);
             return new BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>()
             {

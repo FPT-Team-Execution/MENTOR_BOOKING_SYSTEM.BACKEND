@@ -17,9 +17,9 @@ namespace MBS.Core.Entities
         [MaxLength(10)]
         public string Gender { get; set; } = default;
         public DateTime? Birthday { get; set; }
-        public string CreatedBy { get; set; }
-        public DateTime CreatedOn { get; set; }
-        public string UpdatedBy { get; set; }
+        public string? CreatedBy { get; set; }
+        public DateTime? CreatedOn { get; set; }
+        public string? UpdatedBy { get; set; }
         public DateTime? UpdatedOn { get; set; }
     }
 }
