@@ -302,7 +302,6 @@ public static class MessageResponseHelper
     }
     
     #endregion
-
     #region Request Message Helper
     public static string RequestNotFound(string objectName)
     {
