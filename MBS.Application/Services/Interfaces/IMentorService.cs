@@ -11,6 +11,5 @@ public interface IMentorService
     Task<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>> UploadOwnDegree(
         UploadOwnDegreeRequestModel request, ClaimsPrincipal claimsPrincipal);
 
-    Task<BaseModel<GetOwnDegreesResponseModel>>
-        GetOwnDegrees(ClaimsPrincipal claimsPrincipal);
+    Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(ClaimsPrincipal claimsPrincipal);
 }
