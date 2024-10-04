@@ -28,7 +28,7 @@ namespace MBS.Application
             services.AddScoped<ISupabaseService, SupabaseService>();
             services.AddScoped<IProjectService, ProjectService>();
             services.AddScoped<IRequestService, RequestService>();
-
+            services.AddScoped<IMeetingService, MeetingService>();
         }
 
         //private static void RegisterAutoMapper(this IServiceCollection services)

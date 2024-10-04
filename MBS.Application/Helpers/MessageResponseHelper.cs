@@ -108,6 +108,20 @@ public static class MessageResponseHelper
     }
 
     #region CRUD Message Helper
+
+    #region Common Message Response
+
+    public static string DetailException(string objectName,  string targetValue, string targetException,string target = "")
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append($"{objectName} with {target} ");
+        stringBuilder.Append(targetValue);
+        stringBuilder.Append($" {targetException}");
+        return stringBuilder.ToString();
+    }
+    
+
+    #endregion
     public static string GetSuccessfully(string objectName)
     {
         var stringBuilder = new StringBuilder();
