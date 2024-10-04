@@ -8,6 +8,7 @@ public interface ICalendarEventService
 {
     Task<BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>> CreateCalendarEvent(CreateCalendarRequestModel request);
     Task<BaseModel<GetCalendarEventsResponseModel>> GetCalendarEventsByMentorId(string mentorId);
+    Task<BaseModel<CalendarEventResponseModel>> GetCalendarEventId(string calendarEventId);
 
     Task<BaseModel<UpdateCalendarEventResponseModel>> UpdateCalendarEvent(string calendarEventId,
         UpdateCalendarEventRequestModel request);
