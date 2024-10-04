@@ -146,6 +146,42 @@ public class CalendarEventService : ICalendarEventService
         }
     }
 
+    public async Task<BaseModel<CalendarEventResponseModel>> GetCalendarEventId(string calendarEventId)
+    {
+        try
+        {
+          
+            var calendarEvent = await _calendarEventRepository.GetAsync(c => c.Id == calendarEventId);
+            if (calendarEvent == null)
+                return new BaseModel<CalendarEventResponseModel>
+                {
+                    Message = MessageResponseHelper.CalendarNotFound(calendarEventId),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound
+                };
+            
+            return new BaseModel<CalendarEventResponseModel>
+            {
+                    Message = MessageResponseHelper.GetSuccessfully("event"),
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    ResponseRequestModel = new CalendarEventResponseModel
+                    {
+                        CalendarEvent = calendarEvent
+                    }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<CalendarEventResponseModel>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
     public async Task<BaseModel<UpdateCalendarEventResponseModel>> UpdateCalendarEvent(string calendarEventId, UpdateCalendarEventRequestModel request)
     {
         try

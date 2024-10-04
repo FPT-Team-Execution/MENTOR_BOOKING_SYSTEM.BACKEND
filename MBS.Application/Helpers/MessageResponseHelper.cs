@@ -244,8 +244,23 @@ public static class MessageResponseHelper
         stringBuilder.Append(" was not found.");
         return stringBuilder.ToString();
     }
+    public static string CalendarInThePast(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Calendar with Id ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" was in the past.");
+        return stringBuilder.ToString();
+    }
+    public static string BusyCalendar(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Calendar with Id ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" had another meeting.");
+        return stringBuilder.ToString();
+    }
     #endregion
-
     #region Project Message Helper
     public static string ProjectNotFound(string objectName)
     {
@@ -273,6 +288,24 @@ public static class MessageResponseHelper
     }
     
     #endregion
-   
+
+    #region Request Message Helper
+    public static string RequestNotFound(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("request with Id");
+        stringBuilder.Append($" {objectName}");
+        stringBuilder.Append(" not found.");
+        return stringBuilder.ToString();
+    }
+    public static string InvalidRequestStatus(string objectName, string status)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("request with Id");
+        stringBuilder.Append($" {objectName}");
+        stringBuilder.Append($" not {status}.");
+        return stringBuilder.ToString();
+    }
+    #endregion
 
 }

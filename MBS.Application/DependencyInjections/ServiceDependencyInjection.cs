@@ -27,7 +27,7 @@ namespace MBS.Application
             services.AddScoped<ICalendarEventService, CalendarEventService>();
             services.AddScoped<ISupabaseService, SupabaseService>();
             services.AddScoped<IProjectService, ProjectService>();
-
+            services.AddScoped<IRequestService, RequestService>();
 
         }
 

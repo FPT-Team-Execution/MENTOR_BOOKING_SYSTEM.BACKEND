@@ -26,7 +26,7 @@ public class CalendarEventController : ControllerBase
         return StatusCode(result.StatusCode, result);
    
     }
-    [HttpGet("{mentorId}")]
+    [HttpGet("/mentor/{mentorId}")]
     [ProducesResponseType(typeof(BaseModel<GetCalendarEventsResponseModel, GetCalendarEventsRequestModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
@@ -48,6 +48,18 @@ public class CalendarEventController : ControllerBase
         return StatusCode(result.StatusCode, result);
         
     }
+    
+    [HttpGet("{calendarEventId}")]
+    [ProducesResponseType(typeof(BaseModel<CalendarEventResponseModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<BaseModel<CalendarEventResponseModel>>> GetRequestById([FromRoute] string calendarEventId)
+    {
+        var result = await _calendarEventService.GetCalendarEventId(calendarEventId);
+        return StatusCode(result.StatusCode, result);
+        
+    }
+    
     [HttpDelete("{calendarEventId}")]
     [ProducesResponseType(typeof(BaseModel<DeleteCalendarEventResponseModel>),StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
