@@ -23,13 +23,5 @@ namespace MBS.API.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpPost]
-        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
-        public async Task<IActionResult> DebitStudentPoint(DebitStudentPointRequestModel request)
-        {
-            var response = await _pointTransactionSerivce.DebitStudentPoint(request);
-            return StatusCode(response.StatusCode, response);
-        }
-
     }
 }
