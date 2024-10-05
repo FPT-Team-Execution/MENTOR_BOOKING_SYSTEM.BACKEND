@@ -57,6 +57,23 @@ namespace MBS.DataAccess
 
             return await base.SaveChangesAsync(cancellationToken);
         }
+        public new int SaveChanges()
+        {
+            foreach (var entry in ChangeTracker.Entries<IAuditedEntity>())
+                switch (entry.State)
+                {
+                    case EntityState.Added:
+                        entry.Entity.CreatedBy = _claimService.GetUserId();
+                        entry.Entity.CreatedOn = DateTime.Now;
+                        break;
+                    case EntityState.Modified:
+                        entry.Entity.UpdatedBy = _claimService.GetUserId();
+                        entry.Entity.UpdatedOn = DateTime.Now;
+                        break;
+                }
+
+            return  base.SaveChanges();
+        }
 
     }
 }
