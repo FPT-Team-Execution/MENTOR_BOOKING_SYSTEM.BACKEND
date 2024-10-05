@@ -8,6 +8,7 @@ using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
@@ -26,7 +27,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
     {
         try
         {
-            var requests = await _unitOfWork.GetRepository<Request>().GetAllAsync();
+            var requests = await _unitOfWork.GetRepository<Request>().GetListAsync();
             return new BaseModel<GetRequestResponseModel>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
@@ -53,7 +54,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
     {
         try
         {
-            var request = await _unitOfWork.GetRepository<Request>().GetAsync(r => r.Id == requestId);
+            var request = await _unitOfWork.GetRepository<Request>().SingleOrDefaultAsync(r => r.Id == requestId);
             if(request == null)
                 return new BaseModel<RequestResponseModel>
                 {
@@ -88,7 +89,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
         try
         {
             //check calendar event
-            var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().GetAsync(c => c.Id == requestmodel.CalendarEventId);
+            var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().SingleOrDefaultAsync(c => c.Id == requestmodel.CalendarEventId);
             if(calendarEvent == null)
                 return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
                 {
@@ -107,7 +108,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
                 };
             
             //Check project
-            var project = await _unitOfWork.GetRepository<Project>().GetAsync(p => p.Id == requestmodel.ProjectId);
+            var project = await _unitOfWork.GetRepository<Project>().SingleOrDefaultAsync(p => p.Id == requestmodel.ProjectId);
             if(project == null)
                 return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
                 {
@@ -132,8 +133,8 @@ public class RequestService : BaseService<RequestService>, IRequestService
                 Title = requestmodel.Title,
                 Status = RequestStatusEnum.Pending
             };
-            var addResult = await _unitOfWork.GetRepository<Request>().AddAsync(newRequest);
-            if(addResult)
+            await _unitOfWork.GetRepository<Request>().InsertAsync(newRequest);
+            if(await _unitOfWork.CommitAsync() > 0)
                 return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("request"),
@@ -168,7 +169,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
         try
         {
             //check request
-            var request = await _unitOfWork.GetRepository<Request>().GetAsync(m => m.Id == requestId);
+            var request = await _unitOfWork.GetRepository<Request>().SingleOrDefaultAsync(m => m.Id == requestId);
             if (request == null)
                 return new BaseModel<RequestResponseModel>
                 {
@@ -186,7 +187,9 @@ public class RequestService : BaseService<RequestService>, IRequestService
                     
                 };
             //Check calendar event
-            var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().GetAsync(m => m.Id == requestModel.CalendarEventId, "Meeting");
+            var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().SingleOrDefaultAsync(
+                predicate:m => m.Id == requestModel.CalendarEventId, 
+                include: m => m.Include(x => x.Meeting));
             if(calendarEvent == null)
                 return new BaseModel<RequestResponseModel>
                 {
