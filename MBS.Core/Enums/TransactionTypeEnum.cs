@@ -8,7 +8,7 @@ namespace MBS.Core.Enums
 {
     public enum TransactionTypeEnum
     {
-        Add,
-        Substract
+        Credit,
+        Debit
     }
 }
