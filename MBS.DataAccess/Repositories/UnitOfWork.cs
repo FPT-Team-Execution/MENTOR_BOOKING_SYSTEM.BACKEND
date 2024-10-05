@@ -8,6 +8,10 @@ public class UnitOfWork : IUnitOfWork
 {
     private Dictionary<Type, object> _repositories = new();
     public MBSContext Context { get; }
+    public UnitOfWork(MBSContext context)
+    {
+        Context = context;
+    }
     public IBaseRepository<T> GetRepository<T>() where T : class
     {
         if (_repositories.TryGetValue(typeof(T), out object repository))
