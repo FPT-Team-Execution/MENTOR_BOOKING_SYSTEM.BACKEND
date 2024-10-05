@@ -41,6 +41,8 @@ namespace MBS.Application.Services.Implements
 
                 student.WalletPoint += request.CreditAmout;
 
+                _unitOfWork.GetRepository<Student>().UpdateAsync(student);
+
                 var pointTransaction = new PointTransaction
                 {
                     Amount = request.CreditAmout,
@@ -55,7 +57,7 @@ namespace MBS.Application.Services.Implements
                 return new BaseModel<CreditStudentPointResponseModel, CreditStudentPointRequestModel>
                 {
                     Message = MessageResponseHelper.Successfully("Credit student point"),
-                    IsSuccess = false,
+                    IsSuccess = true,
                     RequestModel = null,
                     ResponseModel = new CreditStudentPointResponseModel
                     {
@@ -78,9 +80,63 @@ namespace MBS.Application.Services.Implements
             }
         }
 
-        public Task<BaseModel<DebitStudentPointResponseModel, DebitStudentPointRequestModel>> DebitStudentPoint(DebitStudentPointRequestModel request)
+        public async Task<BaseModel<DebitStudentPointResponseModel, DebitStudentPointRequestModel>> DebitStudentPoint(DebitStudentPointRequestModel request)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync(predicate: (x) => x.UserId == request.StudentId);
+
+                if (student == null)
+                {
+                    return new BaseModel<DebitStudentPointResponseModel, DebitStudentPointRequestModel>
+                    {
+                        Message = MessageResponseHelper.UserNotFound(),
+                        IsSuccess = false,
+                        RequestModel = request,
+                        ResponseModel = null,
+                        StatusCode = StatusCodes.Status404NotFound
+                    };
+                }
+
+                student.WalletPoint -= request.DebitAmout;
+
+                _unitOfWork.GetRepository<Student>().UpdateAsync(student);
+
+                var pointTransaction = new PointTransaction
+                {
+                    Amount = request.DebitAmout,
+                    UserId = request.StudentId,
+                    TransactionType = Core.Enums.TransactionTypeEnum.Debit
+                };
+
+                await _unitOfWork.GetRepository<PointTransaction>().InsertAsync(pointTransaction);
+
+                await _unitOfWork.CommitAsync();
+
+                return new BaseModel<DebitStudentPointResponseModel, DebitStudentPointRequestModel>
+                {
+                    Message = MessageResponseHelper.Successfully("Credit student point"),
+                    IsSuccess = true,
+                    RequestModel = null,
+                    ResponseModel = new DebitStudentPointResponseModel
+                    {
+                        StudentId = request.StudentId,
+                        TotalAmout = student.WalletPoint
+                    },
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+            catch (Exception ex)
+            {
+                return new BaseModel<DebitStudentPointResponseModel, DebitStudentPointRequestModel>
+                {
+                    Message = ex.Message,
+                    IsSuccess = false,
+                    RequestModel = request,
+                    ResponseModel = null,
+                    StatusCode = StatusCodes.Status500InternalServerError
+                };
+            }
         }
     }
 }
