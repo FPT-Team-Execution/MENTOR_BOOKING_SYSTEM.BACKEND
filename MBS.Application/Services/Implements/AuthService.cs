@@ -6,6 +6,7 @@ using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
+using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Common.Email;
 using MBS.Shared.Services.Interfaces;
@@ -13,40 +14,33 @@ using MBS.Shared.Templates;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Extensions;
 
 namespace MBS.Application.Services.Implements;
 
-public class AuthService : IAuthService
+public class AuthService : BaseService<AuthService>, IAuthService
 {
-    private readonly IStudentRepository _studentRepository;
-    private readonly IMentorRepository _mentorRepository;
-    private readonly IEmailService _emailService;
     private readonly ITemplateService _templateService;
-    private readonly IConfiguration _configuration;
+    private readonly IEmailService _emailService;
+    
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
-
-    public AuthService
-    (
-        RoleManager<IdentityRole> roleManager,
+    
+    private readonly IConfiguration _configuration;
+    public AuthService(IUnitOfWork unitOfWork, ILogger<AuthService> logger,
+        IEmailService emailService,
+        ITemplateService templateService,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IStudentRepository studentRepository,
-        IMentorRepository mentorRepository,
-        IConfiguration configuration,
-        IEmailService emailService,
-        ITemplateService templateService)
+        IConfiguration configuration)
+        : base(unitOfWork, logger)
     {
-        _studentRepository = studentRepository;
-        _roleManager = roleManager;
-        _userManager = userManager;
-        _mentorRepository = mentorRepository;
-        _configuration = configuration;
         _emailService = emailService;
         _templateService = templateService;
+        _userManager = userManager;
         _signInManager = signInManager;
+        _configuration = configuration;
     }
 
     public async Task<BaseModel<RegisterResponseModel, RegisterRequestModel>> SignUpAsync(
@@ -103,7 +97,7 @@ public class AuthService : IAuthService
                         WalletPoint = 0
                     };
 
-                    var addStudentResult = await _studentRepository.AddAsync(newStudent);
+                    var addStudentResult = await _unitOfWork.GetRepository<Student>().AddAsync(newStudent);
 
                     if (addStudentResult is false)
                     {

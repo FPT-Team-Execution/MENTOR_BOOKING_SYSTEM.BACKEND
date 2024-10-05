@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq.Expressions;
+using MBS.Core.Common.Pagination;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace MBS.DataAccess.Repositories.Interfaces
 {
@@ -15,7 +12,31 @@ namespace MBS.DataAccess.Repositories.Interfaces
         Task<bool> AddRangeAsync(IEnumerable<T> entities);
         Task<bool> RemoveAsync(T entity);
         Task<bool> RemoveRangeAsync(IEnumerable<T> entities);
-        Task<bool> UpdateAsync(T entity);
+        // Task<bool> UpdateAsync(T entity);
         Task<bool> UpdateRangeAsync(IEnumerable<T> entities);
+
+        #region Upgraded reposiotry
+
+        Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
+
+        Task<ICollection<T>> GetListAsync(Expression<Func<T, bool>> predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);
+
+        Task<Pagination<T>> GetPagingListAsync(Expression<Func<T, bool>> predicate = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1,
+            int size = 10);
+
+        Task InsertAsync(T entity);
+        Task InsertRangeAsync(IEnumerable<T> entities);
+        void UpdateAsync(T entity);
+        void UpdateRange(IEnumerable<T> entities);
+        void DeleteAsync(T entity);
+        void DeleteRangeAsync(IEnumerable<T> entities);
+
+        #endregion
     }
 }

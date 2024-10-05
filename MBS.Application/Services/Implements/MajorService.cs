@@ -3,19 +3,9 @@ using MBS.Application.Models.General;
 using MBS.Application.Models.Majors;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
-using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
-using MBS.Shared.Services.Implements;
-using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Org.BouncyCastle.Asn1.Cms;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace MBS.Application.Services.Implements
 {
@@ -125,7 +115,7 @@ namespace MBS.Application.Services.Implements
                 };
             }
             majorSet.Name = request.Name;
-            await _majorRepository.UpdateAsync(majorSet);
+            _majorRepository.UpdateAsync(majorSet);
             return new BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>()
             {
                 Message = MessageResponseHelper.Successfully("Update " + nameof(Major)),
