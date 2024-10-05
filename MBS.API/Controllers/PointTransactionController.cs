@@ -17,17 +17,9 @@ namespace MBS.API.Controllers
 
         [HttpPost]
         [Authorize(Roles = nameof(UserRoleEnum.Admin))]
-        public async Task<IActionResult> CreditStudentPoint(CreditStudentPointRequestModel request)
+        public async Task<IActionResult> ModifyStudentPoint(ModifyStudentPointRequestModel request)
         {
-            var response = await _pointTransactionSerivce.CreditStudentPoint(request);
-            return StatusCode(response.StatusCode, response);
-        }
-
-        [HttpPost]
-        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
-        public async Task<IActionResult> DebitStudentPoint(DebitStudentPointRequestModel request)
-        {
-            var response = await _pointTransactionSerivce.DebitStudentPoint(request);
+            var response = await _pointTransactionSerivce.ModifyStudentPoint(request);
             return StatusCode(response.StatusCode, response);
         }
 
