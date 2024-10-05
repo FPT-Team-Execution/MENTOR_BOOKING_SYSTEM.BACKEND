@@ -321,4 +321,16 @@ public static class MessageResponseHelper
     }
     #endregion
 
+
+    #region
+    public static string DeleteSuccessfully(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Delete ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" successfully.");
+        return stringBuilder.ToString();
+    }
+
+    #endregion
 }
