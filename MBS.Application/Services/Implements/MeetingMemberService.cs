@@ -7,6 +7,7 @@ using MBS.Core.Enums;
 using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
@@ -21,7 +22,10 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
     {
         try
         {
-            var meetingMembers = await _unitOfWork.GetRepository<MeetingMember>().GetAllAsync(r => r.MeetingId == meetingId, "Student");
+            var meetingMembers = await _unitOfWork.GetRepository<MeetingMember>()
+                .GetListAsync(
+                    predicate: r => r.MeetingId == meetingId,
+                    include: m => m.Include(x => x.Student));
             return new BaseModel<GetMeetingMemberResponseModel>
             {
                 Message = MessageResponseHelper.GetSuccessfully("meeting members"),
@@ -49,7 +53,7 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
         try
         {
             //check meeting
-            var meeting = await _unitOfWork.GetRepository<Meeting>().GetAsync(m => m.Id == request.MeetingId);
+            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
             
             if(meeting == null)
                 return new BaseModel<MeetingMemberResponseModel>
@@ -74,8 +78,8 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
                 JoinTime = request.JoinTime,
             };
             
-            var addResult = await _unitOfWork.GetRepository<MeetingMember>().AddAsync(newMeetingMem);
-            if(addResult)
+            await _unitOfWork.GetRepository<MeetingMember>().InsertAsync(newMeetingMem);
+            if(await _unitOfWork.CommitAsync() > 0)
                 return new BaseModel<MeetingMemberResponseModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("meeting member"),
@@ -110,7 +114,9 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
         try
         {
             //check meeting
-            var meetingMember = await _unitOfWork.GetRepository<MeetingMember>().GetAsync(m => m.Id == memberMeetingId, "Meeting");
+            var meetingMember = await _unitOfWork.GetRepository<MeetingMember>().SingleOrDefaultAsync(
+                predicate: m => m.Id == memberMeetingId, 
+                include: m => m.Include(x => x.Meeting));
             if(meetingMember == null)
                 return new BaseModel<MeetingMemberResponseModel>
                 {

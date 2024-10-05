@@ -22,7 +22,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
     {
         try
         {
-            var meeting = await _unitOfWork.GetRepository<Meeting>().GetAsync(r => r.Id == meetingId);
+            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(r => r.Id == meetingId);
             if(meeting == null)
                 return new BaseModel<MeetingResponseModel>
                 {
@@ -56,7 +56,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
     {
         try
         {
-            var meetings = await _unitOfWork.GetRepository<Meeting>().GetAllAsync();
+            var meetings = await _unitOfWork.GetRepository<Meeting>().GetListAsync();
             return new BaseModel<GetMeetingResponseModel>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
@@ -84,7 +84,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
         try
         {
             //check request
-            var requestCheck = await _unitOfWork.GetRepository<Request>().GetAsync(c => c.Id == request.RequestId);
+            var requestCheck = await _unitOfWork.GetRepository<Request>().SingleOrDefaultAsync(c => c.Id == request.RequestId);
             if(requestCheck == null)
                 return new BaseModel<MeetingResponseModel, CreateMeetingRequestModel>
                 {
@@ -110,8 +110,8 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
                 MeetUp = request.MeetUp,
                 Status = MeetingStatusEnum.New
             };
-            var addResult = await _unitOfWork.GetRepository<Meeting>().AddAsync(newMeeting);
-            if(addResult)
+            await _unitOfWork.GetRepository<Meeting>().InsertAsync(newMeeting);
+            if(await _unitOfWork.CommitAsync() > 0)
                 return new BaseModel<MeetingResponseModel, CreateMeetingRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("meeting"),
@@ -146,7 +146,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
         try
         {
             //check meeting
-            var meeting = await _unitOfWork.GetRepository<Meeting>().GetAsync(m => m.Id == meetingId);
+            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == meetingId);
             if (meeting == null)
                 return new BaseModel<MeetingResponseModel>
                 {

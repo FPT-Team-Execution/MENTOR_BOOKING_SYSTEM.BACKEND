@@ -2,12 +2,12 @@ using MBS.Application.Helpers;
 using MBS.Application.Models.CalendarEvent;
 using MBS.Application.Models.General;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories;
-using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
@@ -26,7 +26,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
         try
         {
             //check mentorId
-            var mentor = await _unitOfWork.GetRepository<Mentor>().GetAsync(m => m.UserId == request.MentorId);
+            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(m => m.UserId == request.MentorId);
             if (mentor == null)
             {
                 return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
@@ -38,7 +38,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
             }
             
             //check meetingId
-            var meeting = await _unitOfWork.GetRepository<Meeting>().GetAsync(m => m.Id == request.MeetingId);
+            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
             if (meeting == null)
             {
                 return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
@@ -71,8 +71,8 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
                 MentorId = request.MentorId,
                 MeetingId = request.MeetingId,  
             };
-            var addSuccess = await _unitOfWork.GetRepository<CalendarEvent>().AddAsync(eventCreate);
-            if(addSuccess)
+            await _unitOfWork.GetRepository<CalendarEvent>().InsertAsync(eventCreate);
+            if(await _unitOfWork.CommitAsync() > 0)
                 return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
                 {
                     Message = MessageResponseHelper.CreateSuccessfully("event"),
@@ -107,7 +107,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
     {
         try
         {
-            var mentor = await _unitOfWork.GetRepository<Mentor>().GetAsync(m => m.UserId == mentorId);
+            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(m => m.UserId == mentorId);
             if (mentor == null)
             {
                 return new BaseModel<GetCalendarEventsResponseModel>
@@ -118,7 +118,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
                 };
             }
             //find events by mentor
-            var events = await _unitOfWork.GetRepository<CalendarEvent>().GetAllAsync(e => e.MentorId == mentor.UserId);
+            var events = await _unitOfWork.GetRepository<CalendarEvent>().GetListAsync(e => e.MentorId == mentor.UserId);
   
             return new BaseModel<GetCalendarEventsResponseModel>
             {
@@ -147,7 +147,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
         try
         {
           
-            var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().GetAsync(c => c.Id == calendarEventId);
+            var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().SingleOrDefaultAsync(c => c.Id == calendarEventId);
             if (calendarEvent == null)
                 return new BaseModel<CalendarEventResponseModel>
                 {
@@ -183,7 +183,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
         try
         {
             //check meeting Id
-        var meeting = await _unitOfWork.GetRepository<Meeting>().GetAsync(m => m.Id == request.MeetingId);
+        var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
         if (meeting == null)
             return new BaseModel<UpdateCalendarEventResponseModel>
             {
@@ -201,7 +201,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
                 
             };
         //update calendar event
-        var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().GetAsync(m => m.Id == calendarEventId);
+        var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().SingleOrDefaultAsync(m => m.Id == calendarEventId);
         if(calendarEvent == null)
             return new BaseModel<UpdateCalendarEventResponseModel>
             {
@@ -257,7 +257,9 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
         {
             //check meeting status related to canlendar event ~ Cancled
             var calendarEvent =
-                await _unitOfWork.GetRepository<CalendarEvent>().GetAsync(e => e.Id == calendarEventId, "Meeting");
+                await _unitOfWork.GetRepository<CalendarEvent>().SingleOrDefaultAsync(
+                    predicate: e => e.Id == calendarEventId, 
+                    include: e => e.Include(x => x.Meeting));
             if (calendarEvent == null)
                 return new BaseModel<DeleteCalendarEventResponseModel>
                 {
@@ -295,6 +297,46 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
         catch (Exception e)
         {
             return new BaseModel<DeleteCalendarEventResponseModel>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
+    public async Task<BaseModel<Pagination<CalendarEvent>>> GetCalendarEventsByMentorIdPagination(string mentorId, int page, int size)
+    {
+        try
+        {
+            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(m => m.UserId == mentorId);
+            if (mentor == null)
+            {
+                return new BaseModel<Pagination<CalendarEvent>>
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+            //find events by mentor
+            var events = await _unitOfWork.GetRepository<CalendarEvent>().GetPagingListAsync(
+                predicate: e => e.MentorId == mentor.UserId,
+                page: page,
+                size: size
+                );
+  
+            return new BaseModel<Pagination<CalendarEvent>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("events"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = events
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<CalendarEvent>>
             {
                 Message = e.Message,
                 IsSuccess = false,

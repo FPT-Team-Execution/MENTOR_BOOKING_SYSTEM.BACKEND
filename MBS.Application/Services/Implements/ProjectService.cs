@@ -7,6 +7,7 @@ using MBS.Core.Enums;
 using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
@@ -32,8 +33,8 @@ public class ProjectService : BaseService<ProjectService>, IProjectService
         };
         try
         {
-            var createdSuccess = await _unitOfWork.GetRepository<Project>().AddAsync(projectCreate);
-            if(createdSuccess)
+            await _unitOfWork.GetRepository<Project>().InsertAsync(projectCreate);
+            if(await _unitOfWork.CommitAsync() > 0)
                 return new BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>
                 {
                     Message = MessageResponseHelper.CreateSuccessfully("project"),
@@ -73,7 +74,10 @@ public class ProjectService : BaseService<ProjectService>, IProjectService
         try
         {
             List<Project> enrolledProjects =  [];
-            var enrolledProjectProups = (await _unitOfWork.GetRepository<Group>().GetAllAsync(g => g.StudentId == studentId, "Project")).ToList();
+            var enrolledProjectProups = await _unitOfWork.GetRepository<Group>().GetListAsync(
+                predicate: g => g.StudentId == studentId,
+                include: p => p.Include(x => x.Project)
+                );
             if(!enrolledProjectProups.Any())
                 return new BaseModel<GetProjectsByStudentIdResponseModel>
                 {
@@ -126,7 +130,7 @@ public class ProjectService : BaseService<ProjectService>, IProjectService
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
-            var projectUpdate = await _unitOfWork.GetRepository<Project>().GetAsync(p => p.Id == projectId);
+            var projectUpdate = await _unitOfWork.GetRepository<Project>().SingleOrDefaultAsync(p => p.Id == projectId);
             if (projectUpdate == null)
                 return new BaseModel<UpdateProjectResponseModel>
                 {
@@ -174,7 +178,7 @@ public class ProjectService : BaseService<ProjectService>, IProjectService
     {
         try
         {
-            var projectUpdate = await _unitOfWork.GetRepository<Project>().GetAsync(p => p.Id == projectId);
+            var projectUpdate = await _unitOfWork.GetRepository<Project>().SingleOrDefaultAsync(p => p.Id == projectId);
             
             if(projectUpdate == null)
                 return new BaseModel<UpdateProjectStatusResponseModel>
@@ -222,7 +226,7 @@ public class ProjectService : BaseService<ProjectService>, IProjectService
     {
         try
         {
-            var project = await _unitOfWork.GetRepository<Project>().GetAsync(p => p.Id == projectId);
+            var project = await _unitOfWork.GetRepository<Project>().SingleOrDefaultAsync(p => p.Id == projectId);
             
             if(project == null)
                 return new BaseModel<GetProjectByIdResponseModel>
@@ -257,7 +261,7 @@ public class ProjectService : BaseService<ProjectService>, IProjectService
     {
         try
         {
-            var project = await _unitOfWork.GetRepository<Project>().GetAsync(p => p.Id == projectId);
+            var project = await _unitOfWork.GetRepository<Project>().SingleOrDefaultAsync(p => p.Id == projectId);
             
             if(project == null)
                 return new BaseModel<AssignMentorResponseModel>

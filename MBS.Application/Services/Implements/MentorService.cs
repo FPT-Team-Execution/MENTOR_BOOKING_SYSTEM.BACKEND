@@ -58,7 +58,7 @@ public class MentorService : IMentorService
                 };
             }
 
-            var mentor = await _mentorRepository.GetAsync(x => x.UserId == userId);
+            var mentor = await _mentorRepository.SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (mentor is null)
             {
@@ -119,7 +119,7 @@ public class MentorService : IMentorService
                 ImageUrl = degreeUrl
             };
 
-            await _degreeRepository.AddAsync(degree);
+            await _degreeRepository.InsertAsync(degree);
 
             return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
             {
@@ -151,7 +151,7 @@ public class MentorService : IMentorService
         try
         {
             var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
-            var degrees = await _degreeRepository.GetAllAsync(x => x.MentorId == userId);
+            var degrees = await _degreeRepository.GetListAsync(x => x.MentorId == userId);
 
             var degreeResponseModels = degrees.Select(x => new GetOwnDegreeResponseModel()
             {

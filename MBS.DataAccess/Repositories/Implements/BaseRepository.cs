@@ -41,21 +41,7 @@ namespace MBS.DataAccess.Repositories.Implements
             return false;
         }
 
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
-        {
-            IQueryable<T> query = dbSet;
-            query = query.Where(filter);
-
-            if (!string.IsNullOrEmpty(includeProperties))
-            {
-                foreach (var property in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
-                {
-                    query = query.Include(property);
-                }
-            }
-
-            return await query.FirstOrDefaultAsync();
-        }
+        
 
         public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null,
             string? includeProperties = null)

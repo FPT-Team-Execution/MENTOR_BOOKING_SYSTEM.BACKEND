@@ -3,24 +3,24 @@ using MBS.Application.Models.General;
 using MBS.Application.Models.Majors;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
+using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 
 namespace MBS.Application.Services.Implements
 {
-    public class MajorService : IMajorService
+    public class MajorService : BaseService<MajorService>, IMajorService
     {
-        private IMajorRepository _majorRepository;
-        public MajorService(IMajorRepository majorRepository)
+        public MajorService(IUnitOfWork unitOfWork, ILogger<MajorService> logger) : base(unitOfWork, logger)
         {
-            _majorRepository = majorRepository;
         }
 
         //OK
         public async Task<BaseModel<GetAllMajorResponseModel, GetAllMajorReuqestModel>> GetAllMajor()
         {
-            var result = await _majorRepository.GetAllAsync();
+            var result = await _unitOfWork.GetRepository<Major>().GetListAsync();
             if (result == null)
             {
                 return new BaseModel<GetAllMajorResponseModel, GetAllMajorReuqestModel>()
@@ -45,7 +45,7 @@ namespace MBS.Application.Services.Implements
         //OK
         public async Task<BaseModel<GetMajorResponseModel, GetMajorRequestModel>> GetMajor(GetMajorRequestModel request)
         {
-            var resultSet = await _majorRepository.GetAsync(i => i.Id == request.id);
+            var resultSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == request.id);
             if (resultSet == null) 
             {
                 return new BaseModel<GetMajorResponseModel, GetMajorRequestModel>()
@@ -87,7 +87,7 @@ namespace MBS.Application.Services.Implements
                 };
             }
             
-            await _majorRepository.AddAsync(major);
+            await _unitOfWork.GetRepository<Major>().InsertAsync(major);
             return new BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>()
             {
                 Message = MessageResponseHelper.Successfully("Created" + nameof(Major)),
@@ -103,7 +103,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>> UpdateMajor(UpdateMajorRequestModel request)
         {
-            var majorSet = await _majorRepository.GetAsync(i => i.Id == request.id);
+            var majorSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == request.id);
             if (majorSet == null)
             {
                 return new BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>()
@@ -115,7 +115,7 @@ namespace MBS.Application.Services.Implements
                 };
             }
             majorSet.Name = request.Name;
-            _majorRepository.UpdateAsync(majorSet);
+            _unitOfWork.GetRepository<Major>().UpdateAsync(majorSet);
             return new BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>()
             {
                 Message = MessageResponseHelper.Successfully("Update " + nameof(Major)),
@@ -129,7 +129,7 @@ namespace MBS.Application.Services.Implements
         }
         public async Task<BaseModel<RemoveMajorResponseModel, RemoveMajorRequestModel>> RemoveMajor(RemoveMajorRequestModel request)
         {
-            var majorSet = await _majorRepository.GetAsync(i => i.Id == request.id);
+            var majorSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == request.id);
             if (majorSet == null)
             {
                 return new BaseModel<RemoveMajorResponseModel, RemoveMajorRequestModel>()
@@ -140,7 +140,8 @@ namespace MBS.Application.Services.Implements
                     RequestModel = request
                 };
             }
-            await _majorRepository.RemoveAsync(majorSet);
+            _unitOfWork.GetRepository<Major>().DeleteAsync(majorSet);
+            _unitOfWork.Commit();
             return new BaseModel<RemoveMajorResponseModel, RemoveMajorRequestModel>()
             {
                 Message = MessageResponseHelper.Successfully("Remove " + nameof(Major)),

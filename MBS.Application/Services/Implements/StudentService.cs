@@ -40,7 +40,7 @@ public class StudentService : IStudentService
                 };
             }
 
-            var student = await _studentRepository.GetAsync(x => x.UserId == userId);
+            var student = await _studentRepository.SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (student is null)
             {

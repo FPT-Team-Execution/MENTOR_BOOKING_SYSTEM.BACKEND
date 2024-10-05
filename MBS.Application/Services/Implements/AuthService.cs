@@ -97,9 +97,9 @@ public class AuthService : BaseService<AuthService>, IAuthService
                         WalletPoint = 0
                     };
 
-                    var addStudentResult = await _unitOfWork.GetRepository<Student>().AddAsync(newStudent);
+                    await _unitOfWork.GetRepository<Student>().InsertAsync(newStudent);
 
-                    if (addStudentResult is false)
+                    if (await _unitOfWork.CommitAsync() > 0)
                     {
                         throw new DatabaseInsertException("student");
                     }
