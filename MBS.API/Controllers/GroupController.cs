@@ -45,8 +45,7 @@ namespace MBS.API.Controllers
 		[EndpointSummary("Update specific group by id")]
 		public async Task<IActionResult> UpdateGroup(Guid id, [FromBody] UpdateGroupRequestModel request)
 		{
-			request.groupId = id;
-			var response = await _groupService.UpdateGroup(request);
+			var response = await _groupService.UpdateGroup(id, request);
 			return StatusCode((int)response.StatusCode, response);
 		}
 

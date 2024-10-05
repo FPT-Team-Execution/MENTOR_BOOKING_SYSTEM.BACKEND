@@ -146,88 +146,100 @@ namespace MBS.Application.Services.Implements
             }
         }
 
-        public async Task<BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>> RemoveGroup(RemoveGroupRequestModel request)
-        {
-            var GroupFindById = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(a => a.Id == request.GroupId);
-            try
-            {
-                if (GroupFindById != null)
-                {
-                    _unitOfWork.GetRepository<Group>().DeleteAsync(GroupFindById);
-                    return new BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>
-                    {
-                        Message = MessageResponseHelper.DeleteSuccessfully("Group"),
-                        IsSuccess = true,
-                        StatusCode = StatusCodes.Status200OK,
-                        RequestModel = request,
-                        ResponseModel = new RemoveGroupResponseModel { Success = true }
-                    };
-                }
-                else
-                {
-                    return new BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>
-                    {
-                        Message = MessageResponseHelper.DeleteFailed("Group"),
-                        IsSuccess = false,
-                        StatusCode = StatusCodes.Status200OK,
-                        RequestModel = request,
-                        ResponseModel = new RemoveGroupResponseModel { Success = false }
-                    };
-                }
-            }
-            catch (Exception e)
-            {
+		public async Task<BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>> RemoveGroup(RemoveGroupRequestModel request)
+		{
+			var groupFindById = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(a => a.Id == request.GroupId);
+			try
+			{
+				if (groupFindById != null)
+				{
+					_unitOfWork.GetRepository<Group>().DeleteAsync(groupFindById);
+					await _unitOfWork.CommitAsync();
 
-                return new BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>
-                {
-                    Message = e.Message,
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                };
-            }
-        }
+					return new BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>
+					{
+						Message = MessageResponseHelper.DeleteSuccessfully("Group"),
+						IsSuccess = true,
+						StatusCode = StatusCodes.Status200OK,
+						RequestModel = request,
+						ResponseModel = new RemoveGroupResponseModel { Success = true }
+					};
+				}
+				else
+				{
+					return new BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>
+					{
+						Message = MessageResponseHelper.DeleteFailed("Group"),
+						IsSuccess = false,
+						StatusCode = StatusCodes.Status404NotFound,
+						RequestModel = request,
+						ResponseModel = new RemoveGroupResponseModel { Success = false }
+					};
+				}
+			}
+			catch (Exception e)
+			{
+				return new BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>
+				{
+					Message = e.Message,
+					IsSuccess = false,
+					StatusCode = StatusCodes.Status500InternalServerError,
+				};
+			}
+		}
 
-        public async Task<BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>> UpdateGroup(UpdateGroupRequestModel request)
-        {
-            var groupFindById = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(a => a.Id == request.groupId);
-            try
-            {
-                if (groupFindById != null)
-                {
-                    groupFindById.StudentId = request.studentId;
-                    groupFindById.PositionId = request.PositionId;
-                }
-                await _unitOfWork.GetRepository<Group>().InsertAsync(groupFindById);
-                if (_unitOfWork.Commit() > 0)
-                {
-                    return new BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>
-                    {
-                        Message = MessageResponseHelper.UpdateSuccessfully("Group"),
-                        IsSuccess = true,
-                        StatusCode = StatusCodes.Status200OK,
-                        RequestModel = request,
-                        ResponseModel = new UpdateGroupResponseModel
-                        {
-                            updatedGroup = groupFindById,
-                        }
-                    };
-                }
-                else
-                {
-                    return new BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>
-                    {
-                        Message = MessageResponseHelper.UpdateFailed("Group"),
-                        IsSuccess = false,
-                        StatusCode = StatusCodes.Status200OK,
-                        RequestModel = request,
-                        ResponseModel = null
-                    };
-                }
 
-            }
-            catch (Exception e)
-            {
+		public async Task<BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>> UpdateGroup(Guid id, UpdateGroupRequestModel request)
+		{
+			var groupFindById = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(a => a.Id == id);  
+			try
+			{
+				if (groupFindById != null)
+				{
+					groupFindById.StudentId = request.studentId;
+					groupFindById.PositionId = request.PositionId;
 
+					_unitOfWork.GetRepository<Group>().UpdateAsync(groupFindById);
+					if (await _unitOfWork.CommitAsync() > 0)
+					{
+						return new BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>
+						{
+							Message = MessageResponseHelper.UpdateSuccessfully("Group"),
+							IsSuccess = true,
+							StatusCode = StatusCodes.Status200OK,
+							RequestModel = request,
+							ResponseModel = new UpdateGroupResponseModel
+							{
+								updatedGroup = groupFindById,
+							}
+						};
+					}
+					else
+					{
+						return new BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>
+						{
+							Message = MessageResponseHelper.UpdateFailed("Group"),
+							IsSuccess = false,
+							StatusCode = StatusCodes.Status500InternalServerError,
+							RequestModel = request,
+							ResponseModel = null
+						};
+					}
+				}
+				else
+				{
+					return new BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>
+					{
+						Message = MessageResponseHelper.Fail("Group not found"),
+						IsSuccess = false,
+						StatusCode = StatusCodes.Status404NotFound,
+						RequestModel = request,
+						ResponseModel = null
+					};
+				}
+			}
+			catch (Exception e)
+			{
 				return new BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>
 				{
 					Message = e.Message,
@@ -235,6 +247,7 @@ namespace MBS.Application.Services.Implements
 					StatusCode = StatusCodes.Status500InternalServerError,
 				};
 			}
-        }
-    }
+		}
+
+	}
 }

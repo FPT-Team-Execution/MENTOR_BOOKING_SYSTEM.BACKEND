@@ -11,7 +11,7 @@ namespace MBS.Application.Services.Interfaces
         Task<BaseModel<GetGroupResponseModel, GetGroupRequestModel>> GetGroup(
             GetGroupRequestModel request);
 
-        Task<BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>> UpdateGroup(UpdateGroupRequestModel request);
+        Task<BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>> UpdateGroup(Guid id, UpdateGroupRequestModel request);
 
         Task<BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>> RemoveGroup(
             RemoveGroupRequestModel request);
