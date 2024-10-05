@@ -31,7 +31,7 @@ namespace MBS.Application.DependencyInjections
             services.AddScoped<IMeetingService, MeetingService>();
             services.AddScoped<IMeetingMemberService, MeetingMemberService>();
             services.AddScoped<IFeedbackService, FeedbackService>();
-
+            services.AddScoped<ISkillService, SkillService>();
         }
 
         //private static void RegisterAutoMapper(this IServiceCollection services)
