@@ -4,21 +4,21 @@ using MBS.Application.Models.General;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
+using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class StudentService : IStudentService
+public class StudentService : BaseService<StudentService>, IStudentService
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IStudentRepository _studentRepository;
 
-    public StudentService(UserManager<ApplicationUser> userManager, IStudentRepository studentRepository)
+    public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ILogger<StudentService> logger) : base(unitOfWork, logger)
     {
         _userManager = userManager;
-        _studentRepository = studentRepository;
     }
 
     public async Task<BaseModel<GetStudentOwnProfileResponseModel>> GetOwnProfile(
@@ -40,7 +40,7 @@ public class StudentService : IStudentService
                 };
             }
 
-            var student = await _studentRepository.SingleOrDefaultAsync(x => x.UserId == userId);
+            var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (student is null)
             {

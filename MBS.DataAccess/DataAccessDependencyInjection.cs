@@ -31,18 +31,6 @@ namespace MBS.DataAccess
 
         private static void AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IMentorRepository, MentorRepository>();
-            services.AddScoped<IStudentRepository, StudentRepository>();
-            services.AddScoped<IDegreeRepository, DegreeRepository>();
-            services.AddScoped<IMajorRepository, MajorRepository>();
-            services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
-            services.AddScoped<IMeetingRepository, MeetingRepository>();
-            services.AddScoped<IProjectRepository, ProjectRepository>();
-            services.AddScoped<IGroupRepository, GroupRepository>();
-            services.AddScoped<IRequestRepository, RequestRepository>();
-            services.AddScoped<IMeetingRepository, MeetingRepository>();
-            services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
-            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 

@@ -4,30 +4,31 @@ using MBS.Application.Models.General;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
-using MBS.DataAccess.Repositories.Interfaces;
+using MBS.DataAccess.Repositories;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class MentorService : IMentorService
+public class MentorService : BaseService<MentorService>, IMentorService
 {
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IMentorRepository _mentorRepository;
-    private readonly IDegreeRepository _degreeRepository;
     private readonly ISupabaseService _supabaseService;
     private readonly IConfiguration _configuration;
 
-    public MentorService(UserManager<ApplicationUser> userManager, IMentorRepository mentorRepository,
-        ISupabaseService supabaseService, IConfiguration configuration, IDegreeRepository degreeRepository)
+    public MentorService(
+        IUnitOfWork unitOfWork,
+        ILogger<MentorService> logger,
+        UserManager<ApplicationUser> userManager,
+        ISupabaseService supabaseService, 
+        IConfiguration configuration) : base(unitOfWork, logger)
     {
         _userManager = userManager;
-        _mentorRepository = mentorRepository;
         _supabaseService = supabaseService;
         _configuration = configuration;
-        _degreeRepository = degreeRepository;
     }
 
     public async Task<BaseModel<GetMentorOwnProfileResponseModel>> GetOwnProfile(ClaimsPrincipal claimsPrincipal)
@@ -58,7 +59,7 @@ public class MentorService : IMentorService
                 };
             }
 
-            var mentor = await _mentorRepository.SingleOrDefaultAsync(x => x.UserId == userId);
+            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(x => x.UserId == userId);
 
             if (mentor is null)
             {
@@ -119,7 +120,7 @@ public class MentorService : IMentorService
                 ImageUrl = degreeUrl
             };
 
-            await _degreeRepository.InsertAsync(degree);
+            await _unitOfWork.GetRepository<Degree>().InsertAsync(degree);
 
             return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
             {
@@ -151,7 +152,7 @@ public class MentorService : IMentorService
         try
         {
             var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
-            var degrees = await _degreeRepository.GetListAsync(x => x.MentorId == userId);
+            var degrees = await _unitOfWork.GetRepository<Degree>().GetListAsync(x => x.MentorId == userId);
 
             var degreeResponseModels = degrees.Select(x => new GetOwnDegreeResponseModel()
             {
