@@ -4,26 +4,24 @@ using MBS.Application.Models.MeetingMember;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
+using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class MeetingMemberService : IMeetingMemberService
+public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingMemberService
 {
-    private readonly IMeetingMemberRepository _meetingMemberRepository;
-    private readonly IMeetingRepository _meetingRepository;
 
-    public MeetingMemberService(IMeetingMemberRepository meetingMemberRepository, IMeetingRepository meetingRepository)
+    public MeetingMemberService(IUnitOfWork unitOfWork, ILogger<MeetingMemberService> logger) : base(unitOfWork, logger)
     {
-        _meetingMemberRepository = meetingMemberRepository;
-        _meetingRepository = meetingRepository; 
     }
     public async Task<BaseModel<GetMeetingMemberResponseModel>> GetMembersByMeetingId(Guid meetingId)
     {
         try
         {
-            var meetingMembers = await _meetingMemberRepository.GetAllAsync(r => r.MeetingId == meetingId, "Student");
+            var meetingMembers = await _unitOfWork.GetRepository<MeetingMember>().GetAllAsync(r => r.MeetingId == meetingId, "Student");
             return new BaseModel<GetMeetingMemberResponseModel>
             {
                 Message = MessageResponseHelper.GetSuccessfully("meeting members"),
@@ -51,7 +49,7 @@ public class MeetingMemberService : IMeetingMemberService
         try
         {
             //check meeting
-            var meeting = await _meetingRepository.GetAsync(m => m.Id == request.MeetingId);
+            var meeting = await _unitOfWork.GetRepository<Meeting>().GetAsync(m => m.Id == request.MeetingId);
             
             if(meeting == null)
                 return new BaseModel<MeetingMemberResponseModel>
@@ -76,7 +74,7 @@ public class MeetingMemberService : IMeetingMemberService
                 JoinTime = request.JoinTime,
             };
             
-            var addResult = await _meetingMemberRepository.AddAsync(newMeetingMem);
+            var addResult = await _unitOfWork.GetRepository<MeetingMember>().AddAsync(newMeetingMem);
             if(addResult)
                 return new BaseModel<MeetingMemberResponseModel>
                 {
@@ -112,7 +110,7 @@ public class MeetingMemberService : IMeetingMemberService
         try
         {
             //check meeting
-            var meetingMember = await _meetingMemberRepository.GetAsync(m => m.Id == memberMeetingId, "Meeting");
+            var meetingMember = await _unitOfWork.GetRepository<MeetingMember>().GetAsync(m => m.Id == memberMeetingId, "Meeting");
             if(meetingMember == null)
                 return new BaseModel<MeetingMemberResponseModel>
                 {
@@ -160,8 +158,8 @@ public class MeetingMemberService : IMeetingMemberService
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
             meetingMember.LeaveTime = request.LeaveTime!.Value;
-            var updateResult = await _meetingMemberRepository.UpdateAsync(meetingMember);
-            if(updateResult)
+            _unitOfWork.GetRepository<MeetingMember>().UpdateAsync(meetingMember);
+            if(_unitOfWork.Commit() > 0)
                 return new BaseModel<MeetingMemberResponseModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("meeting member"),

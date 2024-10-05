@@ -4,39 +4,29 @@ using MBS.Application.Models.Request;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
+using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class RequestService : IRequestService
+public class RequestService : BaseService<RequestService>, IRequestService
 {
-    private readonly IRequestRepository _requestRepository;
-    private readonly ICalendarEventRepository _calendarEventRepository;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly IProjectRepository _projectRepository;
-    private readonly IMeetingRepository _meetingRepository;
-
     
-    public RequestService(IRequestRepository requestRepository,
-        ICalendarEventRepository calendarEventRepository,
-        UserManager<ApplicationUser> userManager,
-        IProjectRepository projectRepository,
-        IMeetingRepository meetingRepository
-        )
+    public RequestService(IUnitOfWork unitOfWork, ILogger<RequestService> logger,
+        UserManager<ApplicationUser> userManager
+        ) : base(unitOfWork, logger)
     {
-        _requestRepository = requestRepository;
-        _calendarEventRepository = calendarEventRepository;
         _userManager = userManager;
-        _projectRepository = projectRepository;
-        _meetingRepository = meetingRepository;
     }
     public async Task<BaseModel<GetRequestResponseModel>> GetRequests()
     {
         try
         {
-            var requests = await _requestRepository.GetAllAsync();
+            var requests = await _unitOfWork.GetRepository<Request>().GetAllAsync();
             return new BaseModel<GetRequestResponseModel>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
@@ -63,7 +53,7 @@ public class RequestService : IRequestService
     {
         try
         {
-            var request = await _requestRepository.GetAsync(r => r.Id == requestId);
+            var request = await _unitOfWork.GetRepository<Request>().GetAsync(r => r.Id == requestId);
             if(request == null)
                 return new BaseModel<RequestResponseModel>
                 {
@@ -98,7 +88,7 @@ public class RequestService : IRequestService
         try
         {
             //check calendar event
-            var calendarEvent = await _calendarEventRepository.GetAsync(c => c.Id == requestmodel.CalendarEventId);
+            var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().GetAsync(c => c.Id == requestmodel.CalendarEventId);
             if(calendarEvent == null)
                 return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
                 {
@@ -117,7 +107,7 @@ public class RequestService : IRequestService
                 };
             
             //Check project
-            var project = await _projectRepository.GetAsync(p => p.Id == requestmodel.ProjectId);
+            var project = await _unitOfWork.GetRepository<Project>().GetAsync(p => p.Id == requestmodel.ProjectId);
             if(project == null)
                 return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
                 {
@@ -142,7 +132,7 @@ public class RequestService : IRequestService
                 Title = requestmodel.Title,
                 Status = RequestStatusEnum.Pending
             };
-            var addResult = await _requestRepository.AddAsync(newRequest);
+            var addResult = await _unitOfWork.GetRepository<Request>().AddAsync(newRequest);
             if(addResult)
                 return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
                 {
@@ -178,7 +168,7 @@ public class RequestService : IRequestService
         try
         {
             //check request
-            var request = await _requestRepository.GetAsync(m => m.Id == requestId);
+            var request = await _unitOfWork.GetRepository<Request>().GetAsync(m => m.Id == requestId);
             if (request == null)
                 return new BaseModel<RequestResponseModel>
                 {
@@ -196,7 +186,7 @@ public class RequestService : IRequestService
                     
                 };
             //Check calendar event
-            var calendarEvent = await _calendarEventRepository.GetAsync(m => m.Id == requestModel.CalendarEventId, "Meeting");
+            var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().GetAsync(m => m.Id == requestModel.CalendarEventId, "Meeting");
             if(calendarEvent == null)
                 return new BaseModel<RequestResponseModel>
                 {
@@ -229,8 +219,8 @@ public class RequestService : IRequestService
             request.CalendarEventId = requestModel.CalendarEventId;
             request.Title = requestModel.Title;
             request.Status = requestModel.Status;
-            var updateSuccess = await _requestRepository.UpdateAsync(request);
-            if (updateSuccess)
+            _unitOfWork.GetRepository<Request>().UpdateAsync(request);
+            if (_unitOfWork.Commit() > 0)
                 return new BaseModel<RequestResponseModel>
                 {
                     Message = MessageResponseHelper.UpdateSuccessfully("event"),

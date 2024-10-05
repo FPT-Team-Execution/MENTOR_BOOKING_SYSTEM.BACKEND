@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using MBS.Core.Entities;
+using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using MBS.DataAccess.Repositories.Implements;
 
@@ -42,8 +43,7 @@ namespace MBS.DataAccess
             services.AddScoped<IMeetingRepository, MeetingRepository>();
             services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
             services.AddScoped<IFeedbackRepository, FeedbackRepository>();
-
-
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
         }
 
         private static void AddIdentity(this IServiceCollection services)

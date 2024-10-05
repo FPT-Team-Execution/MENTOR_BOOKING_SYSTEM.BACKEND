@@ -1,6 +1,8 @@
 ﻿using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
+using MBS.Core.Common.Pagination;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace MBS.DataAccess.Repositories.Implements
 {
@@ -100,7 +102,7 @@ namespace MBS.DataAccess.Repositories.Implements
             return false;
         }
 
-        public async Task<bool> UpdateAsync(T entity)
+        public async Task<bool> UpdateAsync2(T entity)
         {
             dbSet.Update(entity);
             var result = await _context.SaveChangesAsync();
@@ -123,5 +125,74 @@ namespace MBS.DataAccess.Repositories.Implements
             }
             return false;
         }
+        
+        #region Upgraded Repository
+        public async Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        {
+	        IQueryable<T> query = dbSet;
+	        if (include != null) query = include(query);
+
+	        if (predicate != null) query = query.Where(predicate);
+
+	        if (orderBy != null) return await orderBy(query).AsNoTracking().FirstOrDefaultAsync();
+
+	        return await query.AsNoTracking().FirstOrDefaultAsync();
+        }
+        
+        public async Task<ICollection<T>> GetListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        {
+	        IQueryable<T> query = dbSet;
+
+	        if (include != null) query = include(query);
+
+	        if (predicate != null) query = query.Where(predicate);
+
+	        if (orderBy != null) return await orderBy(query).ToListAsync();
+
+	        return await query.ToListAsync();
+        }
+
+        public async Task<Pagination<T>> GetPagingListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1,
+	        int size = 10)
+        {
+	        IQueryable<T> query = dbSet;
+	        if(include != null) query = include(query);
+	        if(predicate != null) query = query.Where(predicate);
+	        if (orderBy != null)  orderBy(query);
+            return PaginationExtension<T>.Paginate(query, page, size, 1);
+	 
+        }
+        public async Task InsertAsync(T entity)
+        {
+            if (entity == null) return;
+            await dbSet.AddAsync(entity);
+        }
+
+        public async Task InsertRangeAsync(IEnumerable<T> entities)
+        {
+            await dbSet.AddRangeAsync(entities);
+        }
+        public void UpdateAsync(T entity)
+        {
+            dbSet.Update(entity);
+        }
+
+        public void UpdateRange(IEnumerable<T> entities)
+        {
+            dbSet.UpdateRange(entities);
+        }
+
+        public void DeleteAsync(T entity)
+        {
+            dbSet.Remove(entity);
+        }
+
+        public void DeleteRangeAsync(IEnumerable<T> entities)
+        {
+            dbSet.RemoveRange(entities);
+        }
+        #endregion
+        
+        
     }
 }
