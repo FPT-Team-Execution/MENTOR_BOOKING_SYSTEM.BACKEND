@@ -2,6 +2,7 @@ using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Meeting;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories;
@@ -52,25 +53,25 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
         }
     }
 
-    public async Task<BaseModel<GetMeetingResponseModel>> GetMeetings()
+    public async Task<BaseModel<Pagination<Meeting>>> GetMeetings(int page, int size)
     {
         try
         {
-            var meetings = await _unitOfWork.GetRepository<Meeting>().GetListAsync();
-            return new BaseModel<GetMeetingResponseModel>
+            var meetings = await _unitOfWork.GetRepository<Meeting>().GetPagingListAsync(
+                page: page,
+                size: size
+                );
+            return new BaseModel<Pagination<Meeting>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new GetMeetingResponseModel
-                {
-                    Meetings = meetings
-                }
+                ResponseRequestModel = meetings
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<GetMeetingResponseModel>
+            return new BaseModel<Pagination<Meeting>>
             {
                 Message = e.Message,
                 IsSuccess = false,

@@ -1,5 +1,7 @@
 using MBS.Application.Models.Feedback;
 using MBS.Application.Models.Meeting;
+using MBS.Core.Common.Pagination;
+using MBS.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MBS.API.Controllers;
@@ -15,22 +17,22 @@ public class FeedbackController : ControllerBase
         _feedbackService = feedbackService;
     }
     [HttpGet("meeting/{meetingId}/user/{userId}")]
-    [ProducesResponseType(typeof(BaseModel<GetMeetingResponseModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel<Pagination<Feedback>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetFeedbackByUserId([FromRoute] Guid meetingId, [FromRoute] string userId)
+    public async Task<IActionResult> GetFeedbackByUserId([FromRoute] Guid meetingId, [FromRoute] string userId, int page, int size)
     {
-        var result = await _feedbackService.GetFeedbacksByUserId(meetingId, userId);
+        var result = await _feedbackService.GetFeedbacksByUserId(meetingId, userId, page, size);
         return StatusCode(result.StatusCode, result);
         
     }
     [HttpGet("meeting/{meetingId}")]
-    [ProducesResponseType(typeof(BaseModel<GetMeetingResponseModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel<Pagination<Feedback>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetFeedbacksInMeeting([FromRoute] Guid meetingId)
+    public async Task<IActionResult> GetFeedbacksInMeeting([FromRoute] Guid meetingId, int page, int size)
     {
-        var result = await _feedbackService.GetFeedbacksByMeetingId(meetingId);
+        var result = await _feedbackService.GetFeedbacksByMeetingId(meetingId, page, size);
         return StatusCode(result.StatusCode, result);
         
     }

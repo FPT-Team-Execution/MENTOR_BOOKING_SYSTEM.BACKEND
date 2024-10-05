@@ -25,14 +25,14 @@ namespace MBS.API.Controllers
 
         // GET: api/projects/student/{studentId}?projectStatus=Active
         [HttpGet("student/{studentId}")]
-        public async Task<IActionResult> GetProjectsByStudentId([FromRoute] string studentId, [FromQuery] ProjectStatusEnum? projectStatus)
+        public async Task<IActionResult> GetProjectsByStudentId([FromRoute] string studentId, [FromQuery] ProjectStatusEnum? projectStatus, int page, int size)
         {
             if (string.IsNullOrWhiteSpace(studentId))
             {
                 return BadRequest("Invalid student ID.");
             }
 
-            var result = await _projectService.GetProjectsByStudentId(studentId, projectStatus);
+            var result = await _projectService.GetProjectsByStudentId(studentId, projectStatus, page, size);
             return StatusCode(result.StatusCode, result);
         }
 

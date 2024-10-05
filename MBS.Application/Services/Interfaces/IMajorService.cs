@@ -1,11 +1,5 @@
 ﻿using MBS.Application.Models.General;
 using MBS.Application.Models.Majors;
-using MBS.Application.Models.User;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MBS.Application.Services.Interfaces
 {
