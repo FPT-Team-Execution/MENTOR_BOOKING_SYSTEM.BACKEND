@@ -22,9 +22,9 @@ public class MeetingController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(BaseModel<MeetingResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetMeetings()
+    public async Task<IActionResult> GetMeetings(int page, int size)
     {
-        var result = await _meetingService.GetMeetings();
+        var result = await _meetingService.GetMeetings(page, size);
         return StatusCode(result.StatusCode, result);
         
     }

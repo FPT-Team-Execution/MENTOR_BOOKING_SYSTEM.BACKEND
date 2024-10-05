@@ -39,7 +39,7 @@ public class GoogleCalendarController : ControllerBase
         //error
         return StatusCode(((GoogleErrorResponse)result).Error.Code, (GoogleErrorResponse)result);
     }
-    [HttpPost("{calendarId}/event")]
+    [HttpPost("{calendarId}/events")]
     public async Task<IActionResult> InsertEvent([FromRoute]string calendarId, [FromQuery] string accessToken, [FromBody]CreateGoogleCalendarEventRequest requestBody)
     {
         if (string.IsNullOrWhiteSpace(calendarId) || string.IsNullOrWhiteSpace(accessToken) || requestBody.End < requestBody.Start)
@@ -56,7 +56,7 @@ public class GoogleCalendarController : ControllerBase
         
     }
     
-    [HttpPut("{calendarId}/events/{eventId}")]
+    [HttpPut("{calendarId}/event/{eventId}")]
     public async Task<IActionResult> UpdateEvent([FromRoute]string calendarId, [FromRoute] string eventId, [FromQuery] string accessToken, [FromBody]UpdateGoogleCalendarEventRequest requestBody)
     {
         if (string.IsNullOrWhiteSpace(calendarId) || string.IsNullOrWhiteSpace(accessToken) || requestBody.End < requestBody.Start)
@@ -74,7 +74,7 @@ public class GoogleCalendarController : ControllerBase
         return StatusCode(((GoogleErrorResponse)result).Error.Code, (GoogleErrorResponse)result);
         
     }
-    [HttpDelete("{email}/events/{eventId}")]
+    [HttpDelete("{email}/event/{eventId}")]
     public async Task<IActionResult> DeleteEvent(string email, string eventId, [FromQuery] string accessToken)
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(accessToken))

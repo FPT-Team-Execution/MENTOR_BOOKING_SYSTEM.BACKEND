@@ -3,11 +3,13 @@ using MBS.Application.Models.Feedback;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Meeting;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -23,14 +25,14 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
        
         _userManager = userManager;
     }
-    public async Task<BaseModel<GetFeedbackRequestModel>> GetFeedbacksByUserId(Guid meetingId, string userId)
+    public async Task<BaseModel<Pagination<Feedback>>> GetFeedbacksByUserId(Guid meetingId, string userId, int page, int size)
     {
         try
         {
             //check meeting
             var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == meetingId);
             if (meeting == null)
-                return new BaseModel<GetFeedbackRequestModel>
+                return new BaseModel<Pagination<Feedback>>
                 {
                     Message = MessageResponseHelper.DetailException("meeting", meetingId.ToString(), "not found", "Id"),
                     IsSuccess = false,
@@ -38,7 +40,7 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                 };
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
-                return new BaseModel<GetFeedbackRequestModel>
+                return new BaseModel<Pagination<Feedback>>
                 {
                     Message = MessageResponseHelper.DetailException("student", userId, "not found", "Id"),
                     IsSuccess = false,
@@ -46,21 +48,22 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                 };
             //get all
             var feedbacks =
-                await _unitOfWork.GetRepository<Feedback>().GetListAsync(f => f.MeetingId == meetingId && f.UserId == userId);
-            return new BaseModel<GetFeedbackRequestModel>
+                await _unitOfWork.GetRepository<Feedback>().GetPagingListAsync(
+                    f => f.MeetingId == meetingId && f.UserId == userId,
+                    page: page, 
+                    size: size
+                    );
+            return new BaseModel<Pagination<Feedback>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("feedbacks"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new GetFeedbackRequestModel
-                {
-                    Feedbacks = feedbacks
-                }
+                ResponseRequestModel = feedbacks,
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<GetFeedbackRequestModel>
+            return new BaseModel<Pagination<Feedback>>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -69,13 +72,13 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
         }
     }
 
-    public async Task<BaseModel<GetFeedbackRequestModel>> GetFeedbacksByMeetingId(Guid meetingId)
+    public async Task<BaseModel<Pagination<Feedback>>> GetFeedbacksByMeetingId(Guid meetingId, int page, int size)
     {
         try {
             //check meeting
             var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == meetingId);
             if (meeting == null)
-                return new BaseModel<GetFeedbackRequestModel>
+                return new BaseModel<Pagination<Feedback>>
                 {
                     Message = MessageResponseHelper.DetailException("meeting", meetingId.ToString(), "not found", "Id"),
                     IsSuccess = false,
@@ -83,24 +86,23 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                 };
             //get all
             var feedbacks =
-                await _unitOfWork.GetRepository<Feedback>().GetListAsync(
+                await _unitOfWork.GetRepository<Feedback>().GetPagingListAsync(
                     predicate: f => f.MeetingId == meetingId,
-                    include: f => f.Include(x => x.User)
+                    include: f => f.Include(x => x.User),
+                    page: page,
+                    size: size
                     );
-            return new BaseModel<GetFeedbackRequestModel>
+            return new BaseModel<Pagination<Feedback>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("feedbacks"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new GetFeedbackRequestModel
-                {
-                    Feedbacks = feedbacks
-                }
+                ResponseRequestModel = feedbacks,
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<GetFeedbackRequestModel>
+            return new BaseModel<Pagination<Feedback>>
             {
                 Message = e.Message,
                 IsSuccess = false,

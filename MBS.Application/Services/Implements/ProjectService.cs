@@ -69,16 +69,18 @@ public class ProjectService : BaseService<ProjectService>, IProjectService
         }
     }
 
-    public async Task<BaseModel<GetProjectsByStudentIdResponseModel>> GetProjectsByStudentId(string studentId, ProjectStatusEnum? projectStatus)
+    public async Task<BaseModel<GetProjectsByStudentIdResponseModel>> GetProjectsByStudentId(string studentId, ProjectStatusEnum? projectStatus, int page, int size)
     {
         try
         {
             List<Project> enrolledProjects =  [];
-            var enrolledProjectProups = await _unitOfWork.GetRepository<Group>().GetListAsync(
+            var enrolledProjectProups = await _unitOfWork.GetRepository<Group>().GetPagingListAsync(
                 predicate: g => g.StudentId == studentId,
-                include: p => p.Include(x => x.Project)
+                include: p => p.Include(x => x.Project),
+                page: page,
+                size: size
                 );
-            if(!enrolledProjectProups.Any())
+            if(!enrolledProjectProups.Items.Any())
                 return new BaseModel<GetProjectsByStudentIdResponseModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("projects"),
@@ -91,9 +93,9 @@ public class ProjectService : BaseService<ProjectService>, IProjectService
                 };
             enrolledProjects = projectStatus == null ? 
                 //*project status null ~ get all projects of student    
-                enrolledProjectProups.Select(g => g.Project).ToList() 
+                enrolledProjectProups.Items.Select(g => g.Project).ToList() 
                 //*project status not null ~ get all projects of student base on project status
-                : enrolledProjectProups.Select(g => g.Project).Where(p => p.Status == projectStatus).ToList();
+                : enrolledProjectProups.Items.Select(g => g.Project).Where(p => p.Status == projectStatus).ToList();
             
             return new BaseModel<GetProjectsByStudentIdResponseModel>
             {

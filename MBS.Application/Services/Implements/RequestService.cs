@@ -2,6 +2,7 @@ using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Request;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories;
@@ -23,25 +24,25 @@ public class RequestService : BaseService<RequestService>, IRequestService
     {
         _userManager = userManager;
     }
-    public async Task<BaseModel<GetRequestResponseModel>> GetRequests()
+    public async Task<BaseModel<Pagination<Request>>> GetRequests(int page, int size)
     {
         try
         {
-            var requests = await _unitOfWork.GetRepository<Request>().GetListAsync();
-            return new BaseModel<GetRequestResponseModel>
+            var requests = await _unitOfWork.GetRepository<Request>().GetPagingListAsync(
+                page: page,
+                size:size
+                );
+            return new BaseModel<Pagination<Request>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new GetRequestResponseModel
-                {
-                    Requests = requests
-                }
+                ResponseRequestModel = requests
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<GetRequestResponseModel>
+            return new BaseModel<Pagination<Request>>
             {
                 Message = e.Message,
                 IsSuccess = false,
