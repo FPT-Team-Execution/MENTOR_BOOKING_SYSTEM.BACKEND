@@ -198,7 +198,6 @@ namespace MBS.Application.Services.Implements
 				{
 					groupFindById.StudentId = request.studentId;
 					groupFindById.PositionId = request.PositionId;
-
 					_unitOfWork.GetRepository<Group>().UpdateAsync(groupFindById);
 					if (await _unitOfWork.CommitAsync() > 0)
 					{

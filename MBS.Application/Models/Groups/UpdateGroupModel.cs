@@ -9,7 +9,6 @@ namespace MBS.Application.Models.Groups
 {
     public class UpdateGroupRequestModel
     {
-        public required Guid groupId {  get; set; }
         public string studentId { get; set; }
         public Guid PositionId { get; set; }
     }
