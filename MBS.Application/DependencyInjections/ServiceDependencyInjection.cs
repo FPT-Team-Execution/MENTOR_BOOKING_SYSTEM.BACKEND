@@ -31,8 +31,13 @@ namespace MBS.Application.DependencyInjections
             services.AddScoped<IMeetingService, MeetingService>();
             services.AddScoped<IMeetingMemberService, MeetingMemberService>();
             services.AddScoped<IFeedbackService, FeedbackService>();
+
 			//Group
 			services.AddScoped<IGroupService, GroupService>();
+
+            services.AddScoped<ISkillService, SkillService>();
+            services.AddScoped<IPointTransactionSerivce, PointTransactionService>();
+
 
 
 		}

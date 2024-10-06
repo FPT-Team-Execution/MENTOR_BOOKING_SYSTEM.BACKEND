@@ -120,9 +120,9 @@ namespace MBS.DataAccess.Repositories.Implements
 
 	        if (predicate != null) query = query.Where(predicate);
 
-	        if (orderBy != null) return await orderBy(query).AsNoTracking().FirstOrDefaultAsync();
+	        if (orderBy != null) return await orderBy(query).FirstOrDefaultAsync();
 
-	        return await query.AsNoTracking().FirstOrDefaultAsync();
+	        return await query.FirstOrDefaultAsync();
         }
         
         public async Task<ICollection<T>> GetListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
@@ -133,15 +133,15 @@ namespace MBS.DataAccess.Repositories.Implements
 
 	        if (predicate != null) query = query.Where(predicate);
 
-	        if (orderBy != null) return await orderBy(query).ToListAsync();
+	        if (orderBy != null) return await orderBy(query).AsNoTracking().ToListAsync();
 
-	        return await query.ToListAsync();
+	        return await query.AsNoTracking().ToListAsync();
         }
 
         public async Task<Pagination<T>> GetPagingListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1,
 	        int size = 10)
         {
-	        IQueryable<T> query = dbSet;
+	        IQueryable<T> query = dbSet.AsNoTracking();
 	        if(include != null) query = include(query);
 	        if(predicate != null) query = query.Where(predicate);
 	        if (orderBy != null)  orderBy(query);
