@@ -3,6 +3,7 @@ using MBS.Application.Models.General;
 using MBS.Application.Models.PointTransaction;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
+using MBS.Core.Enums;
 using MBS.DataAccess.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -21,7 +22,7 @@ namespace MBS.Application.Services.Implements
 
         }
 
-        public async Task<BaseModel<CreditStudentPointResponseModel, CreditStudentPointRequestModel>> CreditStudentPoint(CreditStudentPointRequestModel request)
+        public async Task<BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>> ModifyStudentPoint(ModifyStudentPointRequestModel request)
         {
             try
             {
@@ -29,7 +30,7 @@ namespace MBS.Application.Services.Implements
 
                 if (student == null)
                 {
-                    return new BaseModel<CreditStudentPointResponseModel, CreditStudentPointRequestModel>
+                    return new BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>
                     {
                         Message = MessageResponseHelper.UserNotFound(),
                         IsSuccess = false,
@@ -39,25 +40,40 @@ namespace MBS.Application.Services.Implements
                     };
                 }
 
-                student.WalletPoint += request.CreditAmout;
-
                 var pointTransaction = new PointTransaction
                 {
-                    Amount = request.CreditAmout,
+                    Amount = request.Amout,
                     UserId = request.StudentId,
-                    TransactionType = Core.Enums.TransactionTypeEnum.Credit
                 };
+
+                switch (request.TransactionType.ToString().ToUpper())
+                {
+                    case var type when type == nameof(TransactionTypeEnum.Credit).ToUpper():
+                        {
+                            student.WalletPoint += request.Amout;
+                            pointTransaction.TransactionType = TransactionTypeEnum.Credit;
+                            break;
+                        }
+                    case var type when type == nameof(TransactionTypeEnum.Debit).ToUpper():
+                        {
+                            student.WalletPoint -= request.Amout;
+                            pointTransaction.TransactionType = TransactionTypeEnum.Debit;
+                            break;
+                        }
+                }
+
+                _unitOfWork.GetRepository<Student>().UpdateAsync(student);
 
                 await _unitOfWork.GetRepository<PointTransaction>().InsertAsync(pointTransaction);
 
                 await _unitOfWork.CommitAsync();
 
-                return new BaseModel<CreditStudentPointResponseModel, CreditStudentPointRequestModel>
+                return new BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>
                 {
                     Message = MessageResponseHelper.Successfully("Credit student point"),
-                    IsSuccess = false,
+                    IsSuccess = true,
                     RequestModel = null,
-                    ResponseModel = new CreditStudentPointResponseModel
+                    ResponseModel = new ModifyStudentPointResponseModel
                     {
                         StudentId = request.StudentId,
                         TotalAmout = student.WalletPoint
@@ -67,7 +83,7 @@ namespace MBS.Application.Services.Implements
             }
             catch (Exception ex)
             {
-                return new BaseModel<CreditStudentPointResponseModel, CreditStudentPointRequestModel>
+                return new BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>
                 {
                     Message = ex.Message,
                     IsSuccess = false,
@@ -78,9 +94,5 @@ namespace MBS.Application.Services.Implements
             }
         }
 
-        public Task<BaseModel<DebitStudentPointResponseModel, DebitStudentPointRequestModel>> DebitStudentPoint(DebitStudentPointRequestModel request)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

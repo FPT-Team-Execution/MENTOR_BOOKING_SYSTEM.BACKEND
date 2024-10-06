@@ -11,7 +11,6 @@ namespace MBS.Application.Services.Interfaces
 {
     public interface IPointTransactionSerivce
     {
-        public Task<BaseModel<CreditStudentPointResponseModel, CreditStudentPointRequestModel>> CreditStudentPoint(CreditStudentPointRequestModel request);
-        public Task<BaseModel<DebitStudentPointResponseModel, DebitStudentPointRequestModel>> DebitStudentPoint(DebitStudentPointRequestModel request);
+        public Task<BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>> ModifyStudentPoint(ModifyStudentPointRequestModel request);
     }
 }
