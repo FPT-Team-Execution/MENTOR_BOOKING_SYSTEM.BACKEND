@@ -31,17 +31,23 @@ namespace MBS.Application.DependencyInjections
             services.AddScoped<IMeetingService, MeetingService>();
             services.AddScoped<IMeetingMemberService, MeetingMemberService>();
             services.AddScoped<IFeedbackService, FeedbackService>();
+
+			//Group
+			services.AddScoped<IGroupService, GroupService>();
+
             services.AddScoped<ISkillService, SkillService>();
             services.AddScoped<IPointTransactionSerivce, PointTransactionService>();
 
-        }
 
-        //private static void RegisterAutoMapper(this IServiceCollection services)
-        //{
-        //    services.AddAutoMapper(typeof(IMappingProfilesMarker));
-        //}
 
-        public static void AddEmailConfiguration(this IServiceCollection services, IConfiguration configuration)
+		}
+
+		//private static void RegisterAutoMapper(this IServiceCollection services)
+		//{
+		//    services.AddAutoMapper(typeof(IMappingProfilesMarker));
+		//}
+
+		public static void AddEmailConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSingleton(configuration.GetSection("SmtpSettings").Get<SmtpSettings>()!);
         }
