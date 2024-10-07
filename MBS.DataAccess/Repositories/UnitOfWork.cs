@@ -29,8 +29,8 @@ public class UnitOfWork : IUnitOfWork
         return Context.SaveChanges();
     }
 
-    public Task<int> CommitAsync()
+    public async Task<int> CommitAsync()
     {
-        return Context.SaveChangesAsync();
+        return await Context.SaveChangesAsync();
     }
 }
