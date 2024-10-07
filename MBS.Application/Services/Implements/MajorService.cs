@@ -88,6 +88,7 @@ namespace MBS.Application.Services.Implements
             }
             
             await _unitOfWork.GetRepository<Major>().InsertAsync(major);
+            await _unitOfWork.CommitAsync();
             return new BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>()
             {
                 Message = MessageResponseHelper.Successfully("Created" + nameof(Major)),
@@ -101,9 +102,9 @@ namespace MBS.Application.Services.Implements
         }
 
 
-        public async Task<BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>> UpdateMajor(UpdateMajorRequestModel request)
+        public async Task<BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>> UpdateMajor(Guid id, UpdateMajorRequestModel request)
         {
-            var majorSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == request.id);
+            var majorSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == id);
             if (majorSet == null)
             {
                 return new BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>()
