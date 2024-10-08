@@ -2,13 +2,16 @@
 using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
+using MBS.Application.Models.Student;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
@@ -20,6 +23,34 @@ public class StudentService : BaseService<StudentService>, IStudentService
     public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
         _userManager = userManager;
+    }
+
+    public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size)
+    {
+        try
+        {
+            var user = await _unitOfWork.GetRepository<Student>().GetPagingListAsync(
+                include: s => s.Include(x => x.User),
+                page: page,
+                size: size
+            );
+            return new BaseModel<Pagination<StudentResponseDto>>()
+            {
+                Message = MessageResponseHelper.GetSuccessfully("students"),
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<StudentResponseDto>>(user)
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<StudentResponseDto>>()
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
     }
 
     public async Task<BaseModel<GetStudentOwnProfileResponseModel>> GetOwnProfile(

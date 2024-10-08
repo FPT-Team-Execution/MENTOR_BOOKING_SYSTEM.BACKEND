@@ -17,7 +17,7 @@ public class RequestResponseDto
 	public string CalendarEventId { get; set; }
 	public Guid? ProjectId { get; set; }
 	public string CreaterId { get; set; }
-	public Student Creater { get; set; }
+	public Core.Entities.Student Creater { get; set; }
 	public RequestStatusEnum Status { get; set; }
 	public string? CreatedBy { get; set; }
 	public DateTime? CreatedOn { get; set; }
