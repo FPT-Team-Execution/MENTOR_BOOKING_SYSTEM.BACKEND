@@ -9,6 +9,7 @@ namespace MBS.Application.Services.Interfaces;
 
 public interface IFeedbackService
 {
+    Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacks(int page, int size, DateTime? startDate, DateTime? endDate);
     Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacksByUserId(Guid meetingId, string userId, int page, int size);
     Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacksByMeetingId(Guid meetingId, int page, int size);
     Task<BaseModel<FeedbackResponseModel>> GetFeedbackById(Guid feedbackId);

@@ -212,6 +212,12 @@ public static class MessageResponseHelper
         stringBuilder.Append("Invalid input parameters.");
         return stringBuilder.ToString();
     }
+    public static string InvalidInputParameterDetail(string message)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append($"Invalid {message} parameters.");
+        return stringBuilder.ToString();
+    }
 
     public static string Successfully(string objectName)
     {
