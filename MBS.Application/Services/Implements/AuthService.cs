@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using AutoMapper;
 using MBS.Application.Exceptions;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
@@ -33,8 +34,9 @@ public class AuthService : BaseService<AuthService>, IAuthService
         ITemplateService templateService,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
-        IConfiguration configuration)
-        : base(unitOfWork, logger)
+        IConfiguration configuration,
+        IMapper mapper)
+        : base(unitOfWork, logger, mapper)
     {
         _emailService = emailService;
         _templateService = templateService;

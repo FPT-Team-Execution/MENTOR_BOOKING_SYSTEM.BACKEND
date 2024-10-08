@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.User;
@@ -24,7 +25,8 @@ public class MentorService : BaseService<MentorService>, IMentorService
         ILogger<MentorService> logger,
         UserManager<ApplicationUser> userManager,
         ISupabaseService supabaseService, 
-        IConfiguration configuration) : base(unitOfWork, logger)
+        IConfiguration configuration,
+        IMapper mapper) : base(unitOfWork, logger, mapper)
     {
         _userManager = userManager;
         _supabaseService = supabaseService;

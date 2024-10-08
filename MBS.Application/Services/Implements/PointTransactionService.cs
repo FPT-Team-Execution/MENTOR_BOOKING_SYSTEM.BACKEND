@@ -1,4 +1,5 @@
-﻿using MBS.Application.Helpers;
+﻿using AutoMapper;
+using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.PointTransaction;
 using MBS.Application.Services.Interfaces;
@@ -17,7 +18,7 @@ namespace MBS.Application.Services.Implements
 {
     public class PointTransactionService : BaseService<PointTransactionService>, IPointTransactionSerivce
     {
-        public PointTransactionService(IUnitOfWork unitOfWork, ILogger<PointTransactionService> logger) : base(unitOfWork, logger)
+        public PointTransactionService(IUnitOfWork unitOfWork, ILogger<PointTransactionService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
         {
 
         }

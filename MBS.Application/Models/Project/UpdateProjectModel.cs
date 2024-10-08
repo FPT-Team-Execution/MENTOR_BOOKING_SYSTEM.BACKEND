@@ -13,8 +13,3 @@ public class UpdateProjectRequestModel
     [MaxLength(50), Required]
     public string Semester { get; set; }
 }
-
-public class UpdateProjectResponseModel
-{
-    public Core.Entities.Project Project { get; set; }
-}

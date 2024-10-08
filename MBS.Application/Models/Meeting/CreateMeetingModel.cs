@@ -7,3 +7,8 @@ public class CreateMeetingRequestModel
     public string Location  { get; set; }
     public string MeetUp { get; set; }
 }
+
+public class CreateMeetingResponseModel
+{
+	public Guid RequestId { get; set; }
+}

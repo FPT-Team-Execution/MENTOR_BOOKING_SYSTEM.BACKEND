@@ -7,11 +7,9 @@ namespace MBS.Application.Services.Interfaces;
 public interface IProjectService
 {
     Task<BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>> CreateProject(CreateProjectRequestModel request);
-
-    Task<BaseModel<GetProjectsByStudentIdResponseModel>> GetProjectsByStudentId(string studentId, ProjectStatusEnum? projectStatus, int page, int size);
-    Task<BaseModel<UpdateProjectResponseModel>> UpdateProject(Guid projectId, UpdateProjectRequestModel request);
-    Task<BaseModel<UpdateProjectStatusResponseModel>> UpdateProjectStatus(Guid projectId, ProjectStatusEnum newStatus);
-    Task<BaseModel<GetProjectByIdResponseModel>> GetProjectById(Guid projectId);
-
+    Task<BaseModel<GetAllProjectResponseModel>> GetProjectsByStudentId(string studentId, ProjectStatusEnum? projectStatus, int page, int size);
+    Task<BaseModel<ProjectResponseModel>> UpdateProject(Guid projectId, UpdateProjectRequestModel request);
+    Task<BaseModel<ProjectResponseModel>> UpdateProjectStatus(Guid projectId, ProjectStatusEnum newStatus);
+    Task<BaseModel<ProjectResponseModel>> GetProjectById(Guid projectId);
     Task<BaseModel<AssignMentorResponseModel>> AssignMentor(Guid projectId, string mentorId);
 }

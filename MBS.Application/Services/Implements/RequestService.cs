@@ -1,3 +1,4 @@
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Request;
@@ -19,12 +20,13 @@ public class RequestService : BaseService<RequestService>, IRequestService
     private readonly UserManager<ApplicationUser> _userManager;
     
     public RequestService(IUnitOfWork unitOfWork, ILogger<RequestService> logger,
-        UserManager<ApplicationUser> userManager
-        ) : base(unitOfWork, logger)
+        UserManager<ApplicationUser> userManager,
+        IMapper mapper
+        ) : base(unitOfWork, logger, mapper)
     {
         _userManager = userManager;
     }
-    public async Task<BaseModel<Pagination<Request>>> GetRequests(int page, int size)
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequests(int page, int size)
     {
         try
         {
@@ -32,17 +34,17 @@ public class RequestService : BaseService<RequestService>, IRequestService
                 page: page,
                 size:size
                 );
-            return new BaseModel<Pagination<Request>>
+            return new BaseModel<Pagination<RequestResponseDto>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = requests
+                ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<Pagination<Request>>
+            return new BaseModel<Pagination<RequestResponseDto>>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -70,7 +72,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = new RequestResponseModel
                 {
-                    Request = request
+                    Request = _mapper.Map<RequestResponseDto>(request)
                 }
             };
         }
@@ -85,14 +87,14 @@ public class RequestService : BaseService<RequestService>, IRequestService
         }
     }
 
-    public async Task<BaseModel<RequestResponseModel, CreateRequestRequestModel>> CreateRequest(CreateRequestRequestModel requestmodel)
+    public async Task<BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>> CreateRequest(CreateRequestRequestModel requestmodel)
     {
         try
         {
             //check calendar event
             var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().SingleOrDefaultAsync(c => c.Id == requestmodel.CalendarEventId);
             if(calendarEvent == null)
-                return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
+                return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
                     Message = MessageResponseHelper.CalendarNotFound(requestmodel.CalendarEventId),
                     IsSuccess = false,
@@ -101,7 +103,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
             //Check user ~ creater
             var user = await _userManager.FindByIdAsync(requestmodel.CreaterId);
             if(user == null)
-                return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
+                return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
                     Message = MessageResponseHelper.UserNotFound(requestmodel.CreaterId),
                     IsSuccess = false,
@@ -111,14 +113,14 @@ public class RequestService : BaseService<RequestService>, IRequestService
             //Check project
             var project = await _unitOfWork.GetRepository<Project>().SingleOrDefaultAsync(p => p.Id == requestmodel.ProjectId);
             if(project == null)
-                return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
+                return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
                     Message = MessageResponseHelper.ProjectNotFound(requestmodel.CalendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             if(project.Status != ProjectStatusEnum.Activated)
-                return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
+                return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
                     Message = MessageResponseHelper.ProjectNotActivated(requestmodel.ProjectId.ToString()),
                     IsSuccess = false,
@@ -136,18 +138,18 @@ public class RequestService : BaseService<RequestService>, IRequestService
             };
             await _unitOfWork.GetRepository<Request>().InsertAsync(newRequest);
             if(await _unitOfWork.CommitAsync() > 0)
-                return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
+                return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("request"),
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status200OK,
                     RequestModel = requestmodel,
-                    ResponseModel = new RequestResponseModel
-                    {
-                        Request = newRequest
-                    }
+                    ResponseModel = new CreateRequestResponseModel
+					{
+                        RequestId = newRequest.Id
+					}
                 };
-            return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
+            return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
             {
                 Message = MessageResponseHelper.CreateFailed("request"),
                 IsSuccess = false,
@@ -156,7 +158,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
         }
         catch (Exception e)
         {
-            return new BaseModel<RequestResponseModel, CreateRequestRequestModel>
+            return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -232,7 +234,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
                     StatusCode = StatusCodes.Status200OK,
                     ResponseRequestModel = new RequestResponseModel()
                     {
-                        Request = request,
+                        Request = _mapper.Map<RequestResponseDto>(request),
                     }
                 };
             return new BaseModel<RequestResponseModel>
