@@ -1,3 +1,4 @@
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Request;
@@ -19,8 +20,9 @@ public class RequestService : BaseService<RequestService>, IRequestService
     private readonly UserManager<ApplicationUser> _userManager;
     
     public RequestService(IUnitOfWork unitOfWork, ILogger<RequestService> logger,
-        UserManager<ApplicationUser> userManager
-        ) : base(unitOfWork, logger)
+        UserManager<ApplicationUser> userManager,
+        IMapper mapper
+        ) : base(unitOfWork, logger, mapper)
     {
         _userManager = userManager;
     }

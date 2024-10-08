@@ -1,3 +1,4 @@
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.CalendarEvent;
 using MBS.Application.Models.General;
@@ -16,8 +17,8 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
 {
 
     public CalendarEventService(
-       IUnitOfWork unitOfWork, ILogger<CalendarEventService> logger
-        ) : base(unitOfWork, logger)
+       IUnitOfWork unitOfWork, ILogger<CalendarEventService> logger, IMapper mapper
+        ) : base(unitOfWork, logger, mapper)
     {
     
     }

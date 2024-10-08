@@ -1,3 +1,4 @@
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Meeting;
@@ -15,7 +16,7 @@ namespace MBS.Application.Services.Implements;
 public class MeetingService : BaseService<MeetingService>, IMeetingService
 {
 
-    public MeetingService(IUnitOfWork unitOfWork, ILogger<MeetingService> logger) : base(unitOfWork, logger)
+    public MeetingService(IUnitOfWork unitOfWork, ILogger<MeetingService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
 
     }

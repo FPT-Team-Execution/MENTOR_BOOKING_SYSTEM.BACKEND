@@ -1,4 +1,5 @@
-﻿using MBS.Application.Helpers;
+﻿using AutoMapper;
+using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Groups;
 using MBS.Application.Models.Project;
@@ -17,7 +18,7 @@ namespace MBS.Application.Services.Implements
 {
     public class GroupService : BaseService<GroupService>, IGroupService
     {
-        public GroupService(IUnitOfWork unitOfWork, ILogger<GroupService> logger) : base(unitOfWork, logger)
+        public GroupService(IUnitOfWork unitOfWork, ILogger<GroupService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
         {
 
         }

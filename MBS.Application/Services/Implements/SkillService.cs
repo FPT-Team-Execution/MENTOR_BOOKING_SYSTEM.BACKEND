@@ -1,3 +1,4 @@
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Skill;
@@ -12,7 +13,7 @@ namespace MBS.Application.Services.Implements;
 
 public class SkillService : BaseService<SkillService>, ISkillService
 {
-    public SkillService(IUnitOfWork unitOfWork, ILogger<SkillService> logger) : base(unitOfWork, logger)
+    public SkillService(IUnitOfWork unitOfWork, ILogger<SkillService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
     }
 

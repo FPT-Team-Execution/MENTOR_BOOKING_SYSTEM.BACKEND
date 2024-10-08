@@ -1,4 +1,5 @@
-﻿using MBS.Application.Helpers;
+﻿using AutoMapper;
+using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Majors;
 using MBS.Application.Services.Interfaces;
@@ -13,7 +14,7 @@ namespace MBS.Application.Services.Implements
 {
     public class MajorService : BaseService<MajorService>, IMajorService
     {
-        public MajorService(IUnitOfWork unitOfWork, ILogger<MajorService> logger) : base(unitOfWork, logger)
+        public MajorService(IUnitOfWork unitOfWork, ILogger<MajorService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
         {
         }
 

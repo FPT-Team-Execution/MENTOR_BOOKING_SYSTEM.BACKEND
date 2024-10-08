@@ -1,3 +1,4 @@
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Project;
@@ -15,7 +16,7 @@ namespace MBS.Application.Services.Implements;
 public class ProjectService : BaseService<ProjectService>, IProjectService
 {
 
-    public ProjectService(IUnitOfWork unitOfWork, ILogger<ProjectService> logger) :base(unitOfWork, logger)
+    public ProjectService(IUnitOfWork unitOfWork, ILogger<ProjectService> logger, IMapper mapper) :base(unitOfWork, logger, mapper)
     {
 
     }

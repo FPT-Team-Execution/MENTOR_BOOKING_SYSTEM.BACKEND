@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.User;
@@ -16,7 +17,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
 {
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ILogger<StudentService> logger) : base(unitOfWork, logger)
+    public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
         _userManager = userManager;
     }

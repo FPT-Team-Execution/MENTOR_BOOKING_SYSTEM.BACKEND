@@ -1,4 +1,5 @@
-﻿using Azure.Core.GeoJson;
+﻿using AutoMapper;
+using Azure.Core.GeoJson;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Positions;
@@ -20,7 +21,7 @@ namespace MBS.Application.Services.Implements
 	public class PositionService : BaseService<PositionService>, IPositionService
 
 	{
-		public PositionService(IUnitOfWork unitOfWork, ILogger<PositionService> logger) : base(unitOfWork, logger)
+		public PositionService(IUnitOfWork unitOfWork, ILogger<PositionService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
 		{
 		}
 

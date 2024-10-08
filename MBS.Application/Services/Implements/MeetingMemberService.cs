@@ -1,3 +1,4 @@
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.MeetingMember;
@@ -15,7 +16,7 @@ namespace MBS.Application.Services.Implements;
 public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingMemberService
 {
 
-    public MeetingMemberService(IUnitOfWork unitOfWork, ILogger<MeetingMemberService> logger) : base(unitOfWork, logger)
+    public MeetingMemberService(IUnitOfWork unitOfWork, ILogger<MeetingMemberService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
     }
     public async Task<BaseModel<GetMeetingMemberResponseModel>> GetMembersByMeetingId(Guid meetingId)

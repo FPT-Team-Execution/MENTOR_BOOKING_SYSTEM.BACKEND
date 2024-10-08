@@ -9,8 +9,8 @@ namespace MBS.Application.Services.Interfaces;
 
 public interface IFeedbackService
 {
-    Task<BaseModel<Pagination<Feedback>>> GetFeedbacksByUserId(Guid meetingId, string userId, int page, int size);
-    Task<BaseModel<Pagination<Feedback>>> GetFeedbacksByMeetingId(Guid meetingId, int page, int size);
+    Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacksByUserId(Guid meetingId, string userId, int page, int size);
+    Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacksByMeetingId(Guid meetingId, int page, int size);
     Task<BaseModel<FeedbackResponseModel>> GetFeedbackById(Guid feedbackId);
     Task<BaseModel<CreateFeedbackResponseModel, CreateFeedbackRequestModel>> CreateFeedback(CreateFeedbackRequestModel request);
     Task<BaseModel<FeedbackResponseModel>> UpdateFeedback(Guid feedbackId, string message);

@@ -1,3 +1,4 @@
+using AutoMapper;
 using MBS.DataAccess.Repositories;
 using Microsoft.Extensions.Logging;
 
@@ -8,12 +9,12 @@ public class BaseService <T> where T : class
 
     protected IUnitOfWork _unitOfWork;
     protected ILogger<T> _logger;
-
-    public BaseService(IUnitOfWork unitOfWork, ILogger<T> logger)
-    {
-        _unitOfWork = unitOfWork;
-        _logger = logger;
-
-    }
+    protected IMapper _mapper;
+    public BaseService(IUnitOfWork unitOfWork, ILogger<T> logger, IMapper mapper)
+	{
+		_unitOfWork = unitOfWork;
+		_logger = logger;
+		_mapper = mapper;
+	}
 
 }
