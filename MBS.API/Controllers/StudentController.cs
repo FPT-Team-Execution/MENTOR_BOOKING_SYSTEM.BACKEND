@@ -1,6 +1,9 @@
+using MBS.Application.Models.Student;
+using MBS.Core.Common.Pagination;
+
 namespace MBS.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/students")]
     [ApiController]
     public class StudentController : ControllerBase
     {
@@ -11,6 +14,16 @@ namespace MBS.API.Controllers
             _studentService = studentService;
         }
 
+        [HttpGet]
+        // [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        [ProducesResponseType(typeof(BaseModel<Pagination<StudentResponseDto>>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetStudents(int page, int size)
+        {
+            var response = await _studentService.GetStudents(page, size);
+            return StatusCode(response.StatusCode, response);
+        }
+        
         [HttpGet]
         [Route("profile")]
         [Authorize(Roles = nameof(UserRoleEnum.Student))]
