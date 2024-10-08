@@ -39,7 +39,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = new MeetingResponseModel
                 {
-                    Meeting = meeting
+                    Meeting = _mapper.Map<MeetingResponseDto>(meeting),
                 }
             };
         }
@@ -54,7 +54,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
         }
     }
 
-    public async Task<BaseModel<Pagination<Meeting>>> GetMeetings(int page, int size)
+    public async Task<BaseModel<Pagination<MeetingResponseDto>>> GetMeetings(int page, int size)
     {
         try
         {
@@ -62,17 +62,17 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
                 page: page,
                 size: size
                 );
-            return new BaseModel<Pagination<Meeting>>
+            return new BaseModel<Pagination<MeetingResponseDto>>
             {
-                Message = MessageResponseHelper.GetSuccessfully("events"),
+                Message = MessageResponseHelper.GetSuccessfully("meetings"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = meetings
+                ResponseRequestModel = _mapper.Map<Pagination<MeetingResponseDto>>(meetings)
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<Pagination<Meeting>>
+            return new BaseModel<Pagination<MeetingResponseDto>>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -81,14 +81,14 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
         }
     }
 
-    public async Task<BaseModel<MeetingResponseModel, CreateMeetingRequestModel>> CreateMeeting(CreateMeetingRequestModel request)
+    public async Task<BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>> CreateMeeting(CreateMeetingRequestModel request)
     {
         try
         {
             //check request
             var requestCheck = await _unitOfWork.GetRepository<Request>().SingleOrDefaultAsync(c => c.Id == request.RequestId);
             if(requestCheck == null)
-                return new BaseModel<MeetingResponseModel, CreateMeetingRequestModel>
+                return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
                 {
                     Message = MessageResponseHelper.RequestNotFound(request.RequestId.ToString()),
                     IsSuccess = false,
@@ -96,7 +96,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
                 };
             
             if(requestCheck.Status != RequestStatusEnum.Accepted)
-                return new BaseModel<MeetingResponseModel, CreateMeetingRequestModel>
+                return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
                 {
                     Message = MessageResponseHelper.InvalidRequestStatus(request.RequestId.ToString(), nameof(RequestStatusEnum.Accepted)),
                     IsSuccess = false,
@@ -114,18 +114,18 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
             };
             await _unitOfWork.GetRepository<Meeting>().InsertAsync(newMeeting);
             if(await _unitOfWork.CommitAsync() > 0)
-                return new BaseModel<MeetingResponseModel, CreateMeetingRequestModel>
+                return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("meeting"),
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status200OK,
                     RequestModel = request,
-                    ResponseModel = new MeetingResponseModel
-                    {
-                        Meeting = newMeeting
+                    ResponseModel = new CreateMeetingResponseModel
+					{
+                        RequestId = newMeeting.Id,
                     }
                 };
-            return new BaseModel<MeetingResponseModel, CreateMeetingRequestModel>
+            return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
             {
                 Message = MessageResponseHelper.CreateFailed("meeting"),
                 IsSuccess = false,
@@ -134,7 +134,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
         }
         catch (Exception e)
         {
-            return new BaseModel<MeetingResponseModel, CreateMeetingRequestModel>
+            return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -180,7 +180,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
                     StatusCode = StatusCodes.Status200OK,
                     ResponseRequestModel = new MeetingResponseModel()
                     {
-                        Meeting = meeting,
+                        Meeting = _mapper.Map<MeetingResponseDto>(meeting),
                     }
                 };
             return new BaseModel<MeetingResponseModel>
