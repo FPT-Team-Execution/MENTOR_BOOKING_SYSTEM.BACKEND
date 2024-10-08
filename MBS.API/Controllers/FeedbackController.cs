@@ -16,11 +16,23 @@ public class FeedbackController : ControllerBase
     {
         _feedbackService = feedbackService;
     }
+    
+    [HttpGet]
+    [ProducesResponseType(typeof(BaseModel<Pagination<Feedback>>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetFeedbacks(int page, int size, DateTime? fromDate = null, DateTime? toDate = null)
+    {
+        var result = await _feedbackService.GetFeedbacks(page, size, fromDate, toDate);
+        return StatusCode(result.StatusCode, result);
+        
+    }
+    
     [HttpGet("meeting/{meetingId}/user/{userId}")]
     [ProducesResponseType(typeof(BaseModel<Pagination<Feedback>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetFeedbackByUserId([FromRoute] Guid meetingId, [FromRoute] string userId, int page, int size)
+    public async Task<IActionResult> GetFeedbacksByUserId([FromRoute] Guid meetingId, [FromRoute] string userId, int page, int size)
     {
         var result = await _feedbackService.GetFeedbacksByUserId(meetingId, userId, page, size);
         return StatusCode(result.StatusCode, result);

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.Feedback;
@@ -26,6 +27,58 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
        
         _userManager = userManager;
     }
+
+    public async Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacks(int page, int size, DateTime? startDate, DateTime? endDate)
+    {
+        try
+        {
+            if (endDate != null && startDate != null && endDate < startDate)
+            {
+                return new BaseModel<Pagination<FeedbackResponseDto>>
+                {
+                    Message = MessageResponseHelper.InvalidInputParameterDetail("start and end time"),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                };
+            }
+            //get all
+            Expression<Func<Feedback, bool>> feedBackExpression = null; 
+            Expression<Func<Feedback, bool>> startExpression = f => f.CreatedOn >= startDate;
+            Expression<Func<Feedback, bool>> endExpression = f => f.CreatedOn < endDate;
+
+            if (startDate != null && endDate != null)
+                feedBackExpression = Expression.Lambda<Func<Feedback, bool>>(Expression.AndAlso(startExpression.Body, endExpression.Body));
+            else if (endDate != null)
+                feedBackExpression = endExpression;
+            else if (startDate != null)
+                feedBackExpression = startExpression;
+
+            var feedbacks =
+                await _unitOfWork.GetRepository<Feedback>().GetPagingListAsync(
+                    predicate: feedBackExpression,
+                    page: page, 
+                    size: size
+                );
+            
+            return new BaseModel<Pagination<FeedbackResponseDto>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("feedbacks"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<FeedbackResponseDto>>(feedbacks)
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<FeedbackResponseDto>>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
     public async Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacksByUserId(Guid meetingId, string userId, int page, int size)
     {
         try
