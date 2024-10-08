@@ -34,7 +34,7 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = new GetMeetingMemberResponseModel
                 {
-                    MeetingMembers = meetingMembers
+                    MeetingMembers = _mapper.Map<IEnumerable<MeetingMemberResponseDto>>(meetingMembers)
                 }
             };
         }
@@ -49,7 +49,7 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
         }
     }
 
-    public async Task<BaseModel<MeetingMemberResponseModel>> AddMemberMeeting(CreateMeetingMemberRequestModel request)
+    public async Task<BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>> AddMemberMeeting(CreateMeetingMemberRequestModel request)
     {
         try
         {
@@ -57,14 +57,14 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
             var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
             
             if(meeting == null)
-                return new BaseModel<MeetingMemberResponseModel>
+                return new BaseModel<CreateMeetingMemberResponseModel,CreateMeetingMemberRequestModel>
                 {
                     Message = MessageResponseHelper.MeetingNotFound(request.MeetingId.ToString()),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             if(meeting.Status != MeetingStatusEnum.New)
-                return new BaseModel<MeetingMemberResponseModel>
+                return new BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>
                 {
                     Message = MessageResponseHelper.InvalidMeetingSatus(request.MeetingId.ToString()),
                     IsSuccess = false,
@@ -81,17 +81,18 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
             
             await _unitOfWork.GetRepository<MeetingMember>().InsertAsync(newMeetingMem);
             if(await _unitOfWork.CommitAsync() > 0)
-                return new BaseModel<MeetingMemberResponseModel>
+                return new BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("meeting member"),
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status200OK,
-                    ResponseRequestModel = new MeetingMemberResponseModel
-                    {
-                        MeetingMember = newMeetingMem
+                    RequestModel = request,
+                    ResponseModel = new CreateMeetingMemberResponseModel
+					{
+                        MeetingMemberId = newMeetingMem.Id
                     }
                 };
-            return new BaseModel<MeetingMemberResponseModel>
+            return new BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>
             {
                 Message = MessageResponseHelper.CreateFailed("meeting memeber"),
                 IsSuccess = false,
@@ -100,7 +101,7 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
         }
         catch (Exception e)
         {
-            return new BaseModel<MeetingMemberResponseModel>
+            return new BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -174,7 +175,7 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
                     StatusCode = StatusCodes.Status200OK,
                     ResponseRequestModel = new MeetingMemberResponseModel
                     {
-                        MeetingMember = meetingMember
+                        MeetingMember = _mapper.Map<MeetingMemberResponseDto>(meetingMember)
                     }
                 };
             return new BaseModel<MeetingMemberResponseModel>

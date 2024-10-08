@@ -6,7 +6,7 @@ namespace MBS.Application.Services.Interfaces;
 public interface IMeetingMemberService
 {
     Task<BaseModel<GetMeetingMemberResponseModel>> GetMembersByMeetingId(Guid meetingId);
-    Task<BaseModel<MeetingMemberResponseModel>> AddMemberMeeting(CreateMeetingMemberRequestModel request);
+    Task<BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>> AddMemberMeeting(CreateMeetingMemberRequestModel request);
     Task<BaseModel<MeetingMemberResponseModel>> UpdateMeetingMember(Guid memberMeetingId, UpdateMeetingMemberRequestModel request);
         
 }

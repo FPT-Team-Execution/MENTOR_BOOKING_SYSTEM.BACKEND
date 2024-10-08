@@ -1,6 +1,18 @@
+using MBS.Core.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+
 namespace MBS.Application.Models.MeetingMember;
 
 public class MeetingMemberResponseModel
 {
-    public Core.Entities.MeetingMember MeetingMember { get; set; }
+    public MeetingMemberResponseDto MeetingMember { get; set; }
+}
+
+public class MeetingMemberResponseDto
+{
+	public Guid MeetingId { get; set; }
+	public string StudentId { get; set; }
+	public DateTime JoinTime { get; set; }
+	public DateTime? LeaveTime { get; set; }
 }
