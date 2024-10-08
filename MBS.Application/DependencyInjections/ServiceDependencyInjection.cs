@@ -39,18 +39,18 @@ namespace MBS.Application.DependencyInjections
             services.AddScoped<IPositionService, PositionService>();
         }
 
-            
-
+		public static void AddEmailConfiguration(this IServiceCollection services, IConfiguration configuration)
+		{
+			services.AddSingleton(configuration.GetSection("SmtpSettings").Get<SmtpSettings>()!);
 		}
 
-		//private static void RegisterAutoMapper(this IServiceCollection services)
-		//{
-		//    services.AddAutoMapper(typeof(IMappingProfilesMarker));
-		//}
 
-		public static void AddEmailConfiguration(this IServiceCollection services, IConfiguration configuration)
-        {
-            services.AddSingleton(configuration.GetSection("SmtpSettings").Get<SmtpSettings>()!);
-        }
-    }
+	}
+
+	//private static void RegisterAutoMapper(this IServiceCollection services)
+	//{
+	//    services.AddAutoMapper(typeof(IMappingProfilesMarker));
+	//}
+
+
 }

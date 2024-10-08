@@ -17,7 +17,7 @@ namespace MBS.Application.Services.Interfaces
         Task<BaseModel<GetMajorResponseModel, GetMajorRequestModel>> GetMajor(
             GetMajorRequestModel request);
 
-        Task<BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>> UpdateMajor(UpdateMajorRequestModel request);
+        Task<BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>> UpdateMajor(Guid id, UpdateMajorRequestModel request);
 
         Task<BaseModel<RemoveMajorResponseModel, RemoveMajorRequestModel>> RemoveMajor(
             RemoveMajorRequestModel request);

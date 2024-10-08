@@ -47,8 +47,7 @@ namespace MBS.API.Controllers
 
         public async Task<IActionResult> UpdateMajor(Guid id, [FromBody] UpdateMajorRequestModel request)
         {
-            request.id = id;
-            var response = await _majorService.UpdateMajor(request);
+            var response = await _majorService.UpdateMajor(id, request);
             return StatusCode((int)response.StatusCode, response);
         }
         //Tested
