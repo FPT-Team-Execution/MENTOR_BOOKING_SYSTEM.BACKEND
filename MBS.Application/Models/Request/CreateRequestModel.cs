@@ -9,3 +9,8 @@ public class CreateRequestRequestModel
     public Guid? ProjectId { get; set; }
     public string CreaterId { get; set; }
 }
+
+public class CreateRequestResponseModel
+{
+    public Guid RequestId { get; set; }
+}
