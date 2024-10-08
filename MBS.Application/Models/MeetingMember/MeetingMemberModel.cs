@@ -11,7 +11,8 @@ public class MeetingMemberResponseModel
 
 public class MeetingMemberResponseDto
 {
-	public Guid MeetingId { get; set; }
+    public Guid Id { get; set; }
+    public Guid MeetingId { get; set; }
 	public string StudentId { get; set; }
 	public DateTime JoinTime { get; set; }
 	public DateTime? LeaveTime { get; set; }

@@ -11,7 +11,8 @@ public class FeedbackResponseModel
 
 public class FeedbackResponseDto
 {
-	public Guid MeetingId { get; set; }
+    public Guid Id { get; set; }
+    public Guid MeetingId { get; set; }
 	public string? Message { get; set; }
 	public string? CreatedBy { get; set; }
 	public DateTime? CreatedOn { get; set; }
