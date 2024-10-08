@@ -90,6 +90,16 @@ namespace MBS.DataAccess.Persistents.Configurations
                 v => v.ToString(),
                 v => (PointCurrencyEnum)Enum.Parse(typeof(PointCurrencyEnum), v)
             );
-        }
+			builder.Property(e => e.Status)
+			.HasConversion(
+				v => v.ToString(),
+				v => (TransactionStatusEnum)Enum.Parse(typeof(TransactionStatusEnum), v)
+			);
+			builder.Property(e => e.Kind)
+			.HasConversion(
+				v => v.ToString(),
+				v => (TransactionKindEnum)Enum.Parse(typeof(TransactionKindEnum), v)
+			);
+		}
     }
 }
