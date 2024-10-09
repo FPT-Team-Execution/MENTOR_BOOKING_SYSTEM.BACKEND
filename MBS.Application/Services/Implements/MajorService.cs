@@ -4,6 +4,7 @@ using MBS.Application.Models.General;
 using MBS.Application.Models.Majors;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
+using MBS.DataAccess.DAO;
 using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;

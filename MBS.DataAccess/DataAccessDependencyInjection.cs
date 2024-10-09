@@ -3,9 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using MBS.Core.Entities;
-using MBS.DataAccess.Repositories;
-using MBS.DataAccess.Repositories.Interfaces;
-using MBS.DataAccess.Repositories.Implements;
+using MBS.DataAccess.DAO;
 
 namespace MBS.DataAccess
 {

@@ -1,5 +1,5 @@
 using AutoMapper;
-using MBS.DataAccess.Repositories;
+using MBS.DataAccess.DAO;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services;

@@ -5,6 +5,7 @@ using MBS.Application.Models.Skill;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
+using MBS.DataAccess.DAO;
 using MBS.DataAccess.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
