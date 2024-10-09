@@ -17,6 +17,6 @@ namespace MBS.Application.Models.PointTransaction
     public class ModifyStudentPointResponseModel
     {
         public required string StudentId { get; set; }
-        public required int TotalAmout { get; set; }
+        public required int TotalAmount { get; set; }
     }
 }

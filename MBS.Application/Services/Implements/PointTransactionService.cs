@@ -77,7 +77,7 @@ namespace MBS.Application.Services.Implements
                     ResponseModel = new ModifyStudentPointResponseModel
                     {
                         StudentId = request.StudentId,
-                        TotalAmout = student.WalletPoint
+                        TotalAmount = student.WalletPoint
                     },
                     StatusCode = StatusCodes.Status200OK
                 };
