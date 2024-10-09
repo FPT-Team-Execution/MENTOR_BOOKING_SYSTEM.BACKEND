@@ -3,6 +3,7 @@ using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Majors;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
@@ -18,13 +19,13 @@ namespace MBS.Application.Services.Implements
         {
         }
 
-        //OK
-        public async Task<BaseModel<GetAllMajorResponseModel, GetAllMajorReuqestModel>> GetAllMajor()
+		//OK
+		public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size)
         {
-            var result = await _unitOfWork.GetRepository<Major>().GetListAsync();
+            var result = await _unitOfWork.GetRepository<Major>().GetPagingListAsync(page: page, size: size);
             if (result == null)
             {
-                return new BaseModel<GetAllMajorResponseModel, GetAllMajorReuqestModel>()
+                return new BaseModel<Pagination<MajorResponseDTO>>()
                 {
                     Message = MessageResponseHelper.Fail("Get all " + nameof(Major)),
                     StatusCode = StatusCodes.Status400BadRequest,
@@ -32,39 +33,35 @@ namespace MBS.Application.Services.Implements
                 };
             }
 
-            return new BaseModel<GetAllMajorResponseModel, GetAllMajorReuqestModel>()
+            return new BaseModel<Pagination<MajorResponseDTO>>()
             {
                 Message = MessageResponseHelper.Successfully("Get all " + nameof(Major)),
                 StatusCode = StatusCodes.Status200OK,
                 IsSuccess = true,
-                ResponseModel = new GetAllMajorResponseModel()
-                {
-                    majors = result.ToList()
-                }
+                ResponseRequestModel = _mapper.Map<Pagination<MajorResponseDTO>>(result)
             };
         }
         //OK
-        public async Task<BaseModel<GetMajorResponseModel, GetMajorRequestModel>> GetMajor(GetMajorRequestModel request)
+        public async Task<BaseModel<MajorModel>> GetMajorId(Guid requestId)
         {
-            var resultSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == request.id);
+            var resultSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == requestId);
             if (resultSet == null) 
             {
-                return new BaseModel<GetMajorResponseModel, GetMajorRequestModel>()
+                return new BaseModel<MajorModel>()
                 {
                     Message = MessageResponseHelper.Fail("Get " + nameof(Major)),
-                    StatusCode = StatusCodes.Status400BadRequest,
+                    StatusCode = StatusCodes.Status404NotFound,
                     IsSuccess = false,
-                    RequestModel = request
                 };
             }
-            return new BaseModel<GetMajorResponseModel, GetMajorRequestModel>()
+            return new BaseModel<MajorModel>()
             {
                 Message = MessageResponseHelper.Successfully("Get " + nameof(Major)),
                 StatusCode = StatusCodes.Status202Accepted,
                 IsSuccess = true,
-                ResponseModel = new GetMajorResponseModel()
+                ResponseRequestModel = new MajorModel()
                 {
-                    major = resultSet
+                    MajorResponse = _mapper.Map<MajorResponseDTO>(resultSet)
                 }
             };
         }
@@ -97,62 +94,59 @@ namespace MBS.Application.Services.Implements
                 IsSuccess = true,
                 ResponseModel = new CreateMajorResponseModel()
                 {
-                    Major = major
+                    MajorId = major.Id,
                 }
             };
         }
 
 
-        public async Task<BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>> UpdateMajor(Guid id, UpdateMajorRequestModel request)
+        public async Task<BaseModel<MajorModel>> UpdateMajor(Guid id, UpdateMajorRequestModel request)
         {
             var majorSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == id);
             if (majorSet == null)
             {
-                return new BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>()
+                return new BaseModel<MajorModel>()
                 {
                     Message = MessageResponseHelper.Fail("Update " + nameof(Major)),
                     StatusCode = StatusCodes.Status400BadRequest,
                     IsSuccess = false,
-                    RequestModel = request
                 };
             }
             majorSet.Name = request.Name;
+            majorSet.ParentId = request.ParentId;
             _unitOfWork.GetRepository<Major>().UpdateAsync(majorSet);
-            return new BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>()
+            await _unitOfWork.CommitAsync();
+            return new BaseModel<MajorModel>()
             {
                 Message = MessageResponseHelper.Successfully("Update " + nameof(Major)),
                 StatusCode = StatusCodes.Status200OK,
                 IsSuccess = true,
-                ResponseModel = new UpdateMajorResponseModel()
+                ResponseRequestModel = new MajorModel()
                 {
-                    UpdatedMajor = majorSet
+                    MajorResponse = _mapper.Map<MajorResponseDTO>(majorSet)
                 }
             };
         }
-        public async Task<BaseModel<RemoveMajorResponseModel, RemoveMajorRequestModel>> RemoveMajor(RemoveMajorRequestModel request)
+        public async Task<BaseModel> RemoveMajor(Guid id)
         {
-            var majorSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == request.id);
+            var majorSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == id);
             if (majorSet == null)
             {
-                return new BaseModel<RemoveMajorResponseModel, RemoveMajorRequestModel>()
+                return new BaseModel()
                 {
                     Message = MessageResponseHelper.Fail("Remove " + nameof(Major)),
                     StatusCode = StatusCodes.Status400BadRequest,
                     IsSuccess = false,
-                    RequestModel = request
                 };
             }
-            _unitOfWork.GetRepository<Major>().DeleteAsync(majorSet);
-            _unitOfWork.Commit();
-            return new BaseModel<RemoveMajorResponseModel, RemoveMajorRequestModel>()
+            majorSet.Status = Core.Enums.StatusEnum.Deactivated;
+            _unitOfWork.GetRepository<Major>().UpdateAsync(majorSet);
+            await _unitOfWork.CommitAsync();
+            return new BaseModel()
             {
                 Message = MessageResponseHelper.Successfully("Remove " + nameof(Major)),
                 StatusCode = StatusCodes.Status200OK,
-                IsSuccess = true,
-                ResponseModel = new RemoveMajorResponseModel()
-                {
-                    success = "Deleted !!!"
-                }
+                IsSuccess = true
             };
             
         }

@@ -1,264 +1,158 @@
 ﻿using AutoMapper;
-using Azure.Core.GeoJson;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Positions;
-using MBS.Application.Models.Project;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.Repositories;
+using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MBS.Application.Services.Implements
 {
-	public class PositionService : BaseService<PositionService>, IPositionService
+    public class PositionService : BaseService<PositionService>, IPositionService
+    {
+        public PositionService(IUnitOfWork unitOfWork, ILogger<PositionService> logger, IMapper mapper)
+            : base(unitOfWork, logger, mapper) { }
 
-	{
-		public PositionService(IUnitOfWork unitOfWork, ILogger<PositionService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
-		{
-		}
+        public async Task<BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>> CreateNewPosition(CreatePositionRequestModel request)
+        {
+            Position position = new()
+            {
+                Id = Guid.NewGuid(),
+                Name = request.name,
+                Description = request.description,
+            };
 
-		public async Task<BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>> CreateNewPositionAsync(CreatePositionRequestModel request)
-		{
-			var newPosition = new Position()
-			{
-				Id = new Guid(),
-				Name = request.name,
-				Description = request.description,
-			};
-			try
-			{
-				await _unitOfWork.GetRepository<Position>().InsertAsync(newPosition);
-				if (await _unitOfWork.CommitAsync() > 0)
-					return new BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>
-					{
-						Message = MessageResponseHelper.CreateSuccessfully("postion"),
-						IsSuccess = true,
-						StatusCode = StatusCodes.Status200OK,
-						RequestModel = request,
-						ResponseModel = new CreatePositionResponseModel
-						{
-							position = newPosition
-						}
-					};
-				return new BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>
-				{
-					Message = MessageResponseHelper.CreateFailed("position"),
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status200OK,
-					RequestModel = request,
-					ResponseModel = null
-				};
-			}
-			catch (Exception e)
-			{
-				return new BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>
-				{
-					Message = e.Message,
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status500InternalServerError,
-				};
-			}
-		}
+            if (position == null)
+            {
+                return new BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>()
+                {
+                    Message = MessageResponseHelper.Fail("Created " + nameof(Position)),
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    IsSuccess = false,
+                    RequestModel = request,
+                };
+            }
 
-		public async Task<BaseModel<GetAllPositionResponseModel, GetAllPositionRequestModel>> GetAllPosition()
-		{
-			try
-			{
-				var listPosition = await _unitOfWork.GetRepository<Position>().GetListAsync();
-				if (listPosition != null)
-				{
-					return new BaseModel<GetAllPositionResponseModel, GetAllPositionRequestModel>
-					{
-						Message = MessageResponseHelper.GetSuccessfully("postion"),
-						IsSuccess = true,
-						StatusCode = StatusCodes.Status200OK,
-						RequestModel = null,
-						ResponseModel = new GetAllPositionResponseModel
-						{
-							positions = listPosition.ToList()
-						}
-					};
-				}
-				return new BaseModel<GetAllPositionResponseModel, GetAllPositionRequestModel>
-				{
-					Message = MessageResponseHelper.GetFailed("postion"),
-					IsSuccess = true,
-					StatusCode = StatusCodes.Status200OK,
-					RequestModel = null,
-					ResponseModel = null
-				};
+            await _unitOfWork.GetRepository<Position>().InsertAsync(position);
+            await _unitOfWork.CommitAsync();
 
-			}
-			catch (Exception e)
-			{
+            return new BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>()
+            {
+                Message = MessageResponseHelper.Successfully("Created " + nameof(Position)),
+                StatusCode = StatusCodes.Status202Accepted,
+                IsSuccess = true,
+                ResponseModel = new CreatePositionResponseModel()
+                {
+                    Id = position.Id,
+                }
+            };
+        }
 
-				return new BaseModel<GetAllPositionResponseModel, GetAllPositionRequestModel>
-				{
-					Message = e.Message,
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status500InternalServerError,
-				};
-			}
-		}
+        public async Task<BaseModel<PositionModel>> GetPositionId(Guid requestId)
+        {
+            var position = await _unitOfWork.GetRepository<Position>().SingleOrDefaultAsync(i => i.Id == requestId);
+            if (position == null)
+            {
+                return new BaseModel<PositionModel>()
+                {
+                    Message = MessageResponseHelper.Fail("Get " + nameof(Position)),
+                    StatusCode = StatusCodes.Status404NotFound,
+                    IsSuccess = false,
+                };
+            }
 
-		public async Task<BaseModel<GetPositionResponseModel, GetPositionRequestModel>> GetPosition(GetPositionRequestModel request)
-		{
-			try
-			{
-				var positionResult = await _unitOfWork.GetRepository<Position>().SingleOrDefaultAsync(a => a.Id == request.Id);
-				if (positionResult != null)
-				{
-					return new BaseModel<GetPositionResponseModel, GetPositionRequestModel>
-					{
-						Message = MessageResponseHelper.GetSuccessfully("postion"),
-						IsSuccess = true,
-						StatusCode = StatusCodes.Status200OK,
-						RequestModel = null,
-						ResponseModel = new GetPositionResponseModel
-						{
-							detailPosition = positionResult
-						}
-					};
-				}
-				return new BaseModel<GetPositionResponseModel, GetPositionRequestModel>
-				{
-					Message = MessageResponseHelper.GetFailed("postion"),
-					IsSuccess = true,
-					StatusCode = StatusCodes.Status200OK,
-					RequestModel = null,
-					ResponseModel = null
-				};
+            return new BaseModel<PositionModel>()
+            {
+                Message = MessageResponseHelper.Successfully("Get " + nameof(Position)),
+                StatusCode = StatusCodes.Status202Accepted,
+                IsSuccess = true,
+                ResponseRequestModel = new PositionModel()
+                {
+                    positionResponse = _mapper.Map<PositionResponseDTO>(position)
+                }
+            };
+        }
 
-			}
-			catch (Exception e)
-			{
+        public async Task<BaseModel<PositionModel>> UpdatePosition(Guid id, UpdatePositionRequestModel request)
+        {
+            var position = await _unitOfWork.GetRepository<Position>().SingleOrDefaultAsync(i => i.Id == id);
+            if (position == null)
+            {
+                return new BaseModel<PositionModel>()
+                {
+                    Message = MessageResponseHelper.Fail("Update " + nameof(Position)),
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    IsSuccess = false,
+                };
+            }
 
-				return new BaseModel<GetPositionResponseModel, GetPositionRequestModel>
-				{
-					Message = e.Message,
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status500InternalServerError,
-				};
-			}
-		}
+            position.Name = request.name;
+            position.Description = request.description;
 
-		public async Task<BaseModel<RemovePositionResponseModel, RemovePositionRequestModel>> RemovePosition(RemovePositionRequestModel request)
-		{
-			try
-			{
-				var selectedPosition = await _unitOfWork.GetRepository<Position>().SingleOrDefaultAsync(a => a.Id == request.Id);
+            _unitOfWork.GetRepository<Position>().UpdateAsync(position);
+            await _unitOfWork.CommitAsync();
 
-				if (selectedPosition == null)
-				{
-					return new BaseModel<RemovePositionResponseModel, RemovePositionRequestModel>
-					{
-						Message = MessageResponseHelper.Fail("Remove position - Position not found"),
-						IsSuccess = false,
-						StatusCode = StatusCodes.Status404NotFound,
-						RequestModel = request,
-					};
-				}
+            return new BaseModel<PositionModel>()
+            {
+                Message = MessageResponseHelper.Successfully("Update " + nameof(Position)),
+                StatusCode = StatusCodes.Status200OK,
+                IsSuccess = true,
+                ResponseRequestModel = new PositionModel()
+                {
+                    positionResponse = _mapper.Map<PositionResponseDTO>(position)
+                }
+            };
+        }
 
-				_unitOfWork.GetRepository<Position>().DeleteAsync(selectedPosition);
+        public async Task<BaseModel> RemovePosition(Guid id)
+        {
+            var position = await _unitOfWork.GetRepository<Position>().SingleOrDefaultAsync(i => i.Id == id);
+            if (position == null)
+            {
+                return new BaseModel()
+                {
+                    Message = MessageResponseHelper.Fail("Remove " + nameof(Position)),
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    IsSuccess = false,
+                };
+            }
 
-				if (await _unitOfWork.CommitAsync() > 0)
-				{
-					return new BaseModel<RemovePositionResponseModel, RemovePositionRequestModel>
-					{
-						Message = MessageResponseHelper.Successfully("Remove position"),
-						IsSuccess = true,
-						StatusCode = StatusCodes.Status200OK,
-						RequestModel = request,
-					};
-				}
+            position.Status = Core.Enums.StatusEnum.Deactivated;
+            _unitOfWork.GetRepository<Position>().UpdateAsync(position);
+            await _unitOfWork.CommitAsync();
 
-				return new BaseModel<RemovePositionResponseModel, RemovePositionRequestModel>
-				{
-					Message = MessageResponseHelper.Fail("Remove position - Commit failed"),
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status500InternalServerError,
-					RequestModel = request,
-				};
-			}
-			catch (Exception e)
-			{
-				return new BaseModel<RemovePositionResponseModel, RemovePositionRequestModel>
-				{
-					Message = e.Message,
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status500InternalServerError,
-				};
-			}
-		}
+            return new BaseModel()
+            {
+                Message = MessageResponseHelper.Successfully("Remove " + nameof(Position)),
+                StatusCode = StatusCodes.Status200OK,
+                IsSuccess = true
+            };
+        }
 
+        public async Task<BaseModel<Pagination<PositionResponseDTO>>> GetPositions(int page, int size)
+        {
+            var result = await _unitOfWork.GetRepository<Position>().GetPagingListAsync(page: page, size: size);
+            if (result == null)
+            {
+                return new BaseModel<Pagination<PositionResponseDTO>>()
+                {
+                    Message = MessageResponseHelper.Fail("Get all " + nameof(Position)),
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    IsSuccess = false
+                };
+            }
 
-		public async Task<BaseModel<UpdatePositionResponseModel, UpdatePositionRequestModel>> UpdatePosition(Guid id, UpdatePositionRequestModel request)
-		{
-			try
-			{
-				// Tìm kiếm vị trí bằng Id
-				var existingPosition = await _unitOfWork.GetRepository<Position>().SingleOrDefaultAsync(p => p.Id == id);
-
-				if (existingPosition == null)
-				{
-					return new BaseModel<UpdatePositionResponseModel, UpdatePositionRequestModel>
-					{
-						Message = MessageResponseHelper.Fail("Position not found"),
-						IsSuccess = false,
-						StatusCode = StatusCodes.Status404NotFound,
-						RequestModel = request,
-						ResponseModel = null
-					};
-				}
-
-				// Cập nhật thông tin vị trí
-				existingPosition.Name = request.Name;
-				existingPosition.Description = request.Description;
-
-				_unitOfWork.GetRepository<Position>().UpdateAsync(existingPosition);
-
-				if (await _unitOfWork.CommitAsync() > 0)
-				{
-					return new BaseModel<UpdatePositionResponseModel, UpdatePositionRequestModel>
-					{
-						Message = MessageResponseHelper.UpdateSuccessfully("position"),
-						IsSuccess = true,
-						StatusCode = StatusCodes.Status200OK,
-						RequestModel = request,
-						ResponseModel = new UpdatePositionResponseModel
-						{
-							updatedPosition = existingPosition
-						}
-					};
-				}
-
-				return new BaseModel<UpdatePositionResponseModel, UpdatePositionRequestModel>
-				{
-					Message = MessageResponseHelper.UpdateFailed("position"),
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status500InternalServerError,
-					RequestModel = request,
-					ResponseModel = null
-				};
-			}
-			catch (Exception e)
-			{
-				return new BaseModel<UpdatePositionResponseModel, UpdatePositionRequestModel>
-				{
-					Message = e.Message,
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status500InternalServerError,
-				};
-			}
-		}
-
-	}
+            return new BaseModel<Pagination<PositionResponseDTO>>()
+            {
+                Message = MessageResponseHelper.Successfully("Get all " + nameof(Position)),
+                StatusCode = StatusCodes.Status200OK,
+                IsSuccess = true,
+                ResponseRequestModel = _mapper.Map<Pagination<PositionResponseDTO>>(result)
+            };
+        }
+    }
 }

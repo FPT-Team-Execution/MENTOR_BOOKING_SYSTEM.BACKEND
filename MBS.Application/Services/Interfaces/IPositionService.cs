@@ -1,5 +1,6 @@
 ﻿using MBS.Application.Models.General;
 using MBS.Application.Models.Positions;
+using MBS.Core.Common.Pagination;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,18 +9,18 @@ using System.Threading.Tasks;
 
 namespace MBS.Application.Services.Interfaces
 {
-	public interface IPositionService
-	{
-		Task<BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>> CreateNewPositionAsync(
-		CreatePositionRequestModel request);
+    public interface IPositionService
+    {
+        Task<BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>> CreateNewPosition(
+        CreatePositionRequestModel request);
 
-		Task<BaseModel<GetPositionResponseModel, GetPositionRequestModel>> GetPosition(
-			GetPositionRequestModel request);
+        Task<BaseModel<PositionModel>> GetPositionId(
+            Guid requestId);
 
-		Task<BaseModel<UpdatePositionResponseModel, UpdatePositionRequestModel>> UpdatePosition(Guid id, UpdatePositionRequestModel request);
+        Task<BaseModel<PositionModel>> UpdatePosition(Guid id, UpdatePositionRequestModel request);
 
-		Task<BaseModel<RemovePositionResponseModel, RemovePositionRequestModel>> RemovePosition(
-			RemovePositionRequestModel request);
-		Task<BaseModel<GetAllPositionResponseModel, GetAllPositionRequestModel>> GetAllPosition();
-	}
+        Task<BaseModel> RemovePosition(
+            Guid id);
+        Task<BaseModel<Pagination<PositionResponseDTO>>> GetPositions(int page, int size);
+    }
 }
