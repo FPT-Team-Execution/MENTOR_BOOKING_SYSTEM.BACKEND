@@ -54,7 +54,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
         }
     }
 
-    public async Task<BaseModel<GetStudentOwnProfileResponseModel>> GetOwnProfile(
+    public async Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetOwnProfile(
         ClaimsPrincipal claimsPrincipal)
     {
         try
@@ -65,7 +65,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
 
             if (user is null)
             {
-                return new BaseModel<GetStudentOwnProfileResponseModel>()
+                return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
                 {
                     Message = MessageResponseHelper.UserNotFound(),
                     IsSuccess = false,
@@ -77,7 +77,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
 
             if (student is null)
             {
-                return new BaseModel<GetStudentOwnProfileResponseModel>()
+                return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
                 {
                     Message = MessageResponseHelper.UserNotFound(),
                     IsSuccess = false,
@@ -85,25 +85,17 @@ public class StudentService : BaseService<StudentService>, IStudentService
                 };
             }
 
-            return new BaseModel<GetStudentOwnProfileResponseModel>()
+            return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("student profile"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new GetStudentOwnProfileResponseModel()
-                {
-                    Gender = user.Gender,
-                    FullName = user.FullName,
-                    Birthday = user.Birthday,
-                    AvatarUrl = user.AvatarUrl,
-                    University = student.University,
-                    WalletPoint = student.WalletPoint
-                }
+                ResponseModel = _mapper.Map<GetStudentResponseModel>(student)
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<GetStudentOwnProfileResponseModel>()
+            return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
             {
                 Message = e.Message,
                 StatusCode = StatusCodes.Status500InternalServerError,
