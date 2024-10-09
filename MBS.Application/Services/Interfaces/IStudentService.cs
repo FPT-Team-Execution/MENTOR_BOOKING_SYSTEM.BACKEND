@@ -9,6 +9,9 @@ namespace MBS.Application.Services.Interfaces;
 public interface IStudentService
 {
     Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size);
+
     Task<BaseModel<GetStudentOwnProfileResponseModel>> GetOwnProfile(
         ClaimsPrincipal claimsPrincipal);
+
+    Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetStudent(GetStudentRequestModel request);
 }

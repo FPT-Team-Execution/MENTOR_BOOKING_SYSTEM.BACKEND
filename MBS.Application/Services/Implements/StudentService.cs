@@ -20,7 +20,8 @@ public class StudentService : BaseService<StudentService>, IStudentService
 {
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+    public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork,
+        ILogger<StudentService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
         _userManager = userManager;
     }
@@ -107,6 +108,53 @@ public class StudentService : BaseService<StudentService>, IStudentService
                 Message = e.Message,
                 StatusCode = StatusCodes.Status500InternalServerError,
                 IsSuccess = false,
+            };
+        }
+    }
+
+    public async Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetStudent(
+        GetStudentRequestModel request)
+    {
+        try
+        {
+            var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync
+            (
+                predicate: x => x.UserId == request.Id,
+                include: x => x.Include(x => x.User)
+            );
+
+            if (student is null)
+            {
+                return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                    RequestModel = request,
+                    ResponseModel = null
+                };
+            }
+
+            var response = _mapper.Map<GetStudentResponseModel>(student);
+
+            return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
+            {
+                Message = MessageResponseHelper.GetSuccessfully("student"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseModel = response,
+                RequestModel = request
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+                RequestModel = request,
+                ResponseModel = null
             };
         }
     }

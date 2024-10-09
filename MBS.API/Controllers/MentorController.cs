@@ -1,6 +1,6 @@
 namespace MBS.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/mentors")]
     [ApiController]
     public class MentorController : ControllerBase
     {

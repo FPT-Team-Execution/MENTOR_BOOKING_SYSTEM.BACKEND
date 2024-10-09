@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace MBS.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/majors")]
     [ApiController]
     public class MajorController : ControllerBase
     {

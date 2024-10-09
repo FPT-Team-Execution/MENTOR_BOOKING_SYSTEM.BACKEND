@@ -33,5 +33,17 @@ namespace MBS.API.Controllers
             var response = await _studentService.GetOwnProfile(User);
             return StatusCode(response.StatusCode, response);
         }
+
+        [HttpGet]
+        [Route("{id}")]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        public async Task<IActionResult> GetStudent([FromRoute] string id)
+        {
+            var response = await _studentService.GetStudent(new GetStudentRequestModel()
+            {
+                Id = id
+            });
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }

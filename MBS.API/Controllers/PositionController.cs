@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MBS.API.Controllers
 {
-	[Route("api/[controller]")]
+	[Route("api/positions")]
 	[ApiController]
 	public class PositionController : ControllerBase
 	{
