@@ -1,20 +1,21 @@
 ﻿using MBS.Application.Models.General;
 using MBS.Application.Models.Groups;
+using MBS.Core.Common.Pagination;
+using System;
+using System.Threading.Tasks;
 
 namespace MBS.Application.Services.Interfaces
 {
     public interface IGroupService
     {
-        Task<BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>> CreateNewGroupAsync(
-        CreateNewGroupRequestModel request);
+        Task<BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>> CreateNewGroupAsync(CreateNewGroupRequestModel request);
 
-        Task<BaseModel<GetGroupResponseModel, GetGroupRequestModel>> GetGroup(
-            GetGroupRequestModel request);
+        Task<BaseModel<GroupModel>> GetGroupId(Guid requestId);
 
-        Task<BaseModel<UpdateGroupResponseModel, UpdateGroupRequestModel>> UpdateGroup(Guid id, UpdateGroupRequestModel request);
+        Task<BaseModel<GroupModel>> UpdateGroup(Guid id, UpdateGroupRequestModel request);
 
-        Task<BaseModel<RemoveGroupResponseModel, RemoveGroupRequestModel>> RemoveGroup(
-            RemoveGroupRequestModel request);
-        Task<BaseModel<GetAllGroupResponseModel, GetAllGroupRequestModel>> GetAllGroup();
+        Task<BaseModel> RemoveGroup(Guid id);
+
+        Task<BaseModel<Pagination<GroupResponseDTO>>> GetGroups(int page, int size);
     }
 }

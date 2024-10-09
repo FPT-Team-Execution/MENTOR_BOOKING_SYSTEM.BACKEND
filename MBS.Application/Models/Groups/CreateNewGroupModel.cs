@@ -9,14 +9,14 @@ namespace MBS.Application.Models.Groups
 {
     public class CreateNewGroupRequestModel
     {
-        public Guid projectId {  get; set; }
+        public Guid projectId { get; set; }
         public string StudentId { get; set; }
-        public Guid PositionId {  get; set; }
+        public Guid PositionId { get; set; }
 
     }
 
     public class CreateNewGroupResponseModel
     {
-        public Group newGroupResponse { get; set; }
+        public Guid id { get; set; }
     }
 }

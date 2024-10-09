@@ -14,6 +14,6 @@ namespace MBS.Application.Models.Groups
     }
     public class UpdateGroupResponseModel
     {
-        public Group updatedGroup { get; set; }
+        public Guid id { get; set; }
     }
 }
