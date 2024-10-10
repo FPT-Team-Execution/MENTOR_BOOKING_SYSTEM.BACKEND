@@ -39,6 +39,20 @@ namespace MBS.DataAccess
             //TODO: remove old unitOfWork
             services.AddScoped<DAO.IUnitOfWork, DAO.UnitOfWork>();
             services.AddScoped(typeof(Repositories.IUnitOfWork<>), typeof(Repositories.UnitOfWork<>));
+            //services.AddScoped<IBaseRepository, BaseRepository>();
+            services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            services.AddScoped<IGroupRepository, GroupRepository>();
+            services.AddScoped<IMajorRepository, MajorRepository>();
+            services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
+            services.AddScoped<IMeetingRepository, MeetingRepository>();
+            services.AddScoped<IMentorRepository, MentorRepository>();
+            services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
+            services.AddScoped<IPositionRepository, PositionRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IRequestRepository, RequestRepository>();
+            services.AddScoped<ISkillRepository, SkillRepository>();
+            services.AddScoped<IStudentRepository, StudentRepository>();
         }
 
         private static void AddIdentity(this IServiceCollection services)
