@@ -19,10 +19,10 @@ public interface IBaseDAO<T> where T : class
         Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1,
         int size = 10);
 
-    Task InsertAsync(T entity);
-    Task InsertRangeAsync(IEnumerable<T> entities);
-    void UpdateAsync(T entity);
-    void UpdateRange(IEnumerable<T> entities);
-    void DeleteAsync(T entity);
-    void DeleteRangeAsync(IEnumerable<T> entities);
+    Task<int> InsertAsync(T entity);
+    Task<int> InsertRangeAsync(IEnumerable<T> entities);
+    int Update(T entity);
+    int UpdateRange(IEnumerable<T> entities);
+    int Delete(T entity);
+    int DeleteRange(IEnumerable<T> entities);
 }

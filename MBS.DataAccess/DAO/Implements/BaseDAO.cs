@@ -1,12 +1,13 @@
 using System.Linq.Expressions;
 using MBS.Core.Common;
 using MBS.Core.Common.Pagination;
+using MBS.DataAccess.DAO.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
 namespace MBS.DataAccess.DAO.Implements;
 
-public class BaseDAO<T> where T : class	
+public class BaseDAO<T>  : IBaseDAO<T> where T : class	
 {
 	private readonly MBSContext _context;
 	internal DbSet<T> dbSet;
@@ -51,33 +52,47 @@ public class BaseDAO<T> where T : class
             return PaginationExtension<T>.Paginate(query, page, size, 1);
 	 
         }
-        public async Task InsertAsync(T entity)
+        public async Task<int> InsertAsync(T entity)
         {
-            if (entity == null) return;
             await dbSet.AddAsync(entity);
+            return await CommitAsync();
         }
 
-        public async Task InsertRangeAsync(IEnumerable<T> entities)
+        public async Task<int> InsertRangeAsync(IEnumerable<T> entities)
         {
             await dbSet.AddRangeAsync(entities);
+            return await CommitAsync();
         }
-        public void UpdateAsync(T entity)
+        public int Update(T entity)
         {
             dbSet.Update(entity);
+            return Commit();
         }
 
-        public void UpdateRange(IEnumerable<T> entities)
+        public int UpdateRange(IEnumerable<T> entities)
         {
             dbSet.UpdateRange(entities);
+            return Commit();
         }
 
-        public void DeleteAsync(T entity)
+        public int Delete(T entity)
         {
             dbSet.Remove(entity);
+            return Commit();
         }
 
-        public void DeleteRangeAsync(IEnumerable<T> entities)
+        public int DeleteRange(IEnumerable<T> entities)
         {
             dbSet.RemoveRange(entities);
+            return Commit();
+        }
+        private int Commit()
+        {
+	        return _context.SaveChanges();
+        }
+
+        private async Task<int> CommitAsync()
+        {
+	        return await _context.SaveChangesAsync();
         }
 }

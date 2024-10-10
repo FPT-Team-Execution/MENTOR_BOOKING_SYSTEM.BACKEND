@@ -5,17 +5,19 @@ using MBS.Application.Models.Skill;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
-using MBS.DataAccess.DAO;
 using MBS.DataAccess.Repositories;
+using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class SkillService : BaseService<SkillService>, ISkillService
+public class SkillService : BaseService2<Skill, SkillService>, ISkillService
 {
-    public SkillService(IUnitOfWork unitOfWork, ILogger<SkillService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+    private readonly ISkillRepository _skillRepository;
+    public SkillService(IUnitOfWork<Skill> unitOfWork, ILogger<SkillService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
+        _skillRepository = (ISkillRepository)_unitOfWork.GetRepository();
     }
 
     public async Task<BaseModel<SkillResponseModel, CreateSkillRequestModel>> CreateSkill(CreateSkillRequestModel request)
@@ -23,14 +25,14 @@ public class SkillService : BaseService<SkillService>, ISkillService
         try
         {
             //check mentor
-            var mentor = _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(x => x.UserId == request.MentorId);
-            if(mentor == null)
-                return new BaseModel<SkillResponseModel, CreateSkillRequestModel>
-                {
-                    Message = MessageResponseHelper.UserNotFound(request.MentorId),
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status404NotFound,
-                };
+            // var mentor = _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(x => x.UserId == request.MentorId);
+            // if(mentor == null)
+            //     return new BaseModel<SkillResponseModel, CreateSkillRequestModel>
+            //     {
+            //         Message = MessageResponseHelper.UserNotFound(request.MentorId),
+            //         IsSuccess = false,
+            //         StatusCode = StatusCodes.Status404NotFound,
+            //     };
             //Create meeting
             var newSkill = new Skill()
             {
@@ -38,8 +40,8 @@ public class SkillService : BaseService<SkillService>, ISkillService
                 Name = request.Name,
                 MentorId = request.MentorId,
             };
-            await _unitOfWork.GetRepository<Skill>().InsertAsync(newSkill);
-            if(await _unitOfWork.CommitAsync() > 0)
+            var createResult = await _skillRepository.CreateAsync(newSkill);
+            if(createResult)
                 return new BaseModel<SkillResponseModel, CreateSkillRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("skill"),
@@ -74,18 +76,15 @@ public class SkillService : BaseService<SkillService>, ISkillService
         try
         {
             //check mentor
-            var mentor = _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(x => x.UserId == mentorId);
-            if (mentor == null)
-                return new BaseModel<Pagination<Skill>>
-                {
-                    Message = MessageResponseHelper.UserNotFound(mentorId),
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status404NotFound,
-                };
-            var skills = await _unitOfWork.GetRepository<Skill>().GetPagingListAsync(
-                predicate: s => s.MentorId == mentorId,
-                page: page,
-                size: size);
+            // var mentor = _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(x => x.UserId == mentorId);
+            // if (mentor == null)
+            //     return new BaseModel<Pagination<Skill>>
+            //     {
+            //         Message = MessageResponseHelper.UserNotFound(mentorId),
+            //         IsSuccess = false,
+            //         StatusCode = StatusCodes.Status404NotFound,
+            //     };
+            var skills = await _skillRepository.GetPagedListAsyncByMentorId(page, size, mentorId);
 
             return new BaseModel<Pagination<Skill>>()
             {
@@ -110,9 +109,7 @@ public class SkillService : BaseService<SkillService>, ISkillService
     {
         try
         {
-            var skills = await _unitOfWork.GetRepository<Skill>().GetPagingListAsync(
-                page: page,
-                size: size);
+            var skills = await _skillRepository.GetPagedListAsync(page, size);
 
             return new BaseModel<Pagination<Skill>>()
             {
@@ -137,7 +134,7 @@ public class SkillService : BaseService<SkillService>, ISkillService
     {
         try
         {
-            var skill = await _unitOfWork.GetRepository<Skill>().SingleOrDefaultAsync(i => i.Id == skillId);
+            var skill = await _skillRepository.GetByIdAsync(skillId);
             if (skill == null) 
             {
                 return new BaseModel<SkillResponseModel>()
@@ -173,7 +170,7 @@ public class SkillService : BaseService<SkillService>, ISkillService
     {
         try
         {
-            var skill = await _unitOfWork.GetRepository<Skill>().SingleOrDefaultAsync(i => i.Id == skillId);
+            var skill = await _skillRepository.GetByIdAsync(skillId);
             if (skill == null)
             {
                 return new BaseModel<SkillResponseModel>()
@@ -185,16 +182,23 @@ public class SkillService : BaseService<SkillService>, ISkillService
             }
 
             skill.Name = request.Name;
-            _unitOfWork.GetRepository<Skill>().UpdateAsync(skill);
+            var updateResult = _skillRepository.Update(skill); 
+            if(updateResult)
+                return new BaseModel<SkillResponseModel>()
+                {
+                    Message = MessageResponseHelper.Successfully("Update " + nameof(Major)),
+                    StatusCode = StatusCodes.Status200OK,
+                    IsSuccess = true,
+                    ResponseRequestModel = new SkillResponseModel()
+                    {
+                        Skill = skill
+                    }
+                };
             return new BaseModel<SkillResponseModel>()
             {
-                Message = MessageResponseHelper.Successfully("Update " + nameof(Major)),
+                Message = MessageResponseHelper.UpdateFailed("skill"),
                 StatusCode = StatusCodes.Status200OK,
-                IsSuccess = true,
-                ResponseRequestModel = new SkillResponseModel()
-                {
-                    Skill = skill
-                }
+                IsSuccess = false,
             };
         }
         catch (Exception e)
@@ -212,7 +216,7 @@ public class SkillService : BaseService<SkillService>, ISkillService
     {
         try
         {
-            var skill = await _unitOfWork.GetRepository<Skill>().SingleOrDefaultAsync(i => i.Id == skillId);
+            var skill = await _skillRepository.GetByIdAsync(skillId);
             if (skill == null)
             {
                 return new BaseModel()
@@ -223,8 +227,8 @@ public class SkillService : BaseService<SkillService>, ISkillService
                 };
             }
 
-            _unitOfWork.GetRepository<Skill>().DeleteAsync(skill);
-            if (_unitOfWork.Commit() > 0)
+            var deleteResult = _skillRepository.Delete(skill);
+            if (deleteResult)
                 return new BaseModel()
                 {
                     Message = MessageResponseHelper.Successfully("Delete " + nameof(skill)),

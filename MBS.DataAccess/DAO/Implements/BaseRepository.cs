@@ -4,12 +4,13 @@ using System.Linq.Expressions;
 using MBS.Core.Common.Pagination;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace MBS.DataAccess.Repositories.Implements
+namespace MBS.DataAccess.DAO.Implements
 {
-    public class BaseRepository<T> : IBaseRepository<T> where T : class
+    public class BaseRepository<T> : DAO.Interfaces.IBaseRepository<T> where T : class
     {
         private readonly MBSContext _context;
         internal DbSet<T> dbSet;
+        private IBaseRepository<T> _baseRepositoryImplementation;
 
         public BaseRepository(MBSContext context)
         {

@@ -2,7 +2,7 @@
 using MBS.Core.Common.Pagination;
 using Microsoft.EntityFrameworkCore.Query;
 
-namespace MBS.DataAccess.Repositories.Interfaces
+namespace MBS.DataAccess.DAO.Interfaces
 {
     public interface IBaseRepository<T> where T : class
     {
@@ -16,7 +16,6 @@ namespace MBS.DataAccess.Repositories.Interfaces
         // Task<bool> UpdateRangeAsync(IEnumerable<T> entities);
 
         #region Upgraded reposiotry
-
         Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>> predicate = null,
             Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
             Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null);

@@ -6,10 +6,11 @@ namespace MBS.DataAccess.DAO;
 
 public interface IUnitOfWork 
 {
+    //TODO: remove in future
     MBSContext Context { get; }
-    IBaseRepository<T> GetRepository<T>() where T : class;
-    IBaseDAO<T> GetDAO<T>() where T : class;
-
+    DAO.Interfaces.IBaseRepository<T> GetRepository<T>() where T : class;
+    //TODO: remove in future
     int Commit();
+    //TODO: remove in furture
     Task<int> CommitAsync();
 }

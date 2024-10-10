@@ -9,37 +9,24 @@ namespace MBS.DataAccess.DAO;
 public class UnitOfWork : IUnitOfWork
 {
     private Dictionary<Type, object> _repositories = new();
-    private Dictionary<Type, object> _daoInstances = new();
 
     public MBSContext Context { get; }
     public UnitOfWork(MBSContext context)
     {
         Context = context;
     }
-    public IBaseRepository<T> GetRepository<T>() where T : class
+    public DAO.Interfaces.IBaseRepository<T> GetRepository<T>() where T : class
     {
         if (_repositories.TryGetValue(typeof(T), out object repository))
         {
-            return (IBaseRepository<T>)repository;
+            return (DAO.Interfaces.IBaseRepository<T>)repository;
         }
 
-        repository = new BaseRepository<T>(Context);
+        repository = new DAO.Implements.BaseRepository<T>(Context);
         _repositories.Add(typeof(T), repository);
-        return (IBaseRepository<T>)repository;
+        return (DAO.Interfaces.IBaseRepository<T>)repository;
     }
-
-    public IBaseDAO<T> GetDAO<T>() where T : class
-    {
-        if (_repositories.TryGetValue(typeof(T), out object daoInstance))
-        {
-            return (IBaseDAO<T>)daoInstance;
-        }
-
-        daoInstance = new BaseDAO<T>(Context);
-        _repositories.Add(typeof(T), daoInstance);
-        return (IBaseDAO<T>)daoInstance;
-    }
-
+    
     public int Commit()
     {
         return Context.SaveChanges();
