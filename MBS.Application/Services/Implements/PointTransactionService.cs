@@ -5,14 +5,9 @@ using MBS.Application.Models.PointTransaction;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
-using MBS.DataAccess.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MBS.DataAccess.DAO;
 
 namespace MBS.Application.Services.Implements
 {
