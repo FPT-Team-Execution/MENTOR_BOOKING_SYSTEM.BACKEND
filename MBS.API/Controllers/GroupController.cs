@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace MBS.API.Controllers
 {
+
+
 	[Route("api/groups")]
 	[ApiController]
 	public class GroupController : ControllerBase
@@ -19,9 +21,9 @@ namespace MBS.API.Controllers
 
 		[HttpGet]
 		[EndpointSummary("Get all available groups")]
-		public async Task<IActionResult> GetAllGroups()
+		public async Task<IActionResult> GetAllGroups(int page, int size)
 		{
-			var response = await _groupService.GetAllGroup();
+			var response = await _groupService.GetGroups(page, size);
 			return StatusCode((int)response.StatusCode, response);
 		}
 
@@ -29,7 +31,7 @@ namespace MBS.API.Controllers
 		[EndpointSummary("Get specific group by id")]
 		public async Task<IActionResult> GetGroup(Guid id)
 		{
-			var response = await _groupService.GetGroup(new GetGroupRequestModel { Id = id });
+			var response = await _groupService.GetGroupId(id);
 			return StatusCode((int)response.StatusCode, response);
 		}
 
@@ -53,7 +55,7 @@ namespace MBS.API.Controllers
 		[EndpointSummary("Delete specific group by id")]
 		public async Task<IActionResult> RemoveGroup(Guid id)
 		{
-			var response = await _groupService.RemoveGroup(new RemoveGroupRequestModel { GroupId = id });
+			var response = await _groupService.RemoveGroup(id);
 			return StatusCode((int)response.StatusCode, response);
 		}
 	}
