@@ -6,6 +6,7 @@ using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.Repositories;
+using MBS.DataAccess.Repositories.Implements;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -17,7 +18,7 @@ public class SkillService : BaseService2<Skill, SkillService>, ISkillService
     private readonly ISkillRepository _skillRepository;
     public SkillService(IUnitOfWork<Skill> unitOfWork, ILogger<SkillService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
-        _skillRepository = (ISkillRepository)_unitOfWork.GetRepository();
+        _skillRepository= _unitOfWork.SkillRepository;
     }
 
     public async Task<BaseModel<SkillResponseModel, CreateSkillRequestModel>> CreateSkill(CreateSkillRequestModel request)
@@ -193,6 +194,7 @@ public class SkillService : BaseService2<Skill, SkillService>, ISkillService
                     {
                         Skill = skill
                     }
+                    
                 };
             return new BaseModel<SkillResponseModel>()
             {

@@ -1,5 +1,6 @@
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
+using MBS.DataAccess.DAO;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Interfaces;
 
@@ -7,11 +8,9 @@ namespace MBS.DataAccess.Repositories.Implements;
 
 public class SkillRepository(IBaseDAO<Skill> skillDao) : BaseRepository<Skill>(skillDao), ISkillRepository
 {
-    private readonly IBaseDAO<Skill> _skillDao = skillDao;
-
     public async Task<Skill?> GetByIdAsync(Guid id)
     {
-        return await _skillDao.SingleOrDefaultAsync(x => x.Id == id);
+        return await _dao.SingleOrDefaultAsync(x => x.Id == id);
     }
 
     /// <summary>
@@ -23,7 +22,7 @@ public class SkillRepository(IBaseDAO<Skill> skillDao) : BaseRepository<Skill>(s
     /// <returns>Pagination<Skill></returns>
     public async Task<Pagination<Skill>> GetPagedListAsyncByMentorId(int page, int size, string mentorId)
     {
-        return await _skillDao.GetPagingListAsync(
+        return await _dao.GetPagingListAsync(
             predicate: s => s.MentorId == mentorId,
             page:page,
             size:size

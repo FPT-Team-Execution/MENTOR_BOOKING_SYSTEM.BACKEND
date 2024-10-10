@@ -4,5 +4,5 @@ namespace MBS.DataAccess.Repositories;
 
 public interface IUnitOfWork<T> where T : class
 {
-    IBaseRepository<T> GetRepository();
+     ISkillRepository SkillRepository { get; set; }
 }

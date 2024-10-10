@@ -6,6 +6,8 @@ using MBS.Core.Entities;
 using MBS.DataAccess.DAO;
 using MBS.DataAccess.DAO.Implements;
 using MBS.DataAccess.DAO.Interfaces;
+using MBS.DataAccess.Repositories.Implements;
+using MBS.DataAccess.Repositories.Interfaces;
 
 namespace MBS.DataAccess
 {
@@ -30,7 +32,6 @@ namespace MBS.DataAccess
 
         private static void AddDao(this IServiceCollection services)
         {
-            // services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IBaseDAO<>), typeof(BaseDAO<>));
         }
         private static void AddRepositories(this IServiceCollection services)

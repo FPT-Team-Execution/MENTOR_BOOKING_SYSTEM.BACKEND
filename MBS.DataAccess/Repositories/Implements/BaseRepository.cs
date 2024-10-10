@@ -6,7 +6,7 @@ namespace MBS.DataAccess.Repositories.Implements;
 
 public class BaseRepository<T> : Interfaces.IBaseRepository<T> where T: class
 {
-    private readonly IBaseDAO<T> _dao;
+    protected readonly IBaseDAO<T> _dao;
 
     public BaseRepository(IBaseDAO<T> dao)
     {
