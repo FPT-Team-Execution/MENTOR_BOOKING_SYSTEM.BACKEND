@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace MBS.API.Controllers
 {
-    [Route("api/[controller]")]
+
+
+	[Route("api/groups")]
 	[ApiController]
 	public class GroupController : ControllerBase
 	{

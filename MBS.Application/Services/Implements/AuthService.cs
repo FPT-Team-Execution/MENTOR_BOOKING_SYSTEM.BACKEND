@@ -7,8 +7,7 @@ using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
-using MBS.DataAccess.Repositories;
-using MBS.DataAccess.Repositories.Interfaces;
+using MBS.DataAccess.DAO;
 using MBS.Shared.Common.Email;
 using MBS.Shared.Services.Interfaces;
 using MBS.Shared.Templates;
@@ -16,7 +15,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Extensions;
 
 namespace MBS.Application.Services.Implements;
 

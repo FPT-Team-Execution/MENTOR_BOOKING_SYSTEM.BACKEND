@@ -27,10 +27,22 @@ namespace MBS.API.Controllers
         [HttpGet]
         [Route("profile")]
         [Authorize(Roles = nameof(UserRoleEnum.Student))]
-        public async Task<ActionResult<BaseModel<GetStudentOwnProfileResponseModel>>>
+        public async Task<IActionResult>
             GetOwnProfile()
         {
             var response = await _studentService.GetOwnProfile(User);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        public async Task<IActionResult> GetStudent([FromRoute] string id)
+        {
+            var response = await _studentService.GetStudent(new GetStudentRequestModel()
+            {
+                Id = id
+            });
             return StatusCode(response.StatusCode, response);
         }
     }

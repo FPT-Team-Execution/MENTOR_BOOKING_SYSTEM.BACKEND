@@ -18,7 +18,7 @@ public class CalendarEventController : ControllerBase
         _calendarEventService = calendarEventService;   
     }
    
-    [HttpGet("/mentor/{mentorId}")]
+    [HttpGet("mentor/{mentorId}")]
     [ProducesResponseType(typeof(BaseModel<Pagination<CalendarEvent>>),StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
