@@ -16,16 +16,17 @@ namespace MBS.Application.Services.Implements;
 
 public class MeetingService : BaseService<MeetingService>, IMeetingService
 {
+    private IMeetingRepository _meetingRepository;
 
-    public MeetingService(IUnitOfWork unitOfWork, ILogger<MeetingService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+    public MeetingService(IUnitOfWork unitOfWork, IMeetingRepository meetingRepository, ILogger<MeetingService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
-
+        _meetingRepository = meetingRepository;
     }
     public async Task<BaseModel<MeetingResponseModel>> GetMeetingId(Guid meetingId)
     {
         try
         {
-            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(r => r.Id == meetingId);
+            var meeting = await _meetingRepository.GetMeetingByIdAsync(meetingId);
             if(meeting == null)
                 return new BaseModel<MeetingResponseModel>
                 {
@@ -59,10 +60,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
     {
         try
         {
-            var meetings = await _unitOfWork.GetRepository<Meeting>().GetPagingListAsync(
-                page: page,
-                size: size
-                );
+            var meetings = await _meetingRepository.GetMeetingsPagingAsync(page, size);
             return new BaseModel<Pagination<MeetingResponseDto>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("meetings"),
@@ -113,8 +111,8 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
                 MeetUp = request.MeetUp,
                 Status = MeetingStatusEnum.New
             };
-            await _unitOfWork.GetRepository<Meeting>().InsertAsync(newMeeting);
-            if(await _unitOfWork.CommitAsync() > 0)
+            await _meetingRepository.CreateAsync(newMeeting);
+            //if(await _unitOfWork.CommitAsync() > 0)
                 return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("meeting"),
@@ -126,12 +124,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
                         RequestId = newMeeting.Id,
                     }
                 };
-            return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
-            {
-                Message = MessageResponseHelper.CreateFailed("meeting"),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status200OK,
-            };
+            
         }
         catch (Exception e)
         {
@@ -149,7 +142,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
         try
         {
             //check meeting
-            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == meetingId);
+            var meeting = await _meetingRepository.GetMeetingByIdAsync(meetingId);
             if (meeting == null)
                 return new BaseModel<MeetingResponseModel>
                 {
@@ -172,8 +165,8 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
             meeting.Location = request.Location;
             meeting.MeetUp = meeting.MeetUp;
             meeting.Status = request.Status;
-            _unitOfWork.GetRepository<Meeting>().UpdateAsync(meeting);
-            if (_unitOfWork.Commit() > 0)
+            _meetingRepository.Update(meeting);
+            //if (_unitOfWork.Commit() > 0)
                 return new BaseModel<MeetingResponseModel>
                 {
                     Message = MessageResponseHelper.UpdateSuccessfully("meeting"),
@@ -184,12 +177,6 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
                         Meeting = _mapper.Map<MeetingResponseDto>(meeting),
                     }
                 };
-            return new BaseModel<MeetingResponseModel>
-            {
-                Message = MessageResponseHelper.UpdateFailed("meeting"),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status200OK,
-            };
         }
         catch (Exception e)
         {

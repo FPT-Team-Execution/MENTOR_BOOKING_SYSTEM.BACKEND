@@ -7,6 +7,7 @@ using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
 using MBS.DataAccess.DAO;
 using MBS.DataAccess.Repositories;
+using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -20,9 +21,10 @@ public class MentorService : BaseService<MentorService>, IMentorService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ISupabaseService _supabaseService;
     private readonly IConfiguration _configuration;
-
+    private IMentorRepository _mentorRepository;
     public MentorService(
         IUnitOfWork unitOfWork,
+        IMentorRepository mentorRepository,
         ILogger<MentorService> logger,
         UserManager<ApplicationUser> userManager,
         ISupabaseService supabaseService, 
@@ -32,6 +34,7 @@ public class MentorService : BaseService<MentorService>, IMentorService
         _userManager = userManager;
         _supabaseService = supabaseService;
         _configuration = configuration;
+        _mentorRepository = mentorRepository;
     }
 
     public async Task<BaseModel<GetMentorOwnProfileResponseModel>> GetOwnProfile(ClaimsPrincipal claimsPrincipal)
@@ -62,7 +65,7 @@ public class MentorService : BaseService<MentorService>, IMentorService
                 };
             }
 
-            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(x => x.UserId == userId);
+            var mentor = await _mentorRepository.GetMentorbyId(userId);
 
             if (mentor is null)
             {

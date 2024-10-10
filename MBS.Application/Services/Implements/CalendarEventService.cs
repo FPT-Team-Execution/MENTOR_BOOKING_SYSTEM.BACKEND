@@ -18,18 +18,22 @@ namespace MBS.Application.Services.Implements;
 public class CalendarEventService : BaseService<CalendarEventService>, ICalendarEventService
 {
     private readonly ICalendarEventRepository _calendarEventRepository;
+    private readonly IMentorRepository _mentorRepository;
+    private readonly IMeetingRepository _meetingRepository;
     public CalendarEventService(
-       IUnitOfWork unitOfWork, ICalendarEventRepository calendarEventRepository, ILogger<CalendarEventService> logger, IMapper mapper
+       IUnitOfWork unitOfWork, ICalendarEventRepository calendarEventRepository, IMeetingRepository meetingRepository, IMentorRepository mentorRepository, ILogger<CalendarEventService> logger, IMapper mapper
         ) : base(unitOfWork, logger, mapper)
     {
         _calendarEventRepository = calendarEventRepository;
+        _mentorRepository = mentorRepository;
+        _meetingRepository = meetingRepository;
     }
     public async Task<BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>> CreateCalendarEvent(CreateCalendarRequestModel request)
     {
         try
         {
             //check mentorId
-            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(m => m.UserId == request.MentorId);
+            var mentor = await _mentorRepository.GetMentorbyId(request.MentorId);
             if (mentor == null)
             {
                 return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
@@ -111,7 +115,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
     {
         try
         {
-            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(m => m.UserId == mentorId);
+            var mentor = await _mentorRepository.GetMentorbyId(mentorId);
             if (mentor == null)
             {
                 return new BaseModel<GetCalendarEventsResponseModel>
@@ -189,7 +193,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
         try
         {
             //check meeting Id
-            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
+            var meeting = await _meetingRepository.GetMeetingByIdAsync(request.MeetingId);
             if (meeting == null)
                 return new BaseModel<UpdateCalendarEventResponseModel>
                 {
@@ -320,7 +324,7 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
     {
         try
         {
-            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(m => m.UserId == mentorId);
+            var mentor = await _mentorRepository.GetMentorbyId(mentorId);
             if (mentor == null)
             {
                 return new BaseModel<Pagination<CalendarEvent>>

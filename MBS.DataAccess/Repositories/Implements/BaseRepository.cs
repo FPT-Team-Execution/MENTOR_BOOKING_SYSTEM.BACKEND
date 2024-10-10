@@ -17,6 +17,7 @@ public class BaseRepository<T> : Interfaces.IBaseRepository<T> where T: class
         return await _dao.GetListAsync();
     }
 
+    
     public async Task<Pagination<T>> GetPagedListAsync(int page, int size)
     {
         return await _dao.GetPagingListAsync(page: page, size: size);
