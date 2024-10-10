@@ -17,6 +17,6 @@ namespace MBS.Application.Models.Majors
 
     public class CreateMajorResponseModel
     {
-        public Major Major { get; set; }
+        public Guid MajorId { get; set; }
     }
 }

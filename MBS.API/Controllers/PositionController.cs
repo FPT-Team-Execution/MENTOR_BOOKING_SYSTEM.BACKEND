@@ -19,9 +19,9 @@ namespace MBS.API.Controllers
 
 		[HttpGet]
 		[EndpointSummary("Get all available positions")]
-		public async Task<IActionResult> GetAllPositions()
+		public async Task<IActionResult> GetAllPositions(int page, int size)
 		{
-			var response = await _positionService.GetAllPosition();
+			var response = await _positionService.GetPositions(page, size);
 			return StatusCode((int)response.StatusCode, response);
 		}
 
@@ -29,7 +29,7 @@ namespace MBS.API.Controllers
 		[EndpointSummary("Get specific position by id")]
 		public async Task<IActionResult> GetPosition(Guid id)
 		{
-			var response = await _positionService.GetPosition(new GetPositionRequestModel { Id = id });
+			var response = await _positionService.GetPositionId(id);
 			return StatusCode((int)response.StatusCode, response);
 		}
 
@@ -37,7 +37,7 @@ namespace MBS.API.Controllers
 		[EndpointSummary("Create a new position")]
 		public async Task<IActionResult> CreatePosition([FromBody] CreatePositionRequestModel request)
 		{
-			var response = await _positionService.CreateNewPositionAsync(request);
+			var response = await _positionService.CreateNewPosition(request);
 			return StatusCode((int)response.StatusCode, response);
 		}
 
@@ -54,7 +54,7 @@ namespace MBS.API.Controllers
 		[EndpointSummary("Delete specific position by id")]
 		public async Task<IActionResult> RemovePosition(Guid id)
 		{
-			var response = await _positionService.RemovePosition(new RemovePositionRequestModel { Id = id });
+			var response = await _positionService.RemovePosition(id);
 			return StatusCode((int)response.StatusCode, response);
 		}
 	}

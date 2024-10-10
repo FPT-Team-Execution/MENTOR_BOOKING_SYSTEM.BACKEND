@@ -13,10 +13,6 @@ namespace MBS.Application.Models.Majors
     {
         public string Name { get; set; }
         public Guid? ParentId { get; set; }
-    }
 
-    public class UpdateMajorResponseModel
-    {
-        public Major UpdatedMajor { get; set; }
     }
 }

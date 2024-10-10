@@ -1,6 +1,8 @@
 ﻿using MBS.Application.Models.General;
 using MBS.Application.Models.Majors;
 using MBS.Application.Models.User;
+using MBS.Core.Common.Pagination;
+using MBS.Core.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,14 +16,16 @@ namespace MBS.Application.Services.Interfaces
         Task<BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>> CreateNewMajorAsync(
         CreateMajorRequestModel request);
 
-        Task<BaseModel<GetMajorResponseModel, GetMajorRequestModel>> GetMajor(
-            GetMajorRequestModel request);
+        Task<BaseModel<MajorModel>> GetMajorId(Guid requestId);
 
-        Task<BaseModel<UpdateMajorResponseModel, UpdateMajorRequestModel>> UpdateMajor(Guid id, UpdateMajorRequestModel request);
 
-        Task<BaseModel<RemoveMajorResponseModel, RemoveMajorRequestModel>> RemoveMajor(
-            RemoveMajorRequestModel request);
-        Task<BaseModel<GetAllMajorResponseModel, GetAllMajorReuqestModel>> GetAllMajor();
+        Task<BaseModel<MajorModel>> UpdateMajor(Guid id, UpdateMajorRequestModel request);
+
+
+        Task<BaseModel> RemoveMajor(Guid id);
+
+
+        Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size);
 
     }
 }
