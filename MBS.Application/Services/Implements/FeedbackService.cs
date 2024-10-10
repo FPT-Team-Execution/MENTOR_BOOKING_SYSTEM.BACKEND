@@ -22,11 +22,13 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
 {
 
     private readonly UserManager<ApplicationUser> _userManager;
-
-    public FeedbackService(IUnitOfWork unitOfWork, ILogger<FeedbackService> logger, UserManager<ApplicationUser> userManager, IMapper mapper) : base(unitOfWork, logger, mapper)
+    private readonly IFeedbackRepository _feedbackRepository;
+    private readonly IMeetingRepository _meetRepository;
+    public FeedbackService(IUnitOfWork unitOfWork, IMeetingRepository meetingRepository, IFeedbackRepository feedbackRepository, ILogger<FeedbackService> logger, UserManager<ApplicationUser> userManager, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
-       
+       _meetRepository = meetingRepository;
         _userManager = userManager;
+        _feedbackRepository = feedbackRepository;
     }
 
     public async Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacks(int page, int size, DateTime? startDate, DateTime? endDate)
@@ -55,7 +57,7 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                 feedBackExpression = startExpression;
 
             var feedbacks =
-                await _unitOfWork.GetRepository<Feedback>().GetPagingListAsync(
+                await _feedbackRepository.GetFeedbackPagingAsync(
                     predicate: feedBackExpression,
                     page: page, 
                     size: size
@@ -85,7 +87,7 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
         try
         {
             //check meeting
-            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == meetingId);
+            var meeting = await _meetRepository.GetMeetingByIdAsync(meetingId);
             if (meeting == null)
                 return new BaseModel<Pagination<FeedbackResponseDto>>
                 {
@@ -103,10 +105,9 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                 };
             //get all
             var feedbacks =
-                await _unitOfWork.GetRepository<Feedback>().GetPagingListAsync(
-                    f => f.MeetingId == meetingId && f.UserId == userId,
-                    page: page, 
-                    size: size
+                await _feedbackRepository.GetFeedbackPagingAsync(
+                    page, size, f => f.MeetingId == meetingId && f.UserId == userId
+                    
                     );
             return new BaseModel<Pagination<FeedbackResponseDto>>
             {
@@ -131,7 +132,7 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
     {
         try {
             //check meeting
-            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == meetingId);
+            var meeting = await _meetRepository.GetMeetingByIdAsync(meetingId);
             if (meeting == null)
                 return new BaseModel<Pagination<FeedbackResponseDto>>
                 {
@@ -141,11 +142,12 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                 };
             //get all
             var feedbacks =
-                await _unitOfWork.GetRepository<Feedback>().GetPagingListAsync(
-                    predicate: f => f.MeetingId == meetingId,
-                    include: f => f.Include(x => x.User),
+                await _feedbackRepository.GetFeedbackPagingAsync(
                     page: page,
-                    size: size
+                    size: size,
+                    predicate: f => f.MeetingId == meetingId,
+                    include: f => f.Include(x => x.User)
+                    
                     );
             return new BaseModel<Pagination<FeedbackResponseDto>>
             {
@@ -170,7 +172,7 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
     {
         try {
             var feedback =
-                await _unitOfWork.GetRepository<Feedback>().SingleOrDefaultAsync(f => f.Id == feedbackId);
+                await _feedbackRepository.GetFeedbackByIdAsync(feedbackId);
             if (feedback == null)
                 return new BaseModel<FeedbackResponseModel>
                 {
@@ -211,8 +213,7 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                 UserId = request.UserId,
                 Message = request.Message,
             };
-            await _unitOfWork.GetRepository<Feedback>().InsertAsync(newFeedback);
-            if(await _unitOfWork.CommitAsync() > 0)
+            await _feedbackRepository.CreateAsync(newFeedback); 
                 return new BaseModel<CreateFeedbackResponseModel, CreateFeedbackRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("feedback"),
@@ -224,12 +225,7 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                         FeedbackId = newFeedback.Id.ToString()
                     }
                 };
-            return new BaseModel<CreateFeedbackResponseModel, CreateFeedbackRequestModel>
-            {
-                Message = MessageResponseHelper.GetSuccessfully("feedback"),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status200OK,
-            };
+            
         }
         catch (Exception e)
         {
@@ -246,7 +242,7 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
     {
         try
         {
-            var feedback = await _unitOfWork.GetRepository<Feedback>().SingleOrDefaultAsync(f => f.Id == feedbackId);
+            var feedback = await _feedbackRepository.GetFeedbackByIdAsync(feedbackId);
             if (feedback == null)
                 return new BaseModel<FeedbackResponseModel>
                 {
@@ -255,8 +251,7 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             feedback.Message = message;
-            _unitOfWork.GetRepository<Feedback>().UpdateAsync(feedback);
-            if (_unitOfWork.Commit() > 0)
+            _feedbackRepository.Update(feedback);
                 return new BaseModel<FeedbackResponseModel>
                 {
                     Message = MessageResponseHelper.UpdateSuccessfully("feedback"),
@@ -267,12 +262,6 @@ public class FeedbackService : BaseService<FeedbackService>, IFeedbackService
                         Feedback = _mapper.Map<FeedbackResponseDto>(feedback),
                     }
                 };
-            return new BaseModel<FeedbackResponseModel>
-            {
-                Message = MessageResponseHelper.UpdateFailed("feedback"),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status200OK,
-            };
         }
         catch (Exception e)
         {

@@ -8,6 +8,7 @@ using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.DAO;
+using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Common.Email;
 using MBS.Shared.Services.Interfaces;
 using MBS.Shared.Templates;
@@ -27,13 +28,14 @@ public class AuthService : BaseService<AuthService>, IAuthService
     private readonly SignInManager<ApplicationUser> _signInManager;
     
     private readonly IConfiguration _configuration;
+    private readonly IStudentRepository _studentRepository;
     public AuthService(IUnitOfWork unitOfWork, ILogger<AuthService> logger,
         IEmailService emailService,
         ITemplateService templateService,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IConfiguration configuration,
-        IMapper mapper)
+        IMapper mapper, IStudentRepository studentRepository)
         : base(unitOfWork, logger, mapper)
     {
         _emailService = emailService;
@@ -41,6 +43,7 @@ public class AuthService : BaseService<AuthService>, IAuthService
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
+        _studentRepository = studentRepository;
     }
 
     public async Task<BaseModel<RegisterResponseModel, RegisterRequestModel>> SignUpAsync(
@@ -97,12 +100,12 @@ public class AuthService : BaseService<AuthService>, IAuthService
                         WalletPoint = 0
                     };
 
-                    await _unitOfWork.GetRepository<Student>().InsertAsync(newStudent);
+                    await _studentRepository.CreateAsync(newStudent);
 
-                    if (await _unitOfWork.CommitAsync() > 0)
-                    {
-                        throw new DatabaseInsertException("student");
-                    }
+                    //if (await _unitOfWork.CommitAsync() > 0)
+                    //{
+                    //    throw new DatabaseInsertException("student");
+                    //}
 
                     await SendVerifyEmail(newUser);
 

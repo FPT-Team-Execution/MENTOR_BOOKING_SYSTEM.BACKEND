@@ -8,21 +8,26 @@ using MBS.Core.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MBS.DataAccess.DAO;
+using MBS.DataAccess.Repositories.Interfaces;
 
 namespace MBS.Application.Services.Implements
 {
     public class PointTransactionService : BaseService<PointTransactionService>, IPointTransactionSerivce
     {
-        public PointTransactionService(IUnitOfWork unitOfWork, ILogger<PointTransactionService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+        private readonly IPointTransactionRepository _pointTransactionRepository;
+        private readonly IStudentRepository _studentRepository;
+            
+        public PointTransactionService(IUnitOfWork unitOfWork, IPointTransactionRepository pointTransactionRepository, ILogger<PointTransactionService> logger, IMapper mapper, IStudentRepository studentRepository) : base(unitOfWork, logger, mapper)
         {
-
+            _pointTransactionRepository = pointTransactionRepository;
+            _studentRepository = studentRepository; 
         }
 
         public async Task<BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>> ModifyStudentPoint(ModifyStudentPointRequestModel request)
         {
             try
             {
-                var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync(predicate: (x) => x.UserId == request.StudentId);
+                var student = await _studentRepository.GetByUserIdAsync(request.StudentId);
 
                 if (student == null)
                 {
@@ -58,11 +63,10 @@ namespace MBS.Application.Services.Implements
                         }
                 }
 
-                _unitOfWork.GetRepository<Student>().UpdateAsync(student);
+                _studentRepository.Update(student);
 
-                await _unitOfWork.GetRepository<PointTransaction>().InsertAsync(pointTransaction);
+                await _pointTransactionRepository.CreateAsync(pointTransaction);
 
-                await _unitOfWork.CommitAsync();
 
                 return new BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>
                 {

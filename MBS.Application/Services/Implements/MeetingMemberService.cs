@@ -16,18 +16,19 @@ namespace MBS.Application.Services.Implements;
 
 public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingMemberService
 {
+    private readonly IMeetingMemberRepository _meetMemberRepository;
+    private readonly IMeetingRepository _meetingRepository;
 
-    public MeetingMemberService(IUnitOfWork unitOfWork, ILogger<MeetingMemberService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+    public MeetingMemberService(IUnitOfWork unitOfWork, IMeetingRepository meetingRepository, IMeetingMemberRepository meetingMemberRepository, ILogger<MeetingMemberService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
+        _meetMemberRepository = meetingMemberRepository;
+        _meetingRepository = meetingRepository;
     }
     public async Task<BaseModel<GetMeetingMemberResponseModel>> GetMembersByMeetingId(Guid meetingId)
     {
         try
         {
-            var meetingMembers = await _unitOfWork.GetRepository<MeetingMember>()
-                .GetListAsync(
-                    predicate: r => r.MeetingId == meetingId,
-                    include: m => m.Include(x => x.Student));
+            var meetingMembers = await _meetMemberRepository.GetMembersInMeetingAsync(meetingId, m => m.Include(x => x.Student));
             return new BaseModel<GetMeetingMemberResponseModel>
             {
                 Message = MessageResponseHelper.GetSuccessfully("meeting members"),
@@ -55,7 +56,7 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
         try
         {
             //check meeting
-            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
+            var meeting = await _meetingRepository.GetMeetingByIdAsync(request.MeetingId);
             
             if(meeting == null)
                 return new BaseModel<CreateMeetingMemberResponseModel,CreateMeetingMemberRequestModel>
@@ -80,8 +81,8 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
                 JoinTime = request.JoinTime,
             };
             
-            await _unitOfWork.GetRepository<MeetingMember>().InsertAsync(newMeetingMem);
-            if(await _unitOfWork.CommitAsync() > 0)
+            await _meetMemberRepository.CreateAsync(newMeetingMem);
+            
                 return new BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("meeting member"),
@@ -93,12 +94,6 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
                         MeetingMemberId = newMeetingMem.Id
                     }
                 };
-            return new BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>
-            {
-                Message = MessageResponseHelper.CreateFailed("meeting memeber"),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status200OK,
-            };
         }
         catch (Exception e)
         {
@@ -117,9 +112,7 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
         try
         {
             //check meeting
-            var meetingMember = await _unitOfWork.GetRepository<MeetingMember>().SingleOrDefaultAsync(
-                predicate: m => m.Id == memberMeetingId, 
-                include: m => m.Include(x => x.Meeting));
+            var meetingMember = await _meetMemberRepository.GetMemberInMeetingAsync(memberMeetingId, m => m.Include(x => x.Meeting));
             if(meetingMember == null)
                 return new BaseModel<MeetingMemberResponseModel>
                 {

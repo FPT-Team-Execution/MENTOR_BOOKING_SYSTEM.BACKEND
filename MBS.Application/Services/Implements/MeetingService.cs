@@ -16,11 +16,13 @@ namespace MBS.Application.Services.Implements;
 
 public class MeetingService : BaseService<MeetingService>, IMeetingService
 {
-    private IMeetingRepository _meetingRepository;
+    private readonly IMeetingRepository _meetingRepository;
+    private readonly IRequestRepository _requestRepository;
 
-    public MeetingService(IUnitOfWork unitOfWork, IMeetingRepository meetingRepository, ILogger<MeetingService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+    public MeetingService(IUnitOfWork unitOfWork, IMeetingRepository meetingRepository, IRequestRepository requestRepository, ILogger<MeetingService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
         _meetingRepository = meetingRepository;
+        _requestRepository = requestRepository;
     }
     public async Task<BaseModel<MeetingResponseModel>> GetMeetingId(Guid meetingId)
     {
@@ -85,7 +87,7 @@ public class MeetingService : BaseService<MeetingService>, IMeetingService
         try
         {
             //check request
-            var requestCheck = await _unitOfWork.GetRepository<Request>().SingleOrDefaultAsync(c => c.Id == request.RequestId);
+            var requestCheck = await _requestRepository.GetRequestByIdAsync(request.RequestId);
             if(requestCheck == null)
                 return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
                 {
