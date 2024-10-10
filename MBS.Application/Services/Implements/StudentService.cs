@@ -7,6 +7,7 @@ using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
+using MBS.DataAccess.DAO;
 using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -20,7 +21,8 @@ public class StudentService : BaseService<StudentService>, IStudentService
 {
     private readonly UserManager<ApplicationUser> _userManager;
 
-    public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, ILogger<StudentService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+    public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork,
+        ILogger<StudentService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
         _userManager = userManager;
     }
@@ -53,7 +55,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
         }
     }
 
-    public async Task<BaseModel<GetStudentOwnProfileResponseModel>> GetOwnProfile(
+    public async Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetOwnProfile(
         ClaimsPrincipal claimsPrincipal)
     {
         try
@@ -64,7 +66,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
 
             if (user is null)
             {
-                return new BaseModel<GetStudentOwnProfileResponseModel>()
+                return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
                 {
                     Message = MessageResponseHelper.UserNotFound(),
                     IsSuccess = false,
@@ -76,7 +78,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
 
             if (student is null)
             {
-                return new BaseModel<GetStudentOwnProfileResponseModel>()
+                return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
                 {
                     Message = MessageResponseHelper.UserNotFound(),
                     IsSuccess = false,
@@ -84,29 +86,68 @@ public class StudentService : BaseService<StudentService>, IStudentService
                 };
             }
 
-            return new BaseModel<GetStudentOwnProfileResponseModel>()
+            return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("student profile"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new GetStudentOwnProfileResponseModel()
-                {
-                    Gender = user.Gender,
-                    FullName = user.FullName,
-                    Birthday = user.Birthday,
-                    AvatarUrl = user.AvatarUrl,
-                    University = student.University,
-                    WalletPoint = student.WalletPoint
-                }
+                ResponseModel = _mapper.Map<GetStudentResponseModel>(student)
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<GetStudentOwnProfileResponseModel>()
+            return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
             {
                 Message = e.Message,
                 StatusCode = StatusCodes.Status500InternalServerError,
                 IsSuccess = false,
+            };
+        }
+    }
+
+    public async Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetStudent(
+        GetStudentRequestModel request)
+    {
+        try
+        {
+            var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync
+            (
+                predicate: x => x.UserId == request.Id,
+                include: x => x.Include(x => x.User)
+            );
+
+            if (student is null)
+            {
+                return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                    RequestModel = request,
+                    ResponseModel = null
+                };
+            }
+
+            var response = _mapper.Map<GetStudentResponseModel>(student);
+
+            return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
+            {
+                Message = MessageResponseHelper.GetSuccessfully("student"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseModel = response,
+                RequestModel = request
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+                RequestModel = request,
+                ResponseModel = null
             };
         }
     }

@@ -3,9 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using MBS.Core.Entities;
-using MBS.DataAccess.Repositories;
-using MBS.DataAccess.Repositories.Interfaces;
+using MBS.DataAccess.DAO;
+using MBS.DataAccess.DAO.Implements;
+using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Implements;
+using MBS.DataAccess.Repositories.Interfaces;
 
 namespace MBS.DataAccess
 {
@@ -14,9 +16,8 @@ namespace MBS.DataAccess
         public static IServiceCollection AddDataAccess(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDatabase(configuration);
-
             services.AddIdentity();
-
+            services.AddDao();
             services.AddRepositories();
 
             return services;
@@ -29,9 +30,15 @@ namespace MBS.DataAccess
                     opt => opt.MigrationsAssembly(typeof(MBSContext).Assembly.FullName)));
         }
 
+        private static void AddDao(this IServiceCollection services)
+        {
+            services.AddScoped(typeof(IBaseDAO<>), typeof(BaseDAO<>));
+        }
         private static void AddRepositories(this IServiceCollection services)
         {
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            //TODO: remove old unitOfWork
+            services.AddScoped<DAO.IUnitOfWork, DAO.UnitOfWork>();
+            services.AddScoped(typeof(Repositories.IUnitOfWork<>), typeof(Repositories.UnitOfWork<>));
         }
 
         private static void AddIdentity(this IServiceCollection services)
