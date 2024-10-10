@@ -14,34 +14,38 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Math.EC.Rfc7748;
 
 namespace MBS.Application.Services.Implements;
 
 public class StudentService : BaseService<StudentService>, IStudentService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private IStudentRepository _studentRepository;
 
-    public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork,
+    public StudentService(UserManager<ApplicationUser> userManager, IStudentRepository studentRepository, IUnitOfWork unitOfWork,
         ILogger<StudentService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
         _userManager = userManager;
+        _studentRepository = studentRepository;
     }
 
     public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size)
     {
         try
         {
-            var user = await _unitOfWork.GetRepository<Student>().GetPagingListAsync(
-                include: s => s.Include(x => x.User),
-                page: page,
-                size: size
-            );
+            var students = await _studentRepository.GetStudentsAsync(
+                    page: page,
+                    size: size
+                );
+
+
             return new BaseModel<Pagination<StudentResponseDto>>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("students"),
                 IsSuccess = false,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = _mapper.Map<Pagination<StudentResponseDto>>(user)
+                ResponseRequestModel = _mapper.Map<Pagination<StudentResponseDto>>(students)
             };
         }
         catch (Exception e)
@@ -74,7 +78,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
                 };
             }
 
-            var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync(x => x.UserId == userId);
+            var student = await _studentRepository.GetByUserIdAsync(userId);
 
             if (student is null)
             {
@@ -110,11 +114,14 @@ public class StudentService : BaseService<StudentService>, IStudentService
     {
         try
         {
-            var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync
-            (
-                predicate: x => x.UserId == request.Id,
-                include: x => x.Include(x => x.User)
-            );
+            //var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync
+            //(
+            //    predicate: x => x.UserId == request.Id,
+            //    include: x => x.Include(x => x.User)
+            //);
+
+            var student = await _studentRepository.GetByUserIdAsync(request.Id);
+
 
             if (student is null)
             {

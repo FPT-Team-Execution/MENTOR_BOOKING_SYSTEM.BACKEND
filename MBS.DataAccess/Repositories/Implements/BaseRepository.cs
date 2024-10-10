@@ -45,4 +45,6 @@ public class BaseRepository<T> : Interfaces.IBaseRepository<T> where T: class
     {
         return _dao.DeleteRange(entities) > 0;
     }
+
+
 }

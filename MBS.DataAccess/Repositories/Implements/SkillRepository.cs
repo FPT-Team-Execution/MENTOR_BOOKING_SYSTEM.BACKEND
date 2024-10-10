@@ -8,6 +8,7 @@ namespace MBS.DataAccess.Repositories.Implements;
 
 public class SkillRepository(IBaseDAO<Skill> skillDao) : BaseRepository<Skill>(skillDao), ISkillRepository
 {
+
     public async Task<Skill?> GetByIdAsync(Guid id)
     {
         return await _dao.SingleOrDefaultAsync(x => x.Id == id);
