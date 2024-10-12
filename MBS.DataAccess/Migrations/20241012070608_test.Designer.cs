@@ -4,6 +4,7 @@ using MBS.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MBS.DataAccess.Migrations
 {
     [DbContext(typeof(MBSContext))]
-    partial class MBSContextModelSnapshot : ModelSnapshot
+    [Migration("20241012070608_test")]
+    partial class test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -223,26 +226,6 @@ namespace MBS.DataAccess.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("Majors");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("903b6085-4cc3-47f3-bbdd-0f8319e5aabb"),
-                            Name = "SE",
-                            Status = "Activated"
-                        },
-                        new
-                        {
-                            Id = new Guid("71577eaf-ebf1-4b23-a48d-cf8561b1c7db"),
-                            Name = "SS",
-                            Status = "Activated"
-                        },
-                        new
-                        {
-                            Id = new Guid("dfdb83a4-18e0-447e-9ec8-7c8b39ee6f3a"),
-                            Name = "SA",
-                            Status = "Activated"
-                        });
                 });
 
             modelBuilder.Entity("MBS.Core.Entities.Meeting", b =>

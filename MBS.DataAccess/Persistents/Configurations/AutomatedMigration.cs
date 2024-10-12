@@ -20,10 +20,12 @@ namespace MBS.DataAccess.Persistents.Configurations
 
             var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            //var majorManager = services.GetRequiredService<Major>();
 
             await MBSContextSeed.SeedRoleAsync(context, roleManager);
 
             await MBSContextSeed.SeedUserAsync(context, userManager);
+            //await MBSContextSeed.SeedMajorAsync(context, majorManager);
         }
     }
 }
