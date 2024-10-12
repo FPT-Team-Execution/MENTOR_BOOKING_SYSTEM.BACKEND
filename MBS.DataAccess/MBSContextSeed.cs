@@ -117,5 +117,31 @@ namespace MBS.DataAccess
             ];
             modelBuilder.Entity<Position>().HasData(defaultPosition);
         }
+
+        public static async Task SeedMajorAsync(ModelBuilder modelBuilder)
+        {
+            List<Major> defaultMajor =
+                [
+                new Major
+                {
+                    Id = Guid.Parse("903b6085-4cc3-47f3-bbdd-0f8319e5aabb"),
+                    Name = "SE",
+                    Status = StatusEnum.Activated
+                },
+                new Major
+                {
+                    Id = Guid.Parse("71577eaf-ebf1-4b23-a48d-cf8561b1c7db"),
+                    Name = "SS",
+                    Status = StatusEnum.Activated
+                },
+                new Major
+                {
+                    Id = Guid.Parse("dfdb83a4-18e0-447e-9ec8-7c8b39ee6f3a"),
+                    Name = "SA",
+                    Status = StatusEnum.Activated
+                }
+                ];
+             modelBuilder.Entity<Major>().HasData(defaultMajor);
+        }
     }
 }
