@@ -99,7 +99,7 @@ public class AuthService : BaseService<AuthService>, IAuthService
 
                     await _unitOfWork.GetRepository<Student>().InsertAsync(newStudent);
 
-                    if (await _unitOfWork.CommitAsync() > 0)
+                    if (await _unitOfWork.CommitAsync() <= 0)
                     {
                         throw new DatabaseInsertException("student");
                     }
