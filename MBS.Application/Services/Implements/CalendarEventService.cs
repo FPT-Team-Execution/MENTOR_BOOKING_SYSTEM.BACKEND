@@ -40,25 +40,25 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
             }
             
             //check meetingId
-            var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
-            if (meeting == null)
-            {
-                return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
-                {
-                    Message = MessageResponseHelper.MeetingNotFound(request.MeetingId.ToString()),
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status404NotFound
-                };
-            }
-            if (meeting.Status != MeetingStatusEnum.Delayed || meeting.Status != MeetingStatusEnum.New)
-            {
-                return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
-                {
-                    Message = MessageResponseHelper.InvalidMeetingSatus(meeting.Id.ToString()),
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-            }
+            // var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
+            // if (meeting == null)
+            // {
+            //     return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
+            //     {
+            //         Message = MessageResponseHelper.MeetingNotFound(request.MeetingId.ToString()),
+            //         IsSuccess = false,
+            //         StatusCode = StatusCodes.Status404NotFound
+            //     };
+            // }
+            // if (meeting.Status != MeetingStatusEnum.Delayed || meeting.Status != MeetingStatusEnum.New)
+            // {
+            //     return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
+            //     {
+            //         Message = MessageResponseHelper.InvalidMeetingSatus(meeting.Id.ToString()),
+            //         IsSuccess = false,
+            //         StatusCode = StatusCodes.Status400BadRequest
+            //     };
+            // }
             var eventCreate = new CalendarEvent()
             {
                 Id = request.Id,  
@@ -185,23 +185,27 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
         try
         {
             //check meeting Id
-        var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
-        if (meeting == null)
-            return new BaseModel<UpdateCalendarEventResponseModel>
+            if (request.MeetingId != null)
             {
-                Message = MessageResponseHelper.MeetingNotFound(request.MeetingId.ToString()),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status404NotFound,
+                var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
+                if (meeting == null)
+                    return new BaseModel<UpdateCalendarEventResponseModel>
+                    {
+                        Message = MessageResponseHelper.MeetingNotFound(request.MeetingId.ToString()),
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status404NotFound,
                 
-            };
-        if (meeting.Status != MeetingStatusEnum.New)
-            return new BaseModel<UpdateCalendarEventResponseModel>
-            {
-                Message = MessageResponseHelper.InvalidMeetingSatus(meeting.Id.ToString()),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status400BadRequest,
+                    };
+                if (meeting.Status != MeetingStatusEnum.New)
+                    return new BaseModel<UpdateCalendarEventResponseModel>
+                    {
+                        Message = MessageResponseHelper.InvalidMeetingSatus(meeting.Id.ToString()),
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status400BadRequest,
                 
-            };
+                    };
+            }
+        
         //update calendar event
         var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().SingleOrDefaultAsync(m => m.Id == calendarEventId);
         if(calendarEvent == null)
