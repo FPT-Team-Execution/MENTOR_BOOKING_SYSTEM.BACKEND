@@ -185,8 +185,6 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
         try
         {
             //check meeting Id
-            if (request.MeetingId != null)
-            {
                 var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
                 if (meeting == null)
                     return new BaseModel<UpdateCalendarEventResponseModel>
@@ -204,7 +202,6 @@ public class CalendarEventService : BaseService<CalendarEventService>, ICalendar
                         StatusCode = StatusCodes.Status400BadRequest,
                 
                     };
-            }
         
         //update calendar event
         var calendarEvent = await _unitOfWork.GetRepository<CalendarEvent>().SingleOrDefaultAsync(m => m.Id == calendarEventId);
