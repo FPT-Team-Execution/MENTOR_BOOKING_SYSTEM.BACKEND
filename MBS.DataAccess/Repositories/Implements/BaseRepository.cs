@@ -1,6 +1,6 @@
 using MBS.Core.Common.Pagination;
 using MBS.DataAccess.DAO.Interfaces;
-using MBS.DataAccess.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace MBS.DataAccess.Repositories.Implements;
 
@@ -12,6 +12,12 @@ public class BaseRepository<T> : Interfaces.IBaseRepository<T> where T: class
     {
         _dao = dao;
     }
+
+    public async Task<T> GetById<TKey>(TKey id, string keyName) where TKey : class
+    {
+        return await _dao.SingleOrDefaultAsync(e => EF.Property<TKey>(e, keyName).Equals(id));
+    }
+
     public async Task<IEnumerable<T>> GetAllAsync()
     {
         return await _dao.GetListAsync();

@@ -4,6 +4,7 @@ namespace MBS.DataAccess.Repositories.Interfaces;
 
 public interface IBaseRepository<T> where T: class
 {
+    Task<T> GetById<TKey>(TKey id, string keyName) where TKey: class;
     Task<IEnumerable<T>> GetAllAsync();
     Task<Pagination<T>> GetPagedListAsync(int page, int size);
     Task<bool> CreateAsync(T entity);
