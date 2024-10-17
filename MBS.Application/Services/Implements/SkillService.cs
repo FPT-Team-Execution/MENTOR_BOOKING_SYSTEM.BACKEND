@@ -135,7 +135,7 @@ public class SkillService : BaseService2<Skill, SkillService>, ISkillService
     {
         try
         {
-            var skill = await _skillRepository.GetByIdAsync(skillId);
+            var skill = await _skillRepository.GetByIdAsync(skillId, "Id");
             if (skill == null) 
             {
                 return new BaseModel<SkillResponseModel>()
@@ -171,7 +171,7 @@ public class SkillService : BaseService2<Skill, SkillService>, ISkillService
     {
         try
         {
-            var skill = await _skillRepository.GetByIdAsync(skillId);
+            var skill = await _skillRepository.GetByIdAsync(skillId, "Id");
             if (skill == null)
             {
                 return new BaseModel<SkillResponseModel>()
@@ -218,7 +218,7 @@ public class SkillService : BaseService2<Skill, SkillService>, ISkillService
     {
         try
         {
-            var skill = await _skillRepository.GetByIdAsync(skillId);
+            var skill = await _skillRepository.GetByIdAsync(skillId, "Id");
             if (skill == null)
             {
                 return new BaseModel()
