@@ -18,17 +18,17 @@ public class CalendarEventController : ControllerBase
         _calendarEventService = calendarEventService;   
     }
    
-    [HttpGet("mentor/{mentorId}")]
-    [ProducesResponseType(typeof(BaseModel<Pagination<CalendarEvent>>),StatusCodes.Status204NoContent)]
-    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<BaseModel<DeleteCalendarEventResponseModel>>> GetEventsByMentorIdPagination([FromRoute] string mentorId, int page, int size)
-    {
-        var result = await _calendarEventService.GetCalendarEventsByMentorIdPagination(mentorId, page, size);
-        return StatusCode(result.StatusCode, result);
-        
-    }
+    // [HttpGet("mentor/{mentorId}")]
+    // [ProducesResponseType(typeof(BaseModel<Pagination<CalendarEvent>>),StatusCodes.Status204NoContent)]
+    // [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
+    // [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
+    // [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+    // public async Task<ActionResult<BaseModel<DeleteCalendarEventResponseModel>>> GetEventsByMentorIdPagination([FromRoute] string mentorId, int page, int size)
+    // {
+    //     var result = await _calendarEventService.GetCalendarEventsByMentorIdPagination(mentorId, page, size);
+    //     return StatusCode(result.StatusCode, result);
+    //     
+    // }
     [HttpGet("{calendarEventId}")]
     [ProducesResponseType(typeof(BaseModel<CalendarEventResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
