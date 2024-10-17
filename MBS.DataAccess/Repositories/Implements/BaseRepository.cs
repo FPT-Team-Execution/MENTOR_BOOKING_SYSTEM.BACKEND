@@ -13,7 +13,7 @@ public class BaseRepository<T> : Interfaces.IBaseRepository<T> where T: class
         _dao = dao;
     }
 
-    public async Task<T> GetById<TKey>(TKey id, string keyName) where TKey : class
+    public async Task<T> GetByIdAsync<TKey>(TKey id, string keyName) where TKey : struct
     {
         return await _dao.SingleOrDefaultAsync(e => EF.Property<TKey>(e, keyName).Equals(id));
     }
