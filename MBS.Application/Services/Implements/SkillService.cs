@@ -13,12 +13,14 @@ using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class SkillService : BaseService2<Skill, SkillService>, ISkillService
+public class SkillService : BaseService2<SkillService>, ISkillService
 {
     private readonly ISkillRepository _skillRepository;
-    public SkillService(IUnitOfWork<Skill> unitOfWork, ILogger<SkillService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+    public SkillService(ILogger<SkillService> logger, IMapper mapper,
+        ISkillRepository skillRepository
+    ) : base(logger, mapper)
     {
-        _skillRepository= _unitOfWork.SkillRepository;
+        _skillRepository = skillRepository;
     }
 
     public async Task<BaseModel<SkillResponseModel, CreateSkillRequestModel>> CreateSkill(CreateSkillRequestModel request)
