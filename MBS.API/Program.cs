@@ -59,7 +59,12 @@ namespace MBS.API
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseHttpsRedirection();
             app.UseCors("MyPolicy");
-            app.UseAuthentication();
+			app.Use(async (context, next) =>
+			{
+				context.Response.Headers.Add("Cross-Origin-Opener-Policy", "same-origin");
+				await next();
+			});
+			app.UseAuthentication();
 
             app.UseAuthorization();
 
