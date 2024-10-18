@@ -8,7 +8,7 @@ namespace MBS.Application.Services.Interfaces;
 
 public interface IRequestService
 {
-    Task<BaseModel<Pagination<RequestResponseDto>>> GetRequests(int page, int size);
+    Task<BaseModel<Pagination<RequestResponseDto>>> GetRequests(GetRequestsPaginationRequest request);
     Task<BaseModel<RequestResponseModel>> GetRequestById(Guid requestId);
     Task<BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>> CreateRequest(CreateRequestRequestModel request);
     Task<BaseModel<RequestResponseModel>> UpdateRequest(Guid requestId, UpdateRequestRequestModel request);
