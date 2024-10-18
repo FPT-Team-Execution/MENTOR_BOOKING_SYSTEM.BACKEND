@@ -97,7 +97,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
             if(calendarEvent == null)
                 return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
-                    Message = MessageResponseHelper.CalendarNotFound(requestmodel.CalendarEventId),
+                    Message = MessageResponseHelper.NotFoundCalendar(requestmodel.CalendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
@@ -197,7 +197,7 @@ public class RequestService : BaseService<RequestService>, IRequestService
             if(calendarEvent == null)
                 return new BaseModel<RequestResponseModel>
                 {
-                    Message = MessageResponseHelper.CalendarNotFound(requestModel.CalendarEventId),
+                    Message = MessageResponseHelper.NotFoundCalendar(requestModel.CalendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                     

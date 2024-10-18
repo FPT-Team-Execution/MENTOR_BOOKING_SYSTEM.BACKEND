@@ -6,8 +6,6 @@ namespace MBS.Shared.Models.Google.GoogleCalendar.Response;
 public class GetGoogleCalendarEventsResponse : GoogleResponse
 {
     public string Kind { get; set; } // "calendar#events"
-    public string Etag { get; set; }
-    public string Summary { get; set; }
     public List<GoogleCalendarEvent> Items { get; set; } // List of calendar events
 }
 
@@ -15,6 +13,7 @@ public class GoogleCalendarEvent: GoogleResponse
 {
     public string Kind { get; set; } // "calendar#event"
     public string Etag { get; set; }
+    public string ICalUID { get; set; }
     public string Id { get; set; }
     public string Status { get; set; } // e.g., "confirmed"
     public string HtmlLink { get; set; }
