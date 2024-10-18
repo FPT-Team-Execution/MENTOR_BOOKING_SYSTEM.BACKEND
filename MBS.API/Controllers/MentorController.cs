@@ -1,3 +1,5 @@
+using MBS.Core.Common.Pagination;
+
 namespace MBS.API.Controllers
 {
     [Route("api/mentors")]
@@ -38,6 +40,28 @@ namespace MBS.API.Controllers
             GetOwnDegrees()
         {
             var response = await _mentorService.GetOwnDegrees(User);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        public async Task<IActionResult> GetMentor([FromRoute] string id)
+        {
+            var response = await _mentorService.GetMentor(new GetMentorRequestModel()
+            {
+                Id = id
+            });
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        [ProducesResponseType(typeof(BaseModel<Pagination<GetMentorResponseModel>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetMentors(int page, int size)
+        {
+            var response = await _mentorService.GetMentors(page, size);
             return StatusCode(response.StatusCode, response);
         }
     }
