@@ -45,6 +45,7 @@ namespace MBS.DataAccess
             services.AddScoped<IFeedbackRepository, FeedBackRepository>();
             services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
             services.AddScoped<IRequestRepository, RequestRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
 
         }
 
