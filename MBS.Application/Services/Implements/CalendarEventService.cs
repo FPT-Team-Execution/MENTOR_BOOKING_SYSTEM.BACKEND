@@ -362,7 +362,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
         {
             //check meeting status related to canlendar event ~ Cancled
             var calendarEvent =
-                await _calendarEventRepository.GetByIdAsync(calendarEventId);
+                await _calendarEventRepository.GetEventByIdAsync(calendarEventId);
             if (calendarEvent == null)
                 return new BaseModel
                 {
