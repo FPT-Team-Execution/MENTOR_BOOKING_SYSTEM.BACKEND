@@ -129,10 +129,10 @@ namespace MBS.Shared.Services.Implements
         public async Task<GoogleResponse> ListEvents(GetGoogleCalendarEventsRequest getRequest)
         {
             string url = $"https://www.googleapis.com/calendar/v3/calendars/{getRequest.Email}/events";
-            var queryParams = new Dictionary<string, string>
+            var queryParams = new Dictionary<string, string?>
             {
-                { "timeMin", FormatDateTime(getRequest.TimeMin, "yyyy-MM-ddTHH:mm:ssK") },
-                { "timeMax", FormatDateTime(getRequest.TimeMax, "yyyy-MM-ddTHH:mm:ssK") },
+                { "timeMin", getRequest.TimeMin != null ? FormatDateTime(getRequest.TimeMin.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
+                { "timeMax", getRequest.TimeMax != null ? FormatDateTime(getRequest.TimeMax.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
             };
             var headers = new Dictionary<string, string>
             {

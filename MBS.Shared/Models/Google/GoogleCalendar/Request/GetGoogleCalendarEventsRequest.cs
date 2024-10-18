@@ -9,7 +9,7 @@ public class GetGoogleCalendarEventsRequest
     [Required]
     public string AccessToken { get; set; }
     [Required]
-    public DateTime TimeMax { get; set; }
+    public DateTime? TimeMax { get; set; }
     [Required]
-    public DateTime TimeMin { get; set; }
+    public DateTime? TimeMin { get; set; }
 }

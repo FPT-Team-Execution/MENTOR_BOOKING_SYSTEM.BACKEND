@@ -9,7 +9,7 @@ namespace MBS.Shared.Models
     public class WebUtils
     {
         // GET Request
-        public static async Task<HttpResponseMessage> GetAsync(string url, Dictionary<string, string>? headers = null, string? token = null, Dictionary<string, string>? queryParams = null)
+        public static async Task<HttpResponseMessage> GetAsync(string url, Dictionary<string, string>? headers = null, string? token = null, Dictionary<string, string?>? queryParams = null)
         {
             if (queryParams != null && queryParams.Any())
             {

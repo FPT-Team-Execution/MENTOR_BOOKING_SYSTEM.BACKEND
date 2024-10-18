@@ -6,5 +6,4 @@ namespace MBS.DataAccess.Repositories.Implements;
 
 public class MeetingRepository(IBaseDAO<Meeting> dao) : BaseRepository<Meeting>(dao), IMeetingRepository
 {
-    
 }

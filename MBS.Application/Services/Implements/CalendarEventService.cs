@@ -7,6 +7,9 @@ using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
+using MBS.Shared.Models.Google.GoogleCalendar.Request;
+using MBS.Shared.Models.Google.GoogleCalendar.Response;
+using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -17,15 +20,18 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
     private readonly IMentorRepository _mentorRepository;
     private readonly ICalendarEventRepository _calendarEventRepository;
     private readonly IMeetingRepository _meetingRepository;
+    private readonly IGoogleService _googleService;
     public CalendarEventService(ILogger<CalendarEventService> logger, IMapper mapper,
         IMentorRepository mentorRepository,
         ICalendarEventRepository calendarRepository,
-        IMeetingRepository meetingRepository
+        IMeetingRepository meetingRepository,
+        IGoogleService googleService
         ) : base(logger, mapper)
     {
        _mentorRepository = mentorRepository;
        _calendarEventRepository = calendarRepository;
        _meetingRepository = meetingRepository;
+       _googleService = googleService;
     }
     public async Task<BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>> CreateCalendarEvent(CreateCalendarRequestModel request)
     {
@@ -108,12 +114,14 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             };
         }
     }
+    
 
-    public async Task<BaseModel<Pagination<CalendarEvent>>> GetCalendarEventsByMentorId(string mentorId, CalendarEventQueryParameters parameters)
+    public async Task<BaseModel<Pagination<CalendarEvent>>> GetCalendarEventsByMentorId(string mentorId,string googleAccessToken ,CalendarEventQueryParameters parameters)
     {
         try
         {
-            var mentor = await _mentorRepository.GetByIdAsync(mentorId, "UserId");
+            //check mentor
+            var mentor = await _mentorRepository.GetMentorByIdAsync(mentorId);
             if (mentor == null)
             {
                 return new BaseModel<Pagination<CalendarEvent>>
@@ -125,13 +133,44 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             }
             //find events by mentor
             var events = await _calendarEventRepository.GetAllCalendarEventsByMentorIdAsync(mentorId, parameters);
-  
+            //get events from google calendar
+            var gRequest = new GetGoogleCalendarEventsRequest
+            {   
+                Email = mentor.User.Email,
+                AccessToken = googleAccessToken,
+                TimeMin = parameters.StartTime,
+                TimeMax = parameters.EndTime,
+            };
+            var googleResponse = await _googleService.ListEvents(gRequest);
+            if(!googleResponse.IsSuccess){
+                return new BaseModel<Pagination<CalendarEvent>>
+                {
+                    Message = ((GoogleErrorResponse)googleResponse).Error.Message,
+                    IsSuccess = false,
+                    StatusCode = ((GoogleErrorResponse)googleResponse).Error.Code
+                };
+            }
+            // filter new and old
+            var newEventsFromGoogle = FilterNewEvents(mentorId, (List<CalendarEvent>)events.Items, ((GetGoogleCalendarEventsResponse)googleResponse).Items);
+            if (newEventsFromGoogle.Any())
+            {
+                var addRangeResult = await _calendarEventRepository.CreateRangeAsync(newEventsFromGoogle);
+                if(!addRangeResult){
+                    return new BaseModel<Pagination<CalendarEvent>>
+                    {
+                        Message = MessageResponseHelper.CreateFailed("events"),
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                    };
+                }
+            }
+            var asyncEvents = await _calendarEventRepository.GetAllCalendarEventsByMentorIdAsync(mentorId, parameters);
             return new BaseModel<Pagination<CalendarEvent>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = events
+                ResponseRequestModel = asyncEvents
             };
         }
         catch (Exception e)
@@ -143,6 +182,34 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
+    }
+
+    private List<CalendarEvent> FilterNewEvents(string mentorId, List<CalendarEvent> localEvents, List<GoogleCalendarEvent> googleEvents)
+    {
+        // Initialize dictionary with local events
+        var localEventDictionary = localEvents.ToDictionary(e => e.Id, e => e);
+
+        // Filter new events from Google Calendar that don't exist in the local events
+        var newEvents = googleEvents
+            .Where(googleEvent => !localEventDictionary.ContainsKey(googleEvent.Id))
+            .Select(googleEvent => new CalendarEvent
+            {
+                Id = googleEvent.Id,
+                HtmlLink = googleEvent.HtmlLink,
+                Summary = googleEvent.Summary,
+                Description = string.Empty,
+                ICalUID = googleEvent.ICalUID,
+                Created = googleEvent.Created,
+                Updated = googleEvent.Updated,
+                MeetingId = null,
+                MentorId = mentorId,
+                Start = googleEvent.Start.DateTime,
+                End = googleEvent.End.DateTime,
+                Status = (EventStatus)Enum.Parse(typeof(EventStatus), googleEvent.Status)
+            })
+            .ToList();
+
+        return newEvents;
     }
 
     public async Task<BaseModel<CalendarEventResponseModel>> GetCalendarEventId(string calendarEventId)

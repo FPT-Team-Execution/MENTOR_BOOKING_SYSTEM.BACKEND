@@ -8,6 +8,7 @@ public interface IBaseRepository<T> where T: class
     Task<IEnumerable<T>> GetAllAsync();
     Task<Pagination<T>> GetPagedListAsync(int page, int size);
     Task<bool> CreateAsync(T entity);
+    Task<bool> CreateRangeAsync(IEnumerable<T> entities);
     bool Update(T entity);
     bool Delete(T entity);
 }

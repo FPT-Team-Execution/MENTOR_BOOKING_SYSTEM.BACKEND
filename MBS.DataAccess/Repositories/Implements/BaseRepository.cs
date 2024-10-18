@@ -34,6 +34,11 @@ public class BaseRepository<T> : Interfaces.IBaseRepository<T> where T: class
         return await _dao.InsertAsync(entity) > 0;
     }
 
+    public async Task<bool> CreateRangeAsync(IEnumerable<T> entities)
+    {
+        return await _dao.InsertRangeAsync(entities) > 0;
+    }
+
     public bool Update(T entity)
     {
         return _dao.Update(entity) > 0;
