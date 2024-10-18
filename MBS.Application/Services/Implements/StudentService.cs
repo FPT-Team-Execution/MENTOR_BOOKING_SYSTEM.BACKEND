@@ -3,39 +3,31 @@ using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Student;
-using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
-using MBS.DataAccess.DAO;
-using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class StudentService : BaseService<StudentService>, IStudentService
+public class StudentService : BaseService2<StudentService>, IStudentService
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IStudentRepository _studentRepository;
 
-    public StudentService(UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork,
-        ILogger<StudentService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+    public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository) : base(logger, mapper)
     {
-        _userManager = userManager;
+        _studentRepository = studentRepository;
     }
 
     public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size)
     {
         try
         {
-            var user = await _unitOfWork.GetRepository<Student>().GetPagingListAsync(
-                include: s => s.Include(x => x.User),
-                page: page,
-                size: size
-            );
+            var user = await _studentRepository.GetPagingListAsync(page, size);
             return new BaseModel<Pagination<StudentResponseDto>>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("students"),
@@ -74,7 +66,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
                 };
             }
 
-            var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync(x => x.UserId == userId);
+            var student = await _studentRepository.GetStudentByIdAsync(userId);
 
             if (student is null)
             {
@@ -110,11 +102,7 @@ public class StudentService : BaseService<StudentService>, IStudentService
     {
         try
         {
-            var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync
-            (
-                predicate: x => x.UserId == request.Id,
-                include: x => x.Include(x => x.User)
-            );
+            var student = await _studentRepository.GetStudentByIdAsync(request.Id);
 
             if (student is null)
             {
@@ -151,4 +139,6 @@ public class StudentService : BaseService<StudentService>, IStudentService
             };
         }
     }
+
+
 }
