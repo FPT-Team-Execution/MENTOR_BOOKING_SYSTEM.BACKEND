@@ -6,7 +6,7 @@ namespace MBS.DataAccess.DAO.Interfaces;
 
 public interface IBaseDAO<T> where T : class
 { 
-    Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>>? predicate = null,
+    Task<T?> SingleOrDefaultAsync(Expression<Func<T, bool>>? predicate = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
         Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null);
 

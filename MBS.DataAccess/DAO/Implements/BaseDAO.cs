@@ -17,7 +17,7 @@ public class BaseDAO<T>  : IBaseDAO<T> where T : class
 		_context = context;
 		dbSet = _context.Set<T>();
 	}
-    public async Task<T> SingleOrDefaultAsync(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
+    public async Task<T?> SingleOrDefaultAsync(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
 	        IQueryable<T> query = dbSet;
 	        if (include != null) query = include(query);
