@@ -149,7 +149,6 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
     {
         try
         {
-          
             var calendarEvent = await _calendarEventRepository.GetByIdAsync(calendarEventId, "Id");
             if (calendarEvent == null)
                 return new BaseModel<CalendarEventResponseModel>

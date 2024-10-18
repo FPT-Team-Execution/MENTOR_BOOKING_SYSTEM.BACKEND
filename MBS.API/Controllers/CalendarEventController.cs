@@ -2,6 +2,7 @@ using MBS.Application.Helpers;
 using MBS.Application.Models.CalendarEvent;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
+using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Models.Google.GoogleCalendar.Request;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MBS.API.Controllers;
 
 [ApiController]
-[Route("/api/calendar-event")]
+[Route("/api/calendar-events")]
 public class CalendarEventController : ControllerBase
 {
     private readonly ICalendarEventService _calendarEventService;
@@ -18,22 +19,22 @@ public class CalendarEventController : ControllerBase
         _calendarEventService = calendarEventService;   
     }
    
-    // [HttpGet("mentor/{mentorId}")]
-    // [ProducesResponseType(typeof(BaseModel<Pagination<CalendarEvent>>),StatusCodes.Status204NoContent)]
-    // [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
-    // [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
-    // [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    // public async Task<ActionResult<BaseModel<DeleteCalendarEventResponseModel>>> GetEventsByMentorIdPagination([FromRoute] string mentorId, int page, int size)
-    // {
-    //     var result = await _calendarEventService.GetCalendarEventsByMentorIdPagination(mentorId, page, size);
-    //     return StatusCode(result.StatusCode, result);
-    //     
-    // }
+    [HttpGet("mentor/{mentorId}")]
+    [ProducesResponseType(typeof(BaseModel<Pagination<CalendarEvent>>),StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<BaseModel<DeleteCalendarEventResponseModel>>> GetEventsByMentorIdPagination([FromRoute] string mentorId,[FromQuery] CalendarEventQueryParameters parameters)
+    {
+        var result = await _calendarEventService.GetCalendarEventsByMentorId(mentorId, parameters);
+        return StatusCode(result.StatusCode, result);
+        
+    }
     [HttpGet("{calendarEventId}")]
     [ProducesResponseType(typeof(BaseModel<CalendarEventResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<BaseModel<CalendarEventResponseModel>>> GetRequestById([FromRoute] string calendarEventId)
+    public async Task<ActionResult<BaseModel<CalendarEventResponseModel>>> GetCalendarById([FromRoute] string calendarEventId)
     {
         var result = await _calendarEventService.GetCalendarEventId(calendarEventId);
         return StatusCode(result.StatusCode, result);
