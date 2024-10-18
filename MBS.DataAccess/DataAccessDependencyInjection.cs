@@ -46,6 +46,7 @@ namespace MBS.DataAccess
             services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
             services.AddScoped<IRequestRepository, RequestRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IGroupRepository, GroupRepository>();
 
         }
 

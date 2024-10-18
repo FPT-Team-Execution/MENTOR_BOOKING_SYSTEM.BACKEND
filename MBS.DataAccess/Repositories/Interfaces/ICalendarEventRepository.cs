@@ -18,6 +18,6 @@ public interface ICalendarEventRepository : IBaseRepository<CalendarEvent>
         DateTime? startDate,
         DateTime? endDate
         );
-    Task<CalendarEvent?> GetByIdAsync(string calendarEventId);
+    Task<CalendarEvent?> GetEventByIdAsync(string calendarEventId);
 }
 

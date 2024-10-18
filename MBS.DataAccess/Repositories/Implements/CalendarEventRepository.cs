@@ -38,7 +38,7 @@ public class CalendarEventRepository(IBaseDAO<CalendarEvent> dao) : BaseReposito
         );
     }
 
-    public async Task<CalendarEvent?> GetByIdAsync(string calendarEventId)
+    public async Task<CalendarEvent?> GetEventByIdAsync(string calendarEventId)
     {
         return await _dao.SingleOrDefaultAsync(
             predicate: x => x.Id == calendarEventId,
