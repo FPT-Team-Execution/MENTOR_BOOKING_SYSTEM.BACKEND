@@ -29,7 +29,7 @@ public class BaseDAO<T>  : IBaseDAO<T> where T : class
 	        return await query.FirstOrDefaultAsync();
         }
         
-        public async Task<ICollection<T>> GetListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null)
+        public async Task<ICollection<T>> GetListAsync(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null)
         {
 	        IQueryable<T> query = dbSet;
 
@@ -42,7 +42,7 @@ public class BaseDAO<T>  : IBaseDAO<T> where T : class
 	        return await query.AsNoTracking().ToListAsync();
         }
 
-        public async Task<Pagination<T>> GetPagingListAsync(Expression<Func<T, bool>> predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>> include = null, int page = 1,
+        public async Task<Pagination<T>> GetPagingListAsync(Expression<Func<T, bool>>? predicate = null, Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null, Func<IQueryable<T>, IIncludableQueryable<T, object>>? include = null, int page = 1,
 	        int size = 10)
         {
 	        IQueryable<T> query = dbSet.AsNoTracking();
