@@ -37,9 +37,9 @@ namespace MBS.API.Controllers
         [Route("degree")]
         [Authorize(Roles = nameof(UserRoleEnum.Mentor))]
         public async Task<ActionResult<BaseModel<GetOwnDegreesResponseModel>>>
-            GetOwnDegrees()
+            GetOwnDegrees(int page, int size)
         {
-            var response = await _mentorService.GetOwnDegrees(User);
+            var response = await _mentorService.GetOwnDegrees(User, page, size);
             return StatusCode(response.StatusCode, response);
         }
 

@@ -18,16 +18,18 @@ public class StudentService : BaseService2<StudentService>, IStudentService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IStudentRepository _studentRepository;
 
-    public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository) : base(logger, mapper)
+    public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository,
+        UserManager<ApplicationUser> userManager) : base(logger, mapper)
     {
         _studentRepository = studentRepository;
+        _userManager = userManager;
     }
 
     public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size)
     {
         try
         {
-            var user = await _studentRepository.GetPagingListAsync(page, size);
+            var user = await _studentRepository.GetPagedListAsync(page, size);
             return new BaseModel<Pagination<StudentResponseDto>>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("students"),
@@ -66,7 +68,7 @@ public class StudentService : BaseService2<StudentService>, IStudentService
                 };
             }
 
-            var student = await _studentRepository.GetStudentByIdAsync(userId);
+            var student = await _studentRepository.GetByIdAsync(userId, "UserId");
 
             if (student is null)
             {
@@ -78,6 +80,8 @@ public class StudentService : BaseService2<StudentService>, IStudentService
                 };
             }
 
+            student.User = user;
+            
             return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("student profile"),
@@ -102,7 +106,7 @@ public class StudentService : BaseService2<StudentService>, IStudentService
     {
         try
         {
-            var student = await _studentRepository.GetStudentByIdAsync(request.Id);
+            var student = await _studentRepository.GetByIdAsync(request.Id, "UserId");
 
             if (student is null)
             {
@@ -116,6 +120,9 @@ public class StudentService : BaseService2<StudentService>, IStudentService
                 };
             }
 
+            var user = await _userManager.FindByIdAsync(student.UserId);
+
+            student.User = user!;
             var response = _mapper.Map<GetStudentResponseModel>(student);
 
             return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
@@ -139,6 +146,4 @@ public class StudentService : BaseService2<StudentService>, IStudentService
             };
         }
     }
-
-
 }

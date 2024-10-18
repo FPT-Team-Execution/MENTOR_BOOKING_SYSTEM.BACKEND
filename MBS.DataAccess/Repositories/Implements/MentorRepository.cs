@@ -1,3 +1,4 @@
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Interfaces;

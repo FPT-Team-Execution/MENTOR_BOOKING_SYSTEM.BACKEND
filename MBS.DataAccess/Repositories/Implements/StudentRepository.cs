@@ -6,15 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MBS.DataAccess.Repositories.Implements;
 
-public class StudentRepository(IBaseDAO<Student> studentDao) : BaseRepository<Student>(studentDao), IStudentRepository
+public class StudentRepository(IBaseDAO<Student> dao) : BaseRepository<Student>(dao), IStudentRepository
 {
-    public async Task<Pagination<Student>> GetPagingListAsync(int page, int size)
-    {
-        return await _dao.GetPagingListAsync(page: page, size: size);
-    }
-
-    public Task<Student> GetStudentByIdAsync(string id)
-    {
-        return _dao.SingleOrDefaultAsync(x => x.UserId == id, include: x => x.Include(x => x.User));
-    }
 }
