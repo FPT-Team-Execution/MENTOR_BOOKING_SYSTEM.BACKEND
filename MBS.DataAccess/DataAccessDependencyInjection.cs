@@ -43,6 +43,8 @@ namespace MBS.DataAccess
             services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
             services.AddScoped<IMeetingRepository, MeetingRepository>();
             services.AddScoped<IFeedbackRepository, FeedBackRepository>();
+            services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
+
         }
 
         private static void AddIdentity(this IServiceCollection services)
