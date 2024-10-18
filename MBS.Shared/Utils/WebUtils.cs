@@ -4,7 +4,7 @@ using System.Text;
 using MBS.Shared.Models.Google.GoogleCalendar;
 using Newtonsoft.Json;
 
-namespace MBS.Shared.Models
+namespace MBS.Shared.Utils
 {
     public class WebUtils
     {

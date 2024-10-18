@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Runtime.Serialization;
-using MBS.Shared.Models;
 using MBS.Shared.Models.Google;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
@@ -10,8 +8,8 @@ using System.Security.Claims;
 using MBS.Shared.Models.Google.GoogleCalendar.Request;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using MBS.Shared.Models.Google.GoogleOAuth.Response;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
+using MBS.Shared.Utils;
+
 
 
 namespace MBS.Shared.Services.Implements
