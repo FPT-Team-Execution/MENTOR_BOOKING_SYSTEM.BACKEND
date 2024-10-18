@@ -38,7 +38,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
         try
         {
             //check mentorId
-            var mentor = await _mentorRepository.GetByIdAsync(request.MentorId, "UserId");
+            var mentor = await _mentorRepository.GetMentorByIdAsync(request.MentorId);
             if (mentor == null)
             {
                 return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
@@ -49,39 +49,56 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 };
             }
             
-            //check meetingId
-            // var meeting = await _unitOfWork.GetRepository<Meeting>().SingleOrDefaultAsync(m => m.Id == request.MeetingId);
-            // if (meeting == null)
-            // {
-            //     return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
-            //     {
-            //         Message = MessageResponseHelper.MeetingNotFound(request.MeetingId.ToString()),
-            //         IsSuccess = false,
-            //         StatusCode = StatusCodes.Status404NotFound
-            //     };
-            // }
-            // if (meeting.Status != MeetingStatusEnum.Delayed || meeting.Status != MeetingStatusEnum.New)
-            // {
-            //     return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
-            //     {
-            //         Message = MessageResponseHelper.InvalidMeetingSatus(meeting.Id.ToString()),
-            //         IsSuccess = false,
-            //         StatusCode = StatusCodes.Status400BadRequest
-            //     };
-            // }
-            
-            
-            var eventCreate = new CalendarEvent()
+            //find overlayed events
+            var freeBusyRequest = new FreeBusyParamters()
             {
-                Id = request.Id,  
-                Status = request.Status,
-                HtmlLink = request.HtmlLink,
-                Created = request.Created,
-                Updated = request.Updated,
-                Summary = request.Summary,
-                ICalUID = request.ICalUID,
+                Email = mentor.User.Email,
+                AccessToken = request.AccessToken,
+                Day = request.Start
+            };
+            var freeBusyResponse = await _googleService.GetFreeBusyPeriod(freeBusyRequest);
+            var isOverlayed = IsOverlapping(request.Start, request.End, ((FreeBusyResponse)freeBusyResponse).Calendars[mentor.User.Email].Busy);
+            
+            if (isOverlayed)
+            {
+                return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
+                {
+                    Message = MessageResponseHelper.OverlayCalendar(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                }; 
+            }
+            //create event on google calendar
+            var createGEventRequest = new CreateGoogleCalendarEventRequest()
+            {
                 Start = request.Start,
                 End = request.End,
+                TimeZone = "Asia/Ho_Chi_Minh"
+            };
+            var googleEventResponse = await _googleService.InsertEvent(mentor.User.Email,request.AccessToken ,createGEventRequest);
+            if (!googleEventResponse.IsSuccess)
+            {
+                return new BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>
+                {
+                    Message = ((GoogleErrorResponse)googleEventResponse).Error.Message,
+                    IsSuccess = false,
+                    StatusCode = ((GoogleErrorResponse)googleEventResponse).Error.Code
+                }; 
+            }
+
+            var googleEvent = ((GoogleCalendarEvent)googleEventResponse);
+            //add new calendar event
+            var eventCreate = new CalendarEvent()
+            {
+                Id = googleEvent.Id,  
+                Status = (EventStatus)Enum.Parse(typeof(EventStatus), googleEvent.Status),
+                HtmlLink = googleEvent.HtmlLink,
+                Created = googleEvent.Created,
+                Updated = googleEvent.Updated,
+                Summary = googleEvent.Summary,
+                ICalUID = googleEvent.ICalUID,
+                Start = googleEvent.Start.DateTime,
+                End = googleEvent.End.DateTime,
                 MentorId = request.MentorId,
                 MeetingId = request.MeetingId,  
             };
@@ -115,6 +132,21 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
+    }
+    private bool IsOverlapping(DateTime start, DateTime end, List<BusySlot> busySlots)
+    {
+        foreach (var slot in busySlots)
+        {
+            var startTime = DateTime.Parse(slot.End);
+
+            var endTime = DateTime.Parse(slot.End);
+            // Check if the two intervals overlap
+            if (start < endTime && end > startTime)
+            {
+                return true; 
+            }
+        }
+        return false; 
     }
 
     public async Task<BaseModel<Pagination<CalendarEvent>>> GetCalendarEventsByMentorId(string mentorId,string googleAccessToken ,CalendarEventPaginationQueryParameters parameters)
@@ -223,7 +255,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             if (calendarEvent == null)
                 return new BaseModel<CalendarEventResponseModel>
                 {
-                    Message = MessageResponseHelper.CalendarNotFound(calendarEventId),
+                    Message = MessageResponseHelper.NotFoundCalendar(calendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound
                 };
@@ -278,7 +310,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
         if(calendarEvent == null)
             return new BaseModel<UpdateCalendarEventResponseModel>
             {
-                Message = MessageResponseHelper.CalendarNotFound(calendarEventId),
+                Message = MessageResponseHelper.NotFoundCalendar(calendarEventId),
                 IsSuccess = false,
                 StatusCode = StatusCodes.Status404NotFound,
                 
@@ -334,7 +366,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             if (calendarEvent == null)
                 return new BaseModel
                 {
-                    Message = MessageResponseHelper.CalendarNotFound(calendarEventId),
+                    Message = MessageResponseHelper.NotFoundCalendar(calendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };

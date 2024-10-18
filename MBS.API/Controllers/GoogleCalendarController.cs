@@ -39,6 +39,21 @@ public class GoogleCalendarController : ControllerBase
         //error
         return StatusCode(((GoogleErrorResponse)result).Error.Code, (GoogleErrorResponse)result);
     }
+    [HttpPost("freebusy")]
+    public async Task<IActionResult> GetFreeBusy(FreeBusyParamters request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.AccessToken) )
+        {
+            return BadRequest(MessageResponseHelper.InvalidInputParameter());
+        }
+
+        var result = await _googleService.GetFreeBusyPeriod(request);
+        if(result.IsSuccess){
+            return StatusCode(StatusCodes.Status200OK, result);
+        }
+        //error
+        return StatusCode(((GoogleErrorResponse)result).Error.Code, (GoogleErrorResponse)result);
+    }
     [HttpPost("{calendarId}/events")]
     public async Task<IActionResult> InsertEvent([FromRoute]string calendarId, [FromQuery] string accessToken, [FromBody]CreateGoogleCalendarEventRequest requestBody)
     {
