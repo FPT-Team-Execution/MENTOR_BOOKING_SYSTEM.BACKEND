@@ -270,6 +270,56 @@ namespace MBS.Shared.Services.Implements
             return errorResult;
 
         }
+        /// <summary>
+        /// format start and end date for Asia_HCM timezone
+        /// </summary>
+        /// <param name="inputDate"></param>
+        /// <returns></returns>
+        private (DateTime start, DateTime end) GetStartAndEndOfDay(DateTime inputDay)
+        {
+            // Set the start time to midnight of the given date
+            DateTime start = new DateTime(inputDay.Year, inputDay.Month, inputDay.Day, 0, 0, 0, DateTimeKind.Utc);
+    
+            // Set the end time to one millisecond before midnight of the next day
+            DateTime end = new DateTime(start.Year, start.Month, start.Day, 23, 59, 0, DateTimeKind.Utc);
+
+            return (start, end);
+        }
+
+        public async Task<GoogleResponse> GetFreeBusyPeriod(FreeBusyParamters request)
+        {
+            string url = $"https://www.googleapis.com/calendar/v3/freeBusy";
+            var headers = new Dictionary<string, string>
+            {
+                { "Accept-Charset", "utf-8" },
+                { "Authorization", $"Bearer {request.AccessToken}" }
+            };
+            var (start, end) = GetStartAndEndOfDay(request.Day);
+            var bodyData = new FreeBusyRequest()
+            {
+                TimeMin = FormatDateTime(start, "yyyy-MM-ddTHH:mm:ssK"),
+                TimeMax = FormatDateTime(end, "yyyy-MM-ddTHH:mm:ssK"),  
+                Items = new List<CalendarItem>
+                {
+                    new CalendarItem
+                    {
+                        Id = request.Email
+                    }
+                },
+                TimeZone = "UTC"
+            };
+            HttpResponseMessage response = await WebUtils.PostAsync(url, bodyData, headers, request.AccessToken);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var successResult =  WebUtils.HandleResponse<FreeBusyResponse>(response);
+                successResult.IsSuccess = true;
+                return successResult;
+            }
+            //Other response - error
+            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            errorResult.IsSuccess = false;
+            return errorResult;
+        }
     }
         
 }
