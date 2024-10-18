@@ -24,7 +24,7 @@ public class CalendarEventController : ControllerBase
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<BaseModel<DeleteCalendarEventResponseModel>>> GetEventsByMentorIdPagination([FromRoute] string mentorId, [FromQuery] string googleAccessToken, [FromQuery] CalendarEventQueryParameters parameters)
+    public async Task<IActionResult> GetEventsByMentorIdPagination([FromRoute] string mentorId, [FromQuery] string googleAccessToken, [FromQuery] CalendarEventPaginationQueryParameters parameters)
     {
         var result = await _calendarEventService.GetCalendarEventsByMentorId(mentorId, googleAccessToken, parameters);
         return StatusCode(result.StatusCode, result);
@@ -34,7 +34,7 @@ public class CalendarEventController : ControllerBase
     [ProducesResponseType(typeof(BaseModel<CalendarEventResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<BaseModel<CalendarEventResponseModel>>> GetCalendarById([FromRoute] string calendarEventId)
+    public async Task<IActionResult> GetCalendarById([FromRoute] string calendarEventId)
     {
         var result = await _calendarEventService.GetCalendarEventId(calendarEventId);
         return StatusCode(result.StatusCode, result);
@@ -45,7 +45,7 @@ public class CalendarEventController : ControllerBase
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>>> CreateEvent([FromBody]CreateCalendarRequestModel requestModel)
+    public async Task<IActionResult> CreateEvent([FromBody]CreateCalendarRequestModel requestModel)
     {
         var result = await _calendarEventService.CreateCalendarEvent(requestModel);
         return StatusCode(result.StatusCode, result);
@@ -57,7 +57,7 @@ public class CalendarEventController : ControllerBase
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<BaseModel<UpdateCalendarEventResponseModel>>> UpdateEvent([FromRoute] string calendarEventId, UpdateCalendarEventRequestModel requestModel)
+    public async Task<IActionResult> UpdateEvent([FromRoute] string calendarEventId, UpdateCalendarEventRequestModel requestModel)
     {
         var result = await _calendarEventService.UpdateCalendarEvent(calendarEventId, requestModel);
         return StatusCode(result.StatusCode, result);
@@ -68,7 +68,7 @@ public class CalendarEventController : ControllerBase
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<BaseModel<DeleteCalendarEventResponseModel>>> DeleteEvent([FromRoute] string calendarEventId)
+    public async Task<IActionResult> DeleteEvent([FromRoute] string calendarEventId)
     {
         var result = await _calendarEventService.DeleteCalendarEvent(calendarEventId);
         return StatusCode(result.StatusCode, result);

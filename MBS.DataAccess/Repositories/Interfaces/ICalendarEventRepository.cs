@@ -6,15 +6,18 @@ namespace MBS.DataAccess.Repositories.Interfaces;
 
 public interface ICalendarEventRepository : IBaseRepository<CalendarEvent>
 {
-    Task<Pagination<CalendarEvent>> GetAllCalendarEventsByMentorIdAsync(string mentorId,
-        CalendarEventQueryParameters parameters);
+    Task<Pagination<CalendarEvent>> GetCalendarEventsByMentorIdPaginationAsync(
+        string mentorId,
+        DateTime? startDate = null,
+        DateTime? endDate = null,
+        string sortBy = "asc",
+        int page = 1,
+        int pageSize = 10);
+    Task<IEnumerable<CalendarEvent>> GetCalendarEventsByMentorIdAsync(
+        string mentorId,
+        DateTime? startDate,
+        DateTime? endDate
+        );
     Task<CalendarEvent?> GetByIdAsync(string calendarEventId);
 }
-public class CalendarEventQueryParameters
-{
-    public DateTime? StartTime { get; set; }
-    public DateTime? EndTime { get; set; }
-    public string? SortBy { get; set; }
-    public int Page { get; set; } = 1;
-    public int Size { get; set; } = 10;
-}
+

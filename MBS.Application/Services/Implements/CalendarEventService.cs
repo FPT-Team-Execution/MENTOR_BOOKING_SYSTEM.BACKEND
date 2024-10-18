@@ -69,6 +69,8 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             //         StatusCode = StatusCodes.Status400BadRequest
             //     };
             // }
+            
+            
             var eventCreate = new CalendarEvent()
             {
                 Id = request.Id,  
@@ -114,9 +116,8 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             };
         }
     }
-    
 
-    public async Task<BaseModel<Pagination<CalendarEvent>>> GetCalendarEventsByMentorId(string mentorId,string googleAccessToken ,CalendarEventQueryParameters parameters)
+    public async Task<BaseModel<Pagination<CalendarEvent>>> GetCalendarEventsByMentorId(string mentorId,string googleAccessToken ,CalendarEventPaginationQueryParameters parameters)
     {
         try
         {
@@ -132,11 +133,12 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 };
             }
             //find events by mentor
-            var events = await _calendarEventRepository.GetAllCalendarEventsByMentorIdAsync(mentorId, parameters);
+            var events = await _calendarEventRepository.GetCalendarEventsByMentorIdPaginationAsync(
+                mentorId, parameters.StartTime, parameters.EndTime, parameters.SortBy!, parameters.Page, parameters.Size);
             //get events from google calendar
             var gRequest = new GetGoogleCalendarEventsRequest
             {   
-                Email = mentor.User.Email,
+                Email = mentor.User.Email!,
                 AccessToken = googleAccessToken,
                 TimeMin = parameters.StartTime,
                 TimeMax = parameters.EndTime,
@@ -164,7 +166,8 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                     };
                 }
             }
-            var asyncEvents = await _calendarEventRepository.GetAllCalendarEventsByMentorIdAsync(mentorId, parameters);
+            var asyncEvents = await _calendarEventRepository.GetCalendarEventsByMentorIdPaginationAsync(
+                mentorId, parameters.StartTime, parameters.EndTime, parameters.SortBy!, parameters.Page, parameters.Size);
             return new BaseModel<Pagination<CalendarEvent>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
