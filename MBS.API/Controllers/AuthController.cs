@@ -1,10 +1,9 @@
 ﻿using System.Net;
 using MBS.Application.Helpers;
 using MBS.Core.Entities;
+using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Models.Google.GoogleOAuth.Response;
 using MBS.Shared.Services.Interfaces;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 
 
@@ -15,13 +14,20 @@ namespace MBS.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly IMentorRepository _mentorRepository;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IAuthService _authService;
         private readonly IClaimService _claimService;
         private readonly IGoogleService _googleService;
         private readonly IConfiguration _configuration;
         public AuthController(
-            IGoogleService googleService, IClaimService claimService, IAuthService authService, IConfiguration configuration)
+            IMentorRepository mentorRepository,
+            IGoogleService googleService, 
+            IClaimService claimService, 
+            IAuthService authService, 
+            IConfiguration configuration)
         {
+            _mentorRepository = mentorRepository;
             _googleService = googleService;
             _claimService = claimService;
             _authService = authService;
@@ -85,10 +91,30 @@ namespace MBS.API.Controllers
                 token = (GoogleTokenResponse)tokenResponse,
                 profile = (GoogleUserInfoResponse)profileResponse,
             };
+            
+            
             var response = await _authService.LoginOrSignUpExternal(request);
+            
+            
+            //TODO: return right json 
+			//return StatusCode(response.StatusCode, response);
+            
+			if (!response.IsSuccess)
+			{
+				return StatusCode(response.StatusCode, response);
+			}
 
-            return StatusCode(response.StatusCode, response);
-        }
+			var accessToken = response.ResponseRequestModel.JwtModel.AccessToken;  
+			var refreshToken = response.ResponseRequestModel.JwtModel.RefreshToken;
+
+			// Redirect to your frontend with tokens
+			var redirectUrl = $"http://localhost:5173/homepage?accessToken={accessToken}&refreshToken={refreshToken}";
+
+			return Redirect(redirectUrl);
+
+
+
+		}
         
         [HttpPost]
         [Route("sign-up")]

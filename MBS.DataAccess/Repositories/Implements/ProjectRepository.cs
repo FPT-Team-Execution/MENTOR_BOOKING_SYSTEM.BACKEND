@@ -1,10 +1,14 @@
+<<<<<<< HEAD
 using MBS.Core.Common.Pagination;
+=======
+>>>>>>> develop
 using MBS.Core.Entities;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Interfaces;
 
 namespace MBS.DataAccess.Repositories.Implements;
 
+<<<<<<< HEAD
 public class ProjectRepository : BaseRepository<Project>, IProjectRepository
 {
     public ProjectRepository(IBaseDAO<Project> dao) : base(dao)
@@ -25,4 +29,9 @@ public class ProjectRepository : BaseRepository<Project>, IProjectRepository
     {
         return await _dao.SingleOrDefaultAsync(t => t.Id == id);
     }
+=======
+public class ProjectRepository(IBaseDAO<Project> dao) : BaseRepository<Project>(dao), IProjectRepository
+{
+    
+>>>>>>> develop
 }

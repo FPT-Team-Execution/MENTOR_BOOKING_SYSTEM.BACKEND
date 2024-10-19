@@ -21,15 +21,16 @@ namespace MBS.Application.Services.Implements;
 
 public class AuthService : BaseService<AuthService>, IAuthService
 {
+    private readonly IMentorRepository _mentorRepository;
     private readonly ITemplateService _templateService;
     private readonly IEmailService _emailService;
-    
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     
     private readonly IConfiguration _configuration;
     private readonly IStudentRepository _studentRepository;
     public AuthService(IUnitOfWork unitOfWork, ILogger<AuthService> logger,
+        IMentorRepository mentorRepository,
         IEmailService emailService,
         ITemplateService templateService,
         UserManager<ApplicationUser> userManager,
@@ -38,6 +39,7 @@ public class AuthService : BaseService<AuthService>, IAuthService
         IMapper mapper, IStudentRepository studentRepository)
         : base(unitOfWork, logger, mapper)
     {
+        _mentorRepository = mentorRepository;
         _emailService = emailService;
         _templateService = templateService;
         _userManager = userManager;
@@ -413,7 +415,8 @@ public class AuthService : BaseService<AuthService>, IAuthService
                     IsSuccess = false,
                 };
             }
-
+            
+            //return response
             var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(user, _userManager, _configuration);
             var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(user, _configuration);
             return new BaseModel<ExternalSignInResponseModel>
@@ -449,6 +452,21 @@ public class AuthService : BaseService<AuthService>, IAuthService
          var createResult = await _userManager.CreateAsync(userCreate);
          if (createResult.Succeeded)
          {
+             //create mentor
+             var mentorCreate = new Mentor()
+             {
+                 UserId = userCreate.Id
+             };
+             var addMentorResult = await _mentorRepository.CreateAsync(mentorCreate);
+             if (!addMentorResult)
+             {
+                 return new BaseModel<ExternalSignInResponseModel>
+                 {
+                     Message = MessageResponseHelper.CreateFailed("mentor"),
+                     StatusCode = StatusCodes.Status500InternalServerError,
+                     IsSuccess = false
+                 };
+             }
              //*add role
              var user = await _userManager.FindByEmailAsync(userCreate.Email);
              await _userManager.AddToRoleAsync(user, UserRoleEnum.Mentor.ToString());

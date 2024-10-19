@@ -6,8 +6,9 @@ using MBS.DataAccess.Repositories.Interfaces;
 
 namespace MBS.DataAccess.Repositories.Implements;
 
-public class SkillRepository(IBaseDAO<Skill> skillDao) : BaseRepository<Skill>(skillDao), ISkillRepository
+public class SkillRepository(IBaseDAO<Skill> dao) : BaseRepository<Skill>(dao), ISkillRepository
 {
+<<<<<<< HEAD
 
     public async Task<Skill?> GetByIdAsync(Guid id)
     {
@@ -21,6 +22,8 @@ public class SkillRepository(IBaseDAO<Skill> skillDao) : BaseRepository<Skill>(s
     /// <param name="size">size of item per page</param>
     /// <param name="skillId">skill Id to predicate</param>
     /// <returns>Pagination<Skill></returns>
+=======
+>>>>>>> develop
     public async Task<Pagination<Skill>> GetPagedListAsyncByMentorId(int page, int size, string mentorId)
     {
         return await _dao.GetPagingListAsync(

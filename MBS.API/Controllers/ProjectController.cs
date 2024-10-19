@@ -25,14 +25,9 @@ namespace MBS.API.Controllers
 
         // GET: api/projects/student/{studentId}?projectStatus=Active
         [HttpGet("student/{studentId}")]
-        public async Task<IActionResult> GetProjectsByStudentId([FromRoute] string studentId, [FromQuery] ProjectStatusEnum? projectStatus, int page, int size)
+        public async Task<IActionResult> GetProjectsByStudentId(GetProjectsByStudentIdRequest request)
         {
-            if (string.IsNullOrWhiteSpace(studentId))
-            {
-                return BadRequest("Invalid student ID.");
-            }
-
-            var result = await _projectService.GetProjectsByStudentId(studentId, projectStatus, page, size);
+            var result = await _projectService.GetProjectsByStudentId(request);
             return StatusCode(result.StatusCode, result);
         }
 
@@ -50,18 +45,18 @@ namespace MBS.API.Controllers
         }
 
         // PUT: api/projects/{projectId}/status
-        [HttpPut("{projectId}/status")]
-        public async Task<IActionResult> UpdateProjectStatus([FromRoute] Guid projectId, [FromBody] ProjectStatusEnum newStatus)
-        {
-            if (projectId == Guid.Empty)
-            {
-                return BadRequest("Invalid project ID.");
-            }
-
-            var result = await _projectService.UpdateProjectStatus(projectId, newStatus);
-
-            return StatusCode(result.StatusCode, result);
-        }
+        // [HttpPut("{projectId}/status")]
+        // public async Task<IActionResult> UpdateProjectStatus([FromRoute] Guid projectId, [FromBody] ProjectStatusEnum newStatus)
+        // {
+        //     if (projectId == Guid.Empty)
+        //     {
+        //         return BadRequest("Invalid project ID.");
+        //     }
+        //
+        //     var result = await _projectService.UpdateProjectStatus(projectId, newStatus);
+        //
+        //     return StatusCode(result.StatusCode, result);
+        // }
 
         // GET: api/projects/{projectId}
         [HttpGet("{projectId}")]

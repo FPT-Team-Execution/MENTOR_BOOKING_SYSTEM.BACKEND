@@ -5,30 +5,42 @@ using MBS.Application.Models.MeetingMember;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
-using MBS.DataAccess.DAO;
-using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingMemberService
+public class MeetingMemberService : BaseService2<MeetingMemberService>, IMeetingMemberService
 {
+<<<<<<< HEAD
     private readonly IMeetingMemberRepository _meetMemberRepository;
     private readonly IMeetingRepository _meetingRepository;
 
     public MeetingMemberService(IUnitOfWork unitOfWork, IMeetingRepository meetingRepository, IMeetingMemberRepository meetingMemberRepository, ILogger<MeetingMemberService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
         _meetMemberRepository = meetingMemberRepository;
+=======
+    private readonly IMeetingMemberRepository _meetingMemberRepository;
+    private readonly IMeetingRepository _meetingRepository;
+    public MeetingMemberService(
+        IMeetingRepository meetingRepository,
+        IMeetingMemberRepository meetingMemberRepository,
+        ILogger<MeetingMemberService> logger, IMapper mapper) : base(logger, mapper)
+    {
+        _meetingMemberRepository = meetingMemberRepository;
+>>>>>>> develop
         _meetingRepository = meetingRepository;
     }
     public async Task<BaseModel<GetMeetingMemberResponseModel>> GetMembersByMeetingId(Guid meetingId)
     {
         try
         {
+<<<<<<< HEAD
             var meetingMembers = await _meetMemberRepository.GetMembersInMeetingAsync(meetingId, m => m.Include(x => x.Student));
+=======
+            var meetingMembers = await _meetingMemberRepository.GetMeetingMemberByMeetingIdAsync(meetingId);
+>>>>>>> develop
             return new BaseModel<GetMeetingMemberResponseModel>
             {
                 Message = MessageResponseHelper.GetSuccessfully("meeting members"),
@@ -56,7 +68,11 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
         try
         {
             //check meeting
+<<<<<<< HEAD
             var meeting = await _meetingRepository.GetMeetingByIdAsync(request.MeetingId);
+=======
+            var meeting = await _meetingRepository.GetByIdAsync(request.MeetingId, "Id");
+>>>>>>> develop
             
             if(meeting == null)
                 return new BaseModel<CreateMeetingMemberResponseModel,CreateMeetingMemberRequestModel>
@@ -81,11 +97,16 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
                 JoinTime = request.JoinTime,
             };
             
+<<<<<<< HEAD
             await _meetMemberRepository.CreateAsync(newMeetingMem);
             
+=======
+            var addResult = await _meetingMemberRepository.CreateAsync(newMeetingMem);
+            if(addResult)
+>>>>>>> develop
                 return new BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>
                 {
-                    Message = MessageResponseHelper.GetSuccessfully("meeting member"),
+                    Message = MessageResponseHelper.CreateSuccessfully("meeting member"),
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status200OK,
                     RequestModel = request,
@@ -94,6 +115,15 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
                         MeetingMemberId = newMeetingMem.Id
                     }
                 };
+<<<<<<< HEAD
+=======
+            return new BaseModel<CreateMeetingMemberResponseModel, CreateMeetingMemberRequestModel>
+            {
+                Message = MessageResponseHelper.CreateFailed("meeting memeber"),
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+>>>>>>> develop
         }
         catch (Exception e)
         {
@@ -112,7 +142,11 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
         try
         {
             //check meeting
+<<<<<<< HEAD
             var meetingMember = await _meetMemberRepository.GetMemberInMeetingAsync(memberMeetingId, m => m.Include(x => x.Meeting));
+=======
+            var meetingMember = await _meetingMemberRepository.GetMeetingMemberByIdAsync(memberMeetingId);
+>>>>>>> develop
             if(meetingMember == null)
                 return new BaseModel<MeetingMemberResponseModel>
                 {
@@ -160,11 +194,11 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
             meetingMember.LeaveTime = request.LeaveTime!.Value;
-            _unitOfWork.GetRepository<MeetingMember>().UpdateAsync(meetingMember);
-            if(_unitOfWork.Commit() > 0)
+           var updateResult = _meetingMemberRepository.Update(meetingMember);
+            if(updateResult)
                 return new BaseModel<MeetingMemberResponseModel>
                 {
-                    Message = MessageResponseHelper.GetSuccessfully("meeting member"),
+                    Message = MessageResponseHelper.UpdateSuccessfully("meeting member"),
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status200OK,
                     ResponseRequestModel = new MeetingMemberResponseModel
@@ -176,7 +210,7 @@ public class MeetingMemberService : BaseService<MeetingMemberService>, IMeetingM
             {
                 Message = MessageResponseHelper.UpdateFailed("meeting memeber"),
                 IsSuccess = false,
-                StatusCode = StatusCodes.Status200OK,
+                StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
         catch (Exception e)

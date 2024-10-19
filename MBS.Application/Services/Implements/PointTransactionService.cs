@@ -45,6 +45,7 @@ namespace MBS.Application.Services.Implements
                 {
                     Amount = request.Amout,
                     UserId = request.StudentId,
+                    Kind = TransactionKindEnum.Personal
                 };
 
                 switch (request.TransactionType.ToString().ToUpper())

@@ -1,10 +1,14 @@
+<<<<<<< HEAD
 using MBS.Core.Common.Pagination;
+=======
+>>>>>>> develop
 using MBS.Core.Entities;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Interfaces;
 
 namespace MBS.DataAccess.Repositories.Implements;
 
+<<<<<<< HEAD
 public class MeetingRepository : BaseRepository<Meeting>, IMeetingRepository
 {
     public MeetingRepository(IBaseDAO<Meeting> dao) : base(dao)
@@ -23,4 +27,8 @@ public class MeetingRepository : BaseRepository<Meeting>, IMeetingRepository
             size: size
             );
     }
+=======
+public class MeetingRepository(IBaseDAO<Meeting> dao) : BaseRepository<Meeting>(dao), IMeetingRepository
+{
+>>>>>>> develop
 }
