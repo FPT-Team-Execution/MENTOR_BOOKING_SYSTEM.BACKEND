@@ -102,10 +102,17 @@ public class AuthService : BaseService<AuthService>, IAuthService
 
                     await _studentRepository.CreateAsync(newStudent);
 
+<<<<<<< HEAD
                     //if (await _unitOfWork.CommitAsync() > 0)
                     //{
                     //    throw new DatabaseInsertException("student");
                     //}
+=======
+                    if (await _unitOfWork.CommitAsync() <= 0)
+                    {
+                        throw new DatabaseInsertException("student");
+                    }
+>>>>>>> develop
 
                     await SendVerifyEmail(newUser);
 
