@@ -3,6 +3,7 @@ using MBS.Application.Exceptions;
 using MBS.Application.DependencyInjections;
 using MBS.DataAccess;
 using MBS.DataAccess.Persistents.Configurations;
+using MBS.DataAccess.Persistents.Configurations.SeedData;
 
 namespace MBS.API
 {
@@ -45,10 +46,20 @@ namespace MBS.API
 
 			builder.Services.AddAuthorization();
             var app = builder.Build();
+            
+            
 
+
+            //
             //seed data by automated migration
             using var scope = app.Services.CreateScope();
             AutomatedMigration.MigrateAsync(scope.ServiceProvider).GetAwaiter().GetResult();
+
+            using (var scopeDB = app.Services.CreateScope())
+            {
+                var Dbinit = scopeDB.ServiceProvider.GetRequiredService<SeedMajors>();
+                Dbinit.SeedingMajors();
+            }
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
