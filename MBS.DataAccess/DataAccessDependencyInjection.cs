@@ -53,6 +53,10 @@ namespace MBS.DataAccess
             services.AddScoped<IMentorRepository, MentorRepository>();
             services.AddScoped<IDegreeRepository, DegreeRepository>();
             services.AddScoped<SeedMajors>();
+            services.AddScoped<SeedUsers>();
+            services.AddScoped<SeedStudents>();
+            services.AddScoped<SeedMentors>();
+
             //services.AddScoped<DbInitialize>();
         }
 

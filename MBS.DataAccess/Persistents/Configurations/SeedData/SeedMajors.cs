@@ -1,5 +1,6 @@
 ﻿using MBS.Core.Entities;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Pqc.Crypto.Lms;
 using System;
 using System.Collections.Generic;
 
@@ -27,11 +28,22 @@ namespace MBS.DataAccess.Persistents.Configurations.SeedData
 
         public void Initialize<T>(List<T> entities) where T : class
         {
-            if (!mBSContext.Set<T>().Any())
+            try
             {
-                mBSContext.Set<T>().AddRange(entities);
+                foreach (var entity in entities)
+                {
+                    if (!mBSContext.Set<T>().Any(e => e.Equals(entity)))
+                    {
+                        mBSContext.Set<T>().Add(entity);
+                    }
+                }
                 mBSContext.SaveChanges();
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred while initializing {typeof(T).Name}: {ex.Message}");
+            }
         }
+
     }
 }

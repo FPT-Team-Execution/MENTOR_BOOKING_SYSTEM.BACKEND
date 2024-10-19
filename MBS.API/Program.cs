@@ -57,16 +57,22 @@ namespace MBS.API
 
             using (var scopeDB = app.Services.CreateScope())
             {
-                var Dbinit = scopeDB.ServiceProvider.GetRequiredService<SeedMajors>();
-                Dbinit.SeedingMajors();
+                var seedMajors = scopeDB.ServiceProvider.GetRequiredService<SeedMajors>();
+                seedMajors.SeedingMajors();
+                var seedUsers = scopeDB.ServiceProvider.GetRequiredService<SeedUsers>();
+                seedUsers.SeedingUsers();
+                var seedStudents = scopeDB.ServiceProvider.GetRequiredService<SeedStudents>();
+                seedStudents.SeedingStudents();
+                var seedMentors = scopeDB.ServiceProvider.GetRequiredService<SeedMentors>();
+                seedMentors.SeedingMentors();
             }
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+                // Configure the HTTP request pipeline.
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseHttpsRedirection();
             app.UseCors("MyPolicy");
