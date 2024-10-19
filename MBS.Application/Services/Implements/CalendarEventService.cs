@@ -282,7 +282,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
         }
     }
 
-    public async Task<BaseModel<UpdateCalendarEventResponseModel>> UpdateCalendarEvent(string calendarEventId, UpdateCalendarEventRequestModel request)
+    public async Task<BaseModel<UpdateCalendarEventResponseModel>> UpdateCalendarEvent(string calendarEventId, string accessToken, UpdateCalendarEventRequestModel request)
     {
         try
         {
@@ -306,7 +306,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                     };
         
         //update calendar event
-        var calendarEvent = await _calendarEventRepository.GetByIdAsync(calendarEventId, "Id");
+        var calendarEvent = await _calendarEventRepository.GetEventByIdAsync(calendarEventId);
         if(calendarEvent == null)
             return new BaseModel<UpdateCalendarEventResponseModel>
             {
@@ -317,14 +317,39 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             };
         //TODO: call google calendar api to recheck event props
         //~
-        
-        calendarEvent.HtmlLink = request.newHtmlLink;
+            var updateGEventRequets = new UpdateGoogleCalendarEventRequest()
+            {
+                Start = request.Start.Value,
+                End = request.End.Value,
+                TimeZone = "Asia/Ho_Chi_Minh"
+            };
+
+        var googleUpdateResponse = await _googleService.UpdateEvent(
+            eventId: calendarEventId,
+            email: calendarEvent.Mentor.UserId,
+            accessToken: accessToken,
+            updateRequest: updateGEventRequets
+            );
+        if(!googleUpdateResponse.IsSuccess)
+            return new BaseModel<UpdateCalendarEventResponseModel>
+            {
+                Message = ((GoogleErrorResponse)googleUpdateResponse).Error.Message,
+                IsSuccess = false,
+                StatusCode = ((GoogleErrorResponse)googleUpdateResponse).Error.Code
+            };
+        GoogleCalendarEvent googleCalendarEventUpdated = (GoogleCalendarEvent)googleUpdateResponse;
+        //update local events
+        calendarEvent.HtmlLink = googleCalendarEventUpdated.HtmlLink;
         calendarEvent.Description = request.Description;
-        calendarEvent.Updated = request.Updated;
-        if (request.Start != null)
-            calendarEvent.Start = request.Start.Value;
-        if (request.End != null)
-            calendarEvent.End = request.End.Value;
+        calendarEvent.Summary = googleCalendarEventUpdated.Summary;
+        calendarEvent.ICalUID = googleCalendarEventUpdated.ICalUID;
+        calendarEvent.Updated = googleCalendarEventUpdated.Updated;
+        // if (request.Start != null)
+        //     calendarEvent.Start = request.Start.Value;
+        // if (request.End != null)
+        //     calendarEvent.End = request.End.Value;
+        calendarEvent.Start = googleCalendarEventUpdated.Start.DateTime;
+        calendarEvent.End = googleCalendarEventUpdated.End.DateTime;
         calendarEvent.MeetingId = request.MeetingId;
         var updateResult = _calendarEventRepository.Update(calendarEvent);
         if (updateResult)

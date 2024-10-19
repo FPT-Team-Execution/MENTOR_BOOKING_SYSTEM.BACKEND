@@ -42,7 +42,7 @@ public class CalendarEventRepository(IBaseDAO<CalendarEvent> dao) : BaseReposito
     {
         return await _dao.SingleOrDefaultAsync(
             predicate: x => x.Id == calendarEventId,
-            include: x => x.Include(m => m.Meeting)!
+            include: x => x.Include(m => m.Meeting).Include(m => m.Mentor)
             );
     }
 }
