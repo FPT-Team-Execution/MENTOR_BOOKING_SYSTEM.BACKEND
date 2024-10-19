@@ -49,12 +49,14 @@ namespace MBS.Application.Services.Implements
                         {
                             student.WalletPoint += request.Amout;
                             pointTransaction.TransactionType = TransactionTypeEnum.Credit;
+                            pointTransaction.RemainBalance = student.WalletPoint;
                             break;
                         }
                     case var type when type == nameof(TransactionTypeEnum.Debit).ToUpper():
                         {
                             student.WalletPoint -= request.Amout;
                             pointTransaction.TransactionType = TransactionTypeEnum.Debit;
+                            pointTransaction.RemainBalance = student.WalletPoint;
                             break;
                         }
                 }
