@@ -16,7 +16,7 @@ namespace MBS.Shared.Services.Interfaces
         //* Google Calendar
         Task<GoogleResponse> ListEvents(GetGoogleCalendarEventsRequest getRequest);
         Task<GoogleResponse> InsertEvent(string email, string accessToken, CreateGoogleCalendarEventRequest createRequest);
-        Task<GoogleResponse> UpdateEvent(string email, string eventId, string accessToken, UpdateGoogleCalendarEventRequest createRequest);
+        Task<GoogleResponse> UpdateEvent(string email, string eventId, string accessToken, UpdateGoogleCalendarEventRequest updateRequest);
         Task<GoogleResponse> DeleteEvent(string email, string eventId, string accessToken);
         Task<GoogleResponse> GetFreeBusyPeriod(FreeBusyParamters request);
 

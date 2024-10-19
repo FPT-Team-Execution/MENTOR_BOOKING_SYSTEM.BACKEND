@@ -57,9 +57,9 @@ public class CalendarEventController : ControllerBase
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdateEvent([FromRoute] string calendarEventId, UpdateCalendarEventRequestModel requestModel)
+    public async Task<IActionResult> UpdateEvent([FromRoute] string calendarEventId, string accessToken, UpdateCalendarEventRequestModel requestModel)
     {
-        var result = await _calendarEventService.UpdateCalendarEvent(calendarEventId, requestModel);
+        var result = await _calendarEventService.UpdateCalendarEvent(calendarEventId,accessToken ,requestModel);
         return StatusCode(result.StatusCode, result);
         
     }
