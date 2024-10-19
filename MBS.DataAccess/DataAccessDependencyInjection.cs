@@ -49,6 +49,7 @@ namespace MBS.DataAccess
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
+            services.AddScoped<IDegreeRepository, DegreeRepository>();
         }
 
         private static void AddIdentity(this IServiceCollection services)
