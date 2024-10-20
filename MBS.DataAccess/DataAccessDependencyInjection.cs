@@ -59,6 +59,7 @@ namespace MBS.DataAccess
             services.AddScoped<SeedMentors>();
             services.AddScoped<SeedProjects>();
             services.AddScoped<SeedGroups>();
+            services.AddScoped<SeedSkills>();
             
 
             services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();

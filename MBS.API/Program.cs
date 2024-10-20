@@ -69,10 +69,14 @@ namespace MBS.API
                 seedProjects.SeedingProjects();
                 var seedGroup = scopeDB.ServiceProvider.GetRequiredService<SeedGroups>();
                 seedGroup.SeedingGroups();
+                var seedSkills = scopeDB.ServiceProvider.GetRequiredService<SeedSkills>();
+                seedSkills.SeedingSkills();
+
+
             }
 
-                // Configure the HTTP request pipeline.
-                if (app.Environment.IsDevelopment())
+            // Configure the HTTP request pipeline.
+            if (app.Environment.IsDevelopment())
                 {
                     app.UseSwagger();
                     app.UseSwaggerUI();
