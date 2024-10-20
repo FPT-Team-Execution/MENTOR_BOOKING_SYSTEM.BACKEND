@@ -40,8 +40,6 @@ namespace MBS.DataAccess
         {
             
             services.AddScoped<DAO.IUnitOfWork, DAO.UnitOfWork>();
-            services.AddScoped<ISkillRepository, SkillRepository>();
-            services.AddScoped<IMentorRepository, MentorRepository>();
             services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
             services.AddScoped<IMeetingRepository, MeetingRepository>();
             services.AddScoped<IFeedbackRepository, FeedBackRepository>();

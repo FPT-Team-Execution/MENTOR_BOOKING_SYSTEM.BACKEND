@@ -13,14 +13,12 @@ using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class SkillService : BaseService2<SkillService>, ISkillService
+public class SkillService : BaseService2<Skill, SkillService>, ISkillService
 {
     private readonly ISkillRepository _skillRepository;
-    public SkillService(ILogger<SkillService> logger, IMapper mapper,
-        ISkillRepository skillRepository
-    ) : base(logger, mapper)
+    public SkillService(IUnitOfWork<Skill> unitOfWork, ILogger<SkillService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
     {
-        _skillRepository = skillRepository;
+        _skillRepository= _unitOfWork.SkillRepository;
     }
 
     public async Task<BaseModel<SkillResponseModel, CreateSkillRequestModel>> CreateSkill(CreateSkillRequestModel request)
@@ -137,7 +135,7 @@ public class SkillService : BaseService2<SkillService>, ISkillService
     {
         try
         {
-            var skill = await _skillRepository.GetByIdAsync(skillId, "Id");
+            var skill = await _skillRepository.GetByIdAsync(skillId);
             if (skill == null) 
             {
                 return new BaseModel<SkillResponseModel>()
@@ -173,7 +171,7 @@ public class SkillService : BaseService2<SkillService>, ISkillService
     {
         try
         {
-            var skill = await _skillRepository.GetByIdAsync(skillId, "Id");
+            var skill = await _skillRepository.GetByIdAsync(skillId);
             if (skill == null)
             {
                 return new BaseModel<SkillResponseModel>()
@@ -220,7 +218,7 @@ public class SkillService : BaseService2<SkillService>, ISkillService
     {
         try
         {
-            var skill = await _skillRepository.GetByIdAsync(skillId, "Id");
+            var skill = await _skillRepository.GetByIdAsync(skillId);
             if (skill == null)
             {
                 return new BaseModel()

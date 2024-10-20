@@ -7,8 +7,7 @@ using System.Threading.Tasks;
 
 namespace MBS.DataAccess.Repositories.Interfaces
 {
-    public interface IGroupRepository : IBaseRepository<Group>
+    public interface IPointTransactionRepository : IBaseRepository<PointTransaction>
     {
-        Task<Group> GetGroupByIdAsync(Guid id);
     }
 }

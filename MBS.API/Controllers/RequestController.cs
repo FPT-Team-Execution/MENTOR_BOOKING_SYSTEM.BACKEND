@@ -15,9 +15,9 @@ public class RequestController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(BaseModel<RequestResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<BaseModel<RequestResponseModel>>> GetRequest(GetRequestsPaginationRequest request)
+    public async Task<ActionResult<BaseModel<RequestResponseModel>>> GetRequest(int page, int size)
     {
-        var result = await _requestService.GetRequests(request);
+        var result = await _requestService.GetRequests(page, size);
         return StatusCode(result.StatusCode, result);
         
     }

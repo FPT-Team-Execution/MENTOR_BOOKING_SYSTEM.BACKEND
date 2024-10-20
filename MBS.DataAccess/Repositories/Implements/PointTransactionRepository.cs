@@ -9,15 +9,10 @@ using System.Threading.Tasks;
 
 namespace MBS.DataAccess.Repositories.Implements
 {
-    public class GroupRepository : BaseRepository<Group>, IGroupRepository
+    public class PointTransactionRepository : BaseRepository<PointTransaction>, IPointTransactionRepository
     {
-        public GroupRepository(IBaseDAO<Group> dao) : base(dao)
+        public PointTransactionRepository(IBaseDAO<PointTransaction> dao) : base(dao)
         {
-        }
-
-        public Task<Group> GetGroupByIdAsync(Guid id)
-        {
-            return _dao.SingleOrDefaultAsync(x => x.Id == id);
         }
     }
 }

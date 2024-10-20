@@ -20,12 +20,15 @@ public class BaseService <T> where T : class
 
 }
 
-public class BaseService2<TService>  where TService : class 
+public class BaseService2<T, TService> where T : class where TService : class 
 {
+
+	protected IUnitOfWork<T> _unitOfWork;
 	protected ILogger<TService> _logger;
 	protected IMapper _mapper;
-	public BaseService2(ILogger<TService> logger, IMapper mapper)
+	public BaseService2(IUnitOfWork<T> unitOfWork, ILogger<TService> logger, IMapper mapper)
 	{
+		_unitOfWork = unitOfWork;
 		_logger = logger;
 		_mapper = mapper;
 	}
