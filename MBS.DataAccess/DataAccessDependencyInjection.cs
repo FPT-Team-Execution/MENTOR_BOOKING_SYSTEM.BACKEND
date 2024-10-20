@@ -49,8 +49,8 @@ namespace MBS.DataAccess
             services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
             services.AddScoped<IMeetingRepository, MeetingRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
-<<<<<<< HEAD
-            services.AddScoped<IDegreeRepository, DegreeRepository>();
+
+            //services.AddScoped<IDegreeRepository, DegreeRepository>();
             //SeedData
             services.AddScoped<DbInitializer>();
             services.AddScoped<SeedMajors>();
@@ -60,14 +60,14 @@ namespace MBS.DataAccess
             services.AddScoped<SeedProjects>();
             services.AddScoped<SeedGroups>();
             
-=======
+
             services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
             services.AddScoped<IPositionRepository, PositionRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IRequestRepository, RequestRepository>();
             services.AddScoped<ISkillRepository, SkillRepository>();
             services.AddScoped<IStudentRepository, StudentRepository>();
->>>>>>> dev/feat/query
+
         }
 
         private static void AddIdentity(this IServiceCollection services)

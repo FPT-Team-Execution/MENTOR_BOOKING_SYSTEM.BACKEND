@@ -88,18 +88,18 @@ namespace MBS.Application.Services.Implements
                     RequestModel = request,
                 };
             }
-            
-            await _majorRepository.CreateAsync(major);
-            return new BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>()
-            {
-                Message = MessageResponseHelper.Successfully("Created" + nameof(Major)),
-                StatusCode = StatusCodes.Status202Accepted,
-                IsSuccess = true,
-                ResponseModel = new CreateMajorResponseModel()
+
+                await _majorRepository.CreateAsync(major);
+                return new BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>()
                 {
-                    MajorId = major.Id,
-                }
-            };
+                    Message = MessageResponseHelper.Successfully("Created" + nameof(Major)),
+                    StatusCode = StatusCodes.Status202Accepted,
+                    IsSuccess = true,
+                    ResponseModel = new CreateMajorResponseModel()
+                    {
+                        MajorId = major.Id,
+                    }
+                };  
         }
 
 
