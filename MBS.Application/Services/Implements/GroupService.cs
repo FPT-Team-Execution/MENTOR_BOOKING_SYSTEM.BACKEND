@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using MBS.Core.Common.Pagination;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Drawing.Text;
 
 
 namespace MBS.Application.Services.Implements
@@ -205,6 +206,47 @@ namespace MBS.Application.Services.Implements
                 IsSuccess = false,
                 StatusCode = StatusCodes.Status404NotFound,
                 ResponseRequestModel = null
+            };
+        }
+
+        public async Task<BaseModel<List<StudentSearchDTO>>> SearchStudent(string searchItem)
+        {
+            searchItem = searchItem.ToLower();
+            var students = await _studentRepository.GetStudents();
+            List<StudentSearchDTO> studentSearchDTOs = new List<StudentSearchDTO>();
+
+            if (students != null && students.Any())
+            {
+                foreach (var student in students)
+                {
+                    var searchUser = await _studentRepository.GetByUserIdAsync(student.UserId, m => m.Include(x => x.User));
+
+                    // Convert full name and email to lowercase for case-insensitive comparison
+                    string fullName = searchUser.User.FullName.ToLower();
+                    string email = searchUser.User.Email.ToLower();
+
+                    // Check if searchItem matches any part of the full name or email
+                    if (fullName.Contains(searchItem) || email.Contains(searchItem))
+                    {
+                        studentSearchDTOs.Add(new StudentSearchDTO
+                        {
+                            StudentId = student.UserId,
+                            FullName = searchUser.User.FullName,
+                            Email = searchUser.User.Email,
+                            Major = student.Major,
+                            University = student.University,
+                            WalletPoint = student.WalletPoint
+                        });
+                    }
+                }
+            }
+            var response = studentSearchDTOs;
+            return new BaseModel<List<StudentSearchDTO>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully(""),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = response
             };
         }
 

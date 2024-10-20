@@ -11,7 +11,7 @@ namespace MBS.DataAccess.Repositories.Interfaces
         Task<Student?> GetByUserIdAsync(string userId,
     Func<IQueryable<Student>, IIncludableQueryable<Student, object>> include = null);
 
-
+        Task<IEnumerable<Student>> GetStudents();
 
 
     }

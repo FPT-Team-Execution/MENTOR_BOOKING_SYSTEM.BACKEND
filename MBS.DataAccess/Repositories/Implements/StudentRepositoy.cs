@@ -34,5 +34,10 @@ namespace MBS.DataAccess.Repositories.Implements
         }
 
 
+        public async Task<IEnumerable<Student>> GetStudents()
+        {
+            return await _dao.GetListAsync();
+
+        }
     }
 }

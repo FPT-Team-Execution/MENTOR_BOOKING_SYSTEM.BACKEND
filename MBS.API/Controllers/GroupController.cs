@@ -67,5 +67,14 @@ namespace MBS.API.Controllers
 
 
         }
+
+        [HttpGet("students/search/{searchItem}")]
+        public async Task<IActionResult> GetStudentsInGroup(string searchItem)
+        {
+            var response = await _groupService.SearchStudent(searchItem);
+            return StatusCode((int)response.StatusCode, response);
+
+
+        }
     }
 }
