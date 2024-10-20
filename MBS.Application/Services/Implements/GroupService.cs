@@ -11,6 +11,7 @@ using System;
 using System.Threading.Tasks;
 using MBS.Core.Common.Pagination;
 using MBS.DataAccess.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace MBS.Application.Services.Implements
@@ -18,10 +19,18 @@ namespace MBS.Application.Services.Implements
     public class GroupService : BaseService<GroupService>, IGroupService
     {
         private readonly IGroupRepository _groupRepository;
-        public GroupService(IUnitOfWork unitOfWork, IGroupRepository groupRepository, ILogger<GroupService> logger, IMapper mapper)
+        private readonly IStudentRepository _studentRepository;
+        private readonly IMajorRepository _majorRepository;
+        private readonly IProjectRepository _projectRepository;
+
+
+        public GroupService(IUnitOfWork unitOfWork, IMajorRepository majorRepository, IProjectRepository projectRepository, IGroupRepository groupRepository, ILogger<GroupService> logger, IMapper mapper, IStudentRepository studentRepository)
             : base(unitOfWork, logger, mapper)
         {
             _groupRepository = groupRepository; 
+            _studentRepository = studentRepository;
+            _majorRepository = majorRepository;
+            _projectRepository = projectRepository;
 
         }
 
@@ -149,5 +158,55 @@ namespace MBS.Application.Services.Implements
                 ResponseRequestModel = _mapper.Map<Pagination<GroupResponseDTO>>(result)
             };
         }
+
+        public async Task<BaseModel<GroupStudentsResponseDTO>> GetStudentsInGroupByProjectId(Guid projectId)
+        {
+            var groupFound = await _groupRepository.GetGroupByProjectIdAsync(projectId);
+            if (groupFound != null && groupFound.Any())
+            {
+                List<StudentInGroupDTO> studentDTOs = new List<StudentInGroupDTO>();
+
+                foreach (var group in groupFound)
+                {
+                    Student student = await _studentRepository.GetByUserIdAsync(group.StudentId, m => m.Include(x => x.User));
+                    if (student != null)
+                    {
+                        studentDTOs.Add(new StudentInGroupDTO
+                        {
+                            StudentId = student.UserId,
+                            StudentName = student.User.FullName,
+                            Email = student.User.Email,
+                            University = student.University,
+                            Major = await _majorRepository.GetMajorByIdAsync(student.MajorId),
+                            walletPoint = student.WalletPoint,
+                            
+                        });
+                    }
+                }
+
+                var response = new GroupStudentsResponseDTO
+                {
+                    Project = await _projectRepository.GetProjectById(projectId),
+                    Students = studentDTOs
+                };
+
+                return new BaseModel<GroupStudentsResponseDTO>
+                {
+                    Message = MessageResponseHelper.GetSuccessfully("groups"),
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    ResponseRequestModel = response
+                };
+            }
+
+            return new BaseModel<GroupStudentsResponseDTO>
+            {
+                Message = MessageResponseHelper.GetFailed("groups"),
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status404NotFound,
+                ResponseRequestModel = null
+            };
+        }
+
     }
 }

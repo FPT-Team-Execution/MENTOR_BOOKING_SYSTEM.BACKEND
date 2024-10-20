@@ -58,5 +58,14 @@ namespace MBS.API.Controllers
 			var response = await _groupService.RemoveGroup(id);
 			return StatusCode((int)response.StatusCode, response);
 		}
-	}
+
+		[HttpGet("students/{id}")]
+		public async Task<IActionResult> GetStudentsInGroup(Guid id)
+		{
+			var response = await _groupService.GetStudentsInGroupByProjectId(id);
+			return StatusCode((int)response.StatusCode, response);
+
+
+        }
+    }
 }

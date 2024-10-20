@@ -19,5 +19,10 @@ namespace MBS.DataAccess.Repositories.Implements
         {
             return _dao.SingleOrDefaultAsync(x => x.Id == id);
         }
+
+        public async Task<IEnumerable<Group>> GetGroupByProjectIdAsync(Guid project)
+        {
+            return await _dao.GetListAsync(a => a.ProjectId == project);
+        }
     }
 }

@@ -17,5 +17,6 @@ namespace MBS.Application.Services.Interfaces
         Task<BaseModel> RemoveGroup(Guid id);
 
         Task<BaseModel<Pagination<GroupResponseDTO>>> GetGroups(int page, int size);
+        Task<BaseModel<GroupStudentsResponseDTO>> GetStudentsInGroupByProjectId(Guid projectId);
     }
 }

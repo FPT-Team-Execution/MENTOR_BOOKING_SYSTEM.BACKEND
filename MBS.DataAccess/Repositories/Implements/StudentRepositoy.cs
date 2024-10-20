@@ -3,6 +3,7 @@ using MBS.Core.Entities;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,11 +24,15 @@ namespace MBS.DataAccess.Repositories.Implements
             );
         }
 
-        public async Task<Student?> GetByUserIdAsync(string userId)
+        public async Task<Student?> GetByUserIdAsync(string userId,
+    Func<IQueryable<Student>, IIncludableQueryable<Student, object>> include = null)
         {
-            return await _dao.SingleOrDefaultAsync(x => x.UserId == userId);
+            return await _dao.SingleOrDefaultAsync(
+                predicate: x => x.UserId == userId,
+                include: include
+            );
         }
 
-        
+
     }
 }
