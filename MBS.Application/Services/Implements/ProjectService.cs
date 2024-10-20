@@ -3,7 +3,6 @@ using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Project;
 using MBS.Application.Services.Interfaces;
-using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.DAO;
@@ -15,23 +14,12 @@ using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class ProjectService : BaseService2<ProjectService>, IProjectService
+public class ProjectService : BaseService<ProjectService>, IProjectService
 {
-<<<<<<< HEAD
 	private IProjectRepository _projectRepository;
 
 	public ProjectService(IUnitOfWork unitOfWork, IProjectRepository projectRepository,ILogger<ProjectService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
 	{
-=======
-	private readonly IProjectRepository _projectRepository;
-	private readonly IGroupRepository _groupRepository;
-	public ProjectService(
-		IGroupRepository groupRepository,
-		IProjectRepository projectRepository,
-		ILogger<ProjectService> logger, IMapper mapper) : base(logger, mapper)
-	{
-		_groupRepository = groupRepository;
->>>>>>> develop
 		_projectRepository = projectRepository;
 	}
 	public async Task<BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>> CreateProject(CreateProjectRequestModel request)
@@ -48,13 +36,8 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 		};
 		try
 		{
-<<<<<<< HEAD
 			await _projectRepository.CreateAsync(projectCreate);
 			//if (await _unitOfWork.CommitAsync() > 0)
-=======
-			var createResult = await _projectRepository.CreateAsync(projectCreate);
-			if (createResult)
->>>>>>> develop
 				return new BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>
 				{
 					Message = MessageResponseHelper.CreateSuccessfully("project"),
@@ -89,73 +72,57 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 		}
 	}
 
-	public async Task<BaseModel<Pagination<ProjectResponseDto>>> GetProjectsByStudentId(GetProjectsByStudentIdRequest request)
-{
-    try
-    {
-        // Initialize an empty list of projects
-        List<Project> enrolledProjects = new List<Project>();
-        
-        // Fetch groups that the student is enrolled in, along with pagination
-        var enrolledProjectGroups = await _groupRepository.GetGroupsByStudentId(
-            request.StudentId, 
-            request.Page, 
-            request.Size,
-            request.SortOrder
-        );
-        
-        // Check if no groups were found
-        if (!enrolledProjectGroups.Items.Any())
-        {
-            return new BaseModel<Pagination<ProjectResponseDto>>
-            {
-                Message = MessageResponseHelper.GetSuccessfully("projects"),
-                IsSuccess = true,
-                StatusCode = StatusCodes.Status204NoContent,
-                ResponseRequestModel = new Pagination<ProjectResponseDto>
-                {
-                    Items = new List<ProjectResponseDto>(),
-                    PageIndex = request.Page,
-                    PageSize = request.Size,
-                    TotalPages = 0
-                }
-            };
-        }
+	public async Task<BaseModel<GetAllProjectResponseModel>> GetProjectsByStudentId(string studentId, ProjectStatusEnum? projectStatus, int page, int size)
+	{
+		try
+		{
+			List<Project> enrolledProjects = [];
+			var enrolledProjectProups = await _unitOfWork.GetRepository<Group>().GetPagingListAsync(
+				predicate: g => g.StudentId == studentId,
+				include: p => p.Include(x => x.Project),
+				page: page,
+				size: size
+				);
+			if (!enrolledProjectProups.Items.Any())
+				return new BaseModel<GetAllProjectResponseModel>
+				{
+					Message = MessageResponseHelper.GetSuccessfully("projects"),
+					IsSuccess = true,
+					StatusCode = StatusCodes.Status200OK,
+					ResponseRequestModel = new GetAllProjectResponseModel
+					{
+						Projects = _mapper.Map<IEnumerable<ProjectResponseDto>>(enrolledProjectProups)
+					}
+				};
+			enrolledProjects = projectStatus == null ?
+				//*project status null ~ get all projects of student    
+				enrolledProjectProups.Items.Select(g => g.Project).ToList()
+				//*project status not null ~ get all projects of student base on project status
+				: enrolledProjectProups.Items.Select(g => g.Project).Where(p => p.Status == projectStatus).ToList();
 
-        // Filter projects based on the presence of ProjectStatus
-        enrolledProjects = request.ProjectStatus == null
-            ? enrolledProjectGroups.Items.Select(g => g.Project).ToList() // Get all projects
-            : enrolledProjectGroups.Items.Select(g => g.Project)
-                                         .Where(p => p.Status == request.ProjectStatus)
-                                         .ToList(); // Get projects by status
+			return new BaseModel<GetAllProjectResponseModel>
+			{
+				Message = MessageResponseHelper.GetSuccessfully("projects"),
+				IsSuccess = true,
+				StatusCode = StatusCodes.Status200OK,
+				ResponseRequestModel = new GetAllProjectResponseModel
+				{
+					Projects = _mapper.Map<IEnumerable<ProjectResponseDto>>(enrolledProjectProups)
+				}
+			};
 
-        // Prepare the response DTO for the projects
-        var projectDtos = _mapper.Map<List<ProjectResponseDto>>(enrolledProjects);
+		}
+		catch (Exception e)
+		{
+			return new BaseModel<GetAllProjectResponseModel>
+			{
+				Message = e.Message,
+				IsSuccess = false,
+				StatusCode = StatusCodes.Status500InternalServerError,
+			};
+		}
 
-        return new BaseModel<Pagination<ProjectResponseDto>>
-        {
-            Message = MessageResponseHelper.GetSuccessfully("projects"),
-            IsSuccess = true,
-            StatusCode = StatusCodes.Status200OK,
-            ResponseRequestModel = new Pagination<ProjectResponseDto>
-            {
-                Items = projectDtos,
-                PageIndex = request.Page,
-                PageSize = request.Size,
-            }
-        };
-    }
-    catch (Exception e)
-    {
-        return new BaseModel<Pagination<ProjectResponseDto>>
-        {
-            Message = e.Message,
-            IsSuccess = false,
-            StatusCode = StatusCodes.Status500InternalServerError,
-        };
-    }
-}
-
+	}
 
 	public async Task<BaseModel<ProjectResponseModel>> UpdateProject(Guid projectId, UpdateProjectRequestModel request)
 	{
@@ -168,11 +135,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 					IsSuccess = false,
 					StatusCode = StatusCodes.Status400BadRequest,
 				};
-<<<<<<< HEAD
 			var projectUpdate = await _projectRepository.GetProjectById(projectId);
-=======
-			var projectUpdate = await _projectRepository.GetByIdAsync(projectId, "Id");
->>>>>>> develop
 			if (projectUpdate == null)
 				return new BaseModel<ProjectResponseModel>
 				{
@@ -185,14 +148,8 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 			projectUpdate.Description = request.Description;
 			projectUpdate.DueDate = request.DueDate;
 			projectUpdate.Semester = request.Semester;
-<<<<<<< HEAD
 			_projectRepository.Update(projectUpdate);
 			//if (_unitOfWork.Commit() > 0)
-=======
-			projectUpdate.Status = request.Status;
-			var updateResult = _projectRepository.Update(projectUpdate);
-			if (updateResult)
->>>>>>> develop
 				return new BaseModel<ProjectResponseModel>
 				{
 					Message = MessageResponseHelper.UpdateSuccessfully("project"),
@@ -204,21 +161,12 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 					}
 				};
 
-<<<<<<< HEAD
 			// return new BaseModel<ProjectResponseModel>
 			// {
 			// 	Message = MessageResponseHelper.UpdateFailed("project"),
 			// 	IsSuccess = false,
 			// 	StatusCode = StatusCodes.Status200OK,
 			// };
-=======
-			return new BaseModel<ProjectResponseModel>
-			{
-				Message = MessageResponseHelper.UpdateFailed("project"),
-				IsSuccess = false,
-				StatusCode = StatusCodes.Status500InternalServerError,
-			};
->>>>>>> develop
 		}
 		catch (Exception e)
 		{
@@ -231,7 +179,6 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 		}
 	}
 
-<<<<<<< HEAD
 	public async Task<BaseModel<ProjectResponseModel>> UpdateProjectStatus(Guid projectId, ProjectStatusEnum newStatus)
 	{
 		try
@@ -279,65 +226,12 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 			};
 		}
 	}
-=======
-	// public async Task<BaseModel<ProjectResponseModel>> UpdateProjectStatus(Guid projectId, ProjectStatusEnum newStatus)
-	// {
-	// 	try
-	// 	{
-	// 		var projectUpdate = await _projectRepository.GetByIdAsync(projectId, "Id");
-	//
-	// 		if (projectUpdate == null)
-	// 			return new BaseModel<ProjectResponseModel>
-	// 			{
-	// 				Message = MessageResponseHelper.ProjectNotFound(projectId.ToString()),
-	// 				IsSuccess = false,
-	// 				StatusCode = StatusCodes.Status404NotFound,
-	// 			};
-	// 		//not allow to updated if this project closed
-	// 		if (projectUpdate.Status == ProjectStatusEnum.Closed)
-	// 		{
-	// 			return new BaseModel<ProjectResponseModel>
-	// 			{
-	// 				Message = MessageResponseHelper.ProjectClosed(projectId.ToString()),
-	// 				IsSuccess = false,
-	// 				StatusCode = StatusCodes.Status400BadRequest,
-	// 			};
-	// 		}
-	// 		//* update status
-	// 		projectUpdate.Status = newStatus;
-	// 		_unitOfWork.GetRepository<Project>().UpdateAsync(projectUpdate);
-	// 		return new BaseModel<ProjectResponseModel>
-	// 		{
-	// 			Message = MessageResponseHelper.UpdateSuccessfully("project"),
-	// 			IsSuccess = true,
-	// 			StatusCode = StatusCodes.Status200OK,
-	// 			ResponseRequestModel = new ProjectResponseModel
-	// 			{
-	// 				Project = _mapper.Map<ProjectResponseDto>(projectUpdate)
-	// 			}
-	// 		};
-	// 	}
-	// 	catch (Exception e)
-	// 	{
-	// 		return new BaseModel<ProjectResponseModel>
-	// 		{
-	// 			Message = e.Message,
-	// 			IsSuccess = false,
-	// 			StatusCode = StatusCodes.Status500InternalServerError,
-	// 		};
-	// 	}
-	// }
->>>>>>> develop
 
 	public async Task<BaseModel<ProjectResponseModel>> GetProjectById(Guid projectId)
 	{
 		try
 		{
-<<<<<<< HEAD
 			var project = await _projectRepository.GetProjectById(projectId);
-=======
-			var project = await _projectRepository.GetByIdAsync(projectId, "Id");
->>>>>>> develop
 
 			if (project == null)
 				return new BaseModel<ProjectResponseModel>
@@ -372,11 +266,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 	{
 		try
 		{
-<<<<<<< HEAD
 			var project = await _projectRepository.GetProjectById(projectId);
-=======
-			var project = await _projectRepository.GetByIdAsync(projectId, "Id");
->>>>>>> develop
 
 			if (project == null)
 				return new BaseModel<AssignMentorResponseModel>
@@ -397,27 +287,16 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 			}
 			//* update status
 			project.MentorId = mentorId;
-<<<<<<< HEAD
 			_projectRepository.Update(project);
-=======
-			var updateResult = _projectRepository.Update(project);
-			if(updateResult)
-				return new BaseModel<AssignMentorResponseModel>
-				{
-					Message = MessageResponseHelper.UpdateSuccessfully("project"),
-					IsSuccess = true,
-					StatusCode = StatusCodes.Status200OK,
-					ResponseRequestModel = new AssignMentorResponseModel
-					{
-						Project = _mapper.Map<ProjectResponseDto>(project),
-					}
-				};
->>>>>>> develop
 			return new BaseModel<AssignMentorResponseModel>
 			{
-				Message = MessageResponseHelper.UpdateFailed("project"),
-				IsSuccess = false,
-				StatusCode = StatusCodes.Status500InternalServerError,
+				Message = MessageResponseHelper.UpdateSuccessfully("mentor"),
+				IsSuccess = true,
+				StatusCode = StatusCodes.Status200OK,
+				ResponseRequestModel = new AssignMentorResponseModel
+				{
+					ProjectId = project.Id
+				}
 			};
 		}
 		catch (Exception e)

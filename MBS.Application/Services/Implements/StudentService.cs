@@ -3,33 +3,29 @@ using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Student;
+using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
+using MBS.DataAccess.DAO;
+using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Org.BouncyCastle.Math.EC.Rfc7748;
 
 namespace MBS.Application.Services.Implements;
 
-public class StudentService : BaseService2<StudentService>, IStudentService
+public class StudentService : BaseService<StudentService>, IStudentService
 {
     private readonly UserManager<ApplicationUser> _userManager;
-<<<<<<< HEAD
     private IStudentRepository _studentRepository;
 
     public StudentService(UserManager<ApplicationUser> userManager, IStudentRepository studentRepository, IUnitOfWork unitOfWork,
         ILogger<StudentService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
-=======
-    private readonly IStudentRepository _studentRepository;
-
-    public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository,
-        UserManager<ApplicationUser> userManager) : base(logger, mapper)
->>>>>>> develop
     {
-        _studentRepository = studentRepository;
         _userManager = userManager;
         _studentRepository = studentRepository;
     }
@@ -38,16 +34,12 @@ public class StudentService : BaseService2<StudentService>, IStudentService
     {
         try
         {
-<<<<<<< HEAD
             var students = await _studentRepository.GetStudentsAsync(
                     page: page,
                     size: size
                 );
 
 
-=======
-            var user = await _studentRepository.GetPagedListAsync(page, size);
->>>>>>> develop
             return new BaseModel<Pagination<StudentResponseDto>>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("students"),
@@ -86,11 +78,7 @@ public class StudentService : BaseService2<StudentService>, IStudentService
                 };
             }
 
-<<<<<<< HEAD
             var student = await _studentRepository.GetByUserIdAsync(userId);
-=======
-            var student = await _studentRepository.GetByIdAsync(userId, "UserId");
->>>>>>> develop
 
             if (student is null)
             {
@@ -102,8 +90,6 @@ public class StudentService : BaseService2<StudentService>, IStudentService
                 };
             }
 
-            student.User = user;
-            
             return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("student profile"),
@@ -128,7 +114,6 @@ public class StudentService : BaseService2<StudentService>, IStudentService
     {
         try
         {
-<<<<<<< HEAD
             //var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync
             //(
             //    predicate: x => x.UserId == request.Id,
@@ -137,9 +122,6 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 
             var student = await _studentRepository.GetByUserIdAsync(request.Id);
 
-=======
-            var student = await _studentRepository.GetByIdAsync(request.Id, "UserId");
->>>>>>> develop
 
             if (student is null)
             {
@@ -153,9 +135,6 @@ public class StudentService : BaseService2<StudentService>, IStudentService
                 };
             }
 
-            var user = await _userManager.FindByIdAsync(student.UserId);
-
-            student.User = user!;
             var response = _mapper.Map<GetStudentResponseModel>(student);
 
             return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
