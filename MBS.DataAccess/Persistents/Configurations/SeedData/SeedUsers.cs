@@ -9,12 +9,12 @@ namespace MBS.DataAccess.Persistents.Configurations.SeedData
 {
     public class SeedUsers
     {
-        private readonly MBSContext _mBSContext;
+        private readonly DbInitializer _dbInitializer;
         private readonly PasswordHasher<ApplicationUser> _hasher = new PasswordHasher<ApplicationUser>();
 
-        public SeedUsers(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, MBSContext mBSContext)
+        public SeedUsers(DbInitializer dbInitializer)
         {
-            _mBSContext = mBSContext;
+            _dbInitializer = dbInitializer;
         }
 
         public void SeedingUsers()
@@ -187,27 +187,8 @@ namespace MBS.DataAccess.Persistents.Configurations.SeedData
 
             };
 
-            // Seed Students
-            Initialize(users);
-        }
+            _dbInitializer.Initialize(users);
 
-        public void Initialize<T>(List<T> entities) where T : class
-        {
-            try
-            {
-                foreach (var entity in entities)
-                {
-                    if (!_mBSContext.Set<T>().Any(e => e.Equals(entity)))
-                    {
-                        _mBSContext.Set<T>().Add(entity);
-                    }
-                }
-                _mBSContext.SaveChanges();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error occurred while initializing {typeof(T).Name}: {ex.Message}");
-            }
         }
 
     }

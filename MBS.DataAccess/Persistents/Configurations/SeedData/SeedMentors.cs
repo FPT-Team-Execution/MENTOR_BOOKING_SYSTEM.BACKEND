@@ -1,16 +1,18 @@
 ﻿using MBS.Core.Entities;
 using MBS.DataAccess;
+using MBS.DataAccess.Persistents.Configurations.SeedData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 public class SeedMentors
 {
-    private readonly MBSContext _mBSContext;
-
-    public SeedMentors(MBSContext mBSContext)
+    private readonly DbInitializer _dbInitializer;
+    private readonly MBSContext _context;
+    public SeedMentors(DbInitializer dbInitializer, MBSContext context)
     {
-        _mBSContext = mBSContext;
+        _dbInitializer = dbInitializer;
+        _context = context;
     }
 
     public void SeedingMentors()
@@ -26,7 +28,7 @@ public class SeedMentors
 
         foreach (var (userId, industry, consumePoint) in mentorData)
         {
-            if (!_mBSContext.Mentors.Any(m => m.UserId == userId))
+            if (!_context.Mentors.Any(m => m.UserId == userId))
             {
                 mentors.Add(new Mentor
                 {
@@ -39,26 +41,9 @@ public class SeedMentors
 
         if (mentors.Any())
         {
-            Initialize(mentors);
+            _dbInitializer.Initialize(mentors);
         }
     }
 
-    public void Initialize<T>(List<T> entities) where T : class
-    {
-        try
-        {
-            foreach (var entity in entities)
-            {
-                if (!_mBSContext.Set<T>().Any(e => e.Equals(entity)))
-                {
-                    _mBSContext.Set<T>().Add(entity);
-                }
-            }
-            _mBSContext.SaveChanges();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error occurred while initializing {typeof(T).Name}: {ex.Message}");
-        }
-    }
+    
 }

@@ -1,5 +1,6 @@
 ﻿using MBS.Core.Entities;
 using MBS.DataAccess;
+using MBS.DataAccess.Persistents.Configurations.SeedData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,12 @@ using System.Linq;
 public class SeedStudents
 {
     private readonly MBSContext _mBSContext;
+    private readonly DbInitializer _dbInitializer;
 
-    public SeedStudents(MBSContext mBSContext)
+    public SeedStudents(MBSContext mBSContext, DbInitializer dbInitializer)
     {
         _mBSContext = mBSContext;
+        _dbInitializer = dbInitializer;
     }
 
     public void SeedingStudents()
@@ -44,26 +47,9 @@ public class SeedStudents
         }
         if (students.Any())
         {
-            Initialize(students);
+            _dbInitializer.Initialize(students);
         }
     }
 
-    public void Initialize<T>(List<T> entities) where T : class
-    {
-        try
-        {
-            foreach (var entity in entities)
-            {
-                if (!_mBSContext.Set<T>().Any(e => e.Equals(entity)))
-                {
-                    _mBSContext.Set<T>().Add(entity);
-                }
-            }
-            _mBSContext.SaveChanges();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error occurred while initializing {typeof(T).Name}: {ex.Message}");
-        }
-    }
+    
 }
