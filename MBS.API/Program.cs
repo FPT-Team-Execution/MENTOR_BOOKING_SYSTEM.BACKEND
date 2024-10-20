@@ -3,6 +3,7 @@ using MBS.Application.Exceptions;
 using MBS.Application.DependencyInjections;
 using MBS.DataAccess;
 using MBS.DataAccess.Persistents.Configurations;
+using MBS.DataAccess.Persistents.Configurations.SeedData;
 
 namespace MBS.API
 {
@@ -45,17 +46,33 @@ namespace MBS.API
 
 			builder.Services.AddAuthorization();
             var app = builder.Build();
+            
+            
 
+
+            //
             //seed data by automated migration
             using var scope = app.Services.CreateScope();
             AutomatedMigration.MigrateAsync(scope.ServiceProvider).GetAwaiter().GetResult();
 
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
+            using (var scopeDB = app.Services.CreateScope())
             {
-                app.UseSwagger();
-                app.UseSwaggerUI();
+                var seedMajors = scopeDB.ServiceProvider.GetRequiredService<SeedMajors>();
+                seedMajors.SeedingMajors();
+                var seedUsers = scopeDB.ServiceProvider.GetRequiredService<SeedUsers>();
+                seedUsers.SeedingUsers();
+                var seedStudents = scopeDB.ServiceProvider.GetRequiredService<SeedStudents>();
+                seedStudents.SeedingStudents();
+                var seedMentors = scopeDB.ServiceProvider.GetRequiredService<SeedMentors>();
+                seedMentors.SeedingMentors();
             }
+
+                // Configure the HTTP request pipeline.
+                if (app.Environment.IsDevelopment())
+                {
+                    app.UseSwagger();
+                    app.UseSwaggerUI();
+                }
             app.UseMiddleware<ExceptionHandlingMiddleware>();
             app.UseHttpsRedirection();
             app.UseCors("MyPolicy");

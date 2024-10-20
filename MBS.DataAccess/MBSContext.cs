@@ -20,7 +20,7 @@ namespace MBS.DataAccess
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
             //seed data by builder
             MBSContextSeed.SeedPositionAsync(builder);
-            MBSContextSeed.SeedMajorAsync(builder);
+            //MBSContextSeed.SeedMajorAsync(builder);
             base.OnModelCreating(builder);
         }
 

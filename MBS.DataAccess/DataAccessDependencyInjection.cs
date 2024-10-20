@@ -8,6 +8,8 @@ using MBS.DataAccess.DAO.Implements;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Implements;
 using MBS.DataAccess.Repositories.Interfaces;
+using MBS.DataAccess.Persistents.Configurations.SeedData;
+using MBS.DataAccess.Persistents.Configurations;
 
 namespace MBS.DataAccess
 {
@@ -36,7 +38,7 @@ namespace MBS.DataAccess
         }
         private static void AddRepositories(this IServiceCollection services)
         {
-            //TODO: remove old unitOfWork
+            
             services.AddScoped<DAO.IUnitOfWork, DAO.UnitOfWork>();
             services.AddScoped<ISkillRepository, SkillRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
@@ -50,6 +52,12 @@ namespace MBS.DataAccess
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
             services.AddScoped<IDegreeRepository, DegreeRepository>();
+            services.AddScoped<SeedMajors>();
+            services.AddScoped<SeedUsers>();
+            services.AddScoped<SeedStudents>();
+            services.AddScoped<SeedMentors>();
+
+            //services.AddScoped<DbInitialize>();
         }
 
         private static void AddIdentity(this IServiceCollection services)
@@ -76,5 +84,7 @@ namespace MBS.DataAccess
                 options.User.RequireUniqueEmail = true;
             });
         }
+
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using MBS.Core.Entities;
+using MBS.DataAccess.Persistents.Configurations.SeedData;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +27,7 @@ namespace MBS.DataAccess.Persistents.Configurations
 
             await MBSContextSeed.SeedUserAsync(context, userManager);
             //await MBSContextSeed.SeedMajorAsync(context, majorManager);
+            
         }
     }
 }
