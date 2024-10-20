@@ -174,11 +174,11 @@ namespace MBS.Application.Services.Implements
                         studentDTOs.Add(new StudentInGroupDTO
                         {
                             StudentId = student.UserId,
-                            StudentName = student.User.FullName,
+                            FullName = student.User.FullName,
                             Email = student.User.Email,
                             University = student.University,
                             Major = await _majorRepository.GetMajorByIdAsync(student.MajorId),
-                            walletPoint = student.WalletPoint,
+                            WalletPoint = student.WalletPoint,
                             
                         });
                     }

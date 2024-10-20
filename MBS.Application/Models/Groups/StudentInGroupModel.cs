@@ -9,12 +9,12 @@ public class GroupStudentsResponseDTO
 public class StudentInGroupDTO
 {
     public string StudentId { get; set; }
-    public string StudentName { get; set; }
+    public string FullName { get; set; }
     public string Email { get; set; }
     public Major Major { get; set; }
     public string University { get; set; }
 
-    public int walletPoint {  get; set; }
+    public int WalletPoint {  get; set; }
 
 
 
