@@ -65,6 +65,10 @@ namespace MBS.API
                 seedStudents.SeedingStudents();
                 var seedMentors = scopeDB.ServiceProvider.GetRequiredService<SeedMentors>();
                 seedMentors.SeedingMentors();
+                var seedProjects = scopeDB.ServiceProvider.GetRequiredService<SeedProjects>();
+                seedProjects.SeedingProjects();
+                var seedGroup = scopeDB.ServiceProvider.GetRequiredService<SeedGroups>();
+                seedGroup.SeedingGroups();
             }
 
                 // Configure the HTTP request pipeline.

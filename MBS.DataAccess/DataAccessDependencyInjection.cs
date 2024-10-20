@@ -52,12 +52,15 @@ namespace MBS.DataAccess
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
             services.AddScoped<IDegreeRepository, DegreeRepository>();
+            //SeedData
+            services.AddScoped<DbInitializer>();
             services.AddScoped<SeedMajors>();
             services.AddScoped<SeedUsers>();
             services.AddScoped<SeedStudents>();
             services.AddScoped<SeedMentors>();
-
-            //services.AddScoped<DbInitialize>();
+            services.AddScoped<SeedProjects>();
+            services.AddScoped<SeedGroups>();
+            
         }
 
         private static void AddIdentity(this IServiceCollection services)
