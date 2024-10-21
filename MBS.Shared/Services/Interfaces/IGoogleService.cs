@@ -10,7 +10,7 @@ namespace MBS.Shared.Services.Interfaces
         String GenerateOauthUrl();
         //* Google Auth
         Task<GoogleResponse> AuthenticateGoogleUserAsync(HttpContext context);
-        Task<GoogleResponse> GetTokenGoogleUserAsync(string authenticatedCode);
+        Task<GoogleResponse> GetTokenGoogleUserAsync(string authenticatedCode, string externalCallbackUri);
         Task<GoogleResponse> GetProfileGoogleUserAsync(string accessToken);
 
         //* Google Calendar
