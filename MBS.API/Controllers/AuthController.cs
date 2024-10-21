@@ -43,7 +43,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
 
-        public async Task<IActionResult> GoogleResponse(string code)
+        public async Task<IActionResult> GoogleResponse(string code, string callbackUri)
         {
             // Get Provider Info
              // var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
@@ -57,7 +57,7 @@ namespace MBS.API.Controllers
              //     });
              // }
             //get auth token
-            var tokenResponse = await _googleService.GetTokenGoogleUserAsync(code);
+            var tokenResponse = await _googleService.GetTokenGoogleUserAsync(code, callbackUri);
             if (!tokenResponse.IsSuccess)
             {
                 return StatusCode(StatusCodes.Status401Unauthorized, new BaseModel

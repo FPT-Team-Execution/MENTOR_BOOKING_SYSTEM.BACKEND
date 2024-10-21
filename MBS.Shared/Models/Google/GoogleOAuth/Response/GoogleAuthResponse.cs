@@ -12,4 +12,9 @@ namespace MBS.Shared.Models.Google.GoogleOAuth.Response
         public string ProviderKey { get; set; }
         public string LoginProvider { get; set; }
     }
+    public class GoogleAuthErrorResponse : GoogleResponse
+    {
+        public string error { get; set; }
+        public string error_description { get; set; }
+    }
 }

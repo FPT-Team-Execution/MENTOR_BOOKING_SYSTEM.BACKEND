@@ -135,7 +135,7 @@ namespace MBS.Shared.Models
         {
             try
             {
-                response.EnsureSuccessStatusCode();
+                //response.EnsureSuccessStatusCode();
 
                 var content = response.Content.ReadAsStringAsync().Result;
                 if (string.IsNullOrEmpty(content))
