@@ -40,18 +40,17 @@ namespace MBS.DataAccess
         {
             
             services.AddScoped<DAO.IUnitOfWork, DAO.UnitOfWork>();
-            services.AddScoped<ISkillRepository, SkillRepository>();
-            services.AddScoped<IMentorRepository, MentorRepository>();
+            services.AddScoped(typeof(Repositories.IUnitOfWork<>), typeof(Repositories.UnitOfWork<>));
+            //services.AddScoped<IBaseRepository, BaseRepository>();
             services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
-            services.AddScoped<IMeetingRepository, MeetingRepository>();
-            services.AddScoped<IFeedbackRepository, FeedBackRepository>();
-            services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
-            services.AddScoped<IRequestRepository, RequestRepository>();
-            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
-            services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<IMajorRepository, MajorRepository>();
+            services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
+            services.AddScoped<IMeetingRepository, MeetingRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
-            services.AddScoped<IDegreeRepository, DegreeRepository>();
+
+            //services.AddScoped<IDegreeRepository, DegreeRepository>();
             //SeedData
             services.AddScoped<DbInitializer>();
             services.AddScoped<SeedMajors>();
@@ -60,7 +59,16 @@ namespace MBS.DataAccess
             services.AddScoped<SeedMentors>();
             services.AddScoped<SeedProjects>();
             services.AddScoped<SeedGroups>();
+            services.AddScoped<SeedSkills>();
             
+
+            services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
+            services.AddScoped<IPositionRepository, PositionRepository>();
+            services.AddScoped<IProjectRepository, ProjectRepository>();
+            services.AddScoped<IRequestRepository, RequestRepository>();
+            services.AddScoped<ISkillRepository, SkillRepository>();
+            services.AddScoped<IStudentRepository, StudentRepository>();
+
         }
 
         private static void AddIdentity(this IServiceCollection services)

@@ -41,7 +41,7 @@ namespace MBS.API.Controllers
             var response = await _majorService.CreateNewMajorAsync(request);
             return StatusCode((int)response.StatusCode, response);
         }
-        //Testing
+        //Tested
         [HttpPut ("{id}")]
         [EndpointSummary("Update specific major by id")]
 

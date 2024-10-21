@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using MBS.Core.Enums;
 
 namespace MBS.Application.Models.Project;
 
@@ -13,5 +12,4 @@ public class UpdateProjectRequestModel
     public DateTime DueDate { get; set; }
     [MaxLength(50), Required]
     public string Semester { get; set; }
-    public ProjectStatusEnum Status { get; set; }
 }

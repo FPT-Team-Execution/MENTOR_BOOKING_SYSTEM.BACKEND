@@ -17,6 +17,8 @@ namespace MBS.Application.Models.Groups
     {
         public Guid ProjectId { get; set; }
         public string StudentId { get; set; }
+        
         public Guid PositionId { get; set; }
     }
+
 }

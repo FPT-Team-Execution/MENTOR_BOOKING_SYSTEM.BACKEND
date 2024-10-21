@@ -1,18 +1,17 @@
-using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace MBS.DataAccess.Repositories.Implements;
 
-public class MentorRepository(IBaseDAO<Mentor> dao) : BaseRepository<Mentor>(dao), IMentorRepository
+public class MentorRepository : BaseRepository<Mentor>, IMentorRepository
 {
-    public async Task<Mentor?> GetMentorByIdAsync(string mentorId)
+    public MentorRepository(IBaseDAO<Mentor> dao) : base(dao)
     {
-        return await _dao.SingleOrDefaultAsync(
-            predicate: m => m.UserId == mentorId,
-            include: source => source.Include(m => m.User)
-            );
+    }
+    
+    public async Task<Mentor> GetMentorbyId(string id)
+    {
+        return await _dao.SingleOrDefaultAsync(e => e.UserId == id);
     }
 }

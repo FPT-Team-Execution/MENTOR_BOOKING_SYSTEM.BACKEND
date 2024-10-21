@@ -256,13 +256,7 @@ public static class MessageResponseHelper
     }
     #endregion
     #region Calendar Event Message Helper
-    public static string OverlayCalendar()
-    {
-        var stringBuilder = new StringBuilder();
-        stringBuilder.Append("Calendar was not overlayed by another");
-        return stringBuilder.ToString();
-    }
-    public static string NotFoundCalendar(string objectName)
+    public static string CalendarNotFound(string objectName)
     {
         var stringBuilder = new StringBuilder();
         stringBuilder.Append("Calendar with Id ");
