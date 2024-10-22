@@ -4,6 +4,7 @@ using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.DAO;
 using MBS.DataAccess.Repositories;
@@ -11,6 +12,7 @@ using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -182,6 +184,80 @@ public class MentorService : BaseService<MentorService>, IMentorService
         catch (Exception e)
         {
             return new BaseModel<GetOwnDegreesResponseModel>()
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
+    public async Task<BaseModel<GetMentorResponseModel, GetMentorRequestModel>> GetMentor(GetMentorRequestModel request)
+    {
+        try
+        {
+            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync
+            (
+                predicate: x => x.UserId == request.Id,
+                include: x => x.Include(x => x.User)
+            );
+
+            if (mentor is null)
+            {
+                return new BaseModel<GetMentorResponseModel, GetMentorRequestModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                    RequestModel = request,
+                    ResponseModel = null
+                };
+            }
+
+            var response = _mapper.Map<GetMentorResponseModel>(mentor);
+
+            return new BaseModel<GetMentorResponseModel, GetMentorRequestModel>()
+            {
+                Message = MessageResponseHelper.GetSuccessfully("mentor"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseModel = response,
+                RequestModel = request
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetMentorResponseModel, GetMentorRequestModel>()
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+                RequestModel = request,
+                ResponseModel = null
+            };
+        }
+    }
+
+    public async Task<BaseModel<Pagination<GetMentorResponseModel>>> GetMentors(int page, int size)
+    {
+        try
+        {
+            var user = await _unitOfWork.GetRepository<Mentor>().GetPagingListAsync(
+                include: s => s.Include(x => x.User),
+                page: page,
+                size: size
+            );
+            return new BaseModel<Pagination<GetMentorResponseModel>>()
+            {
+                Message = MessageResponseHelper.GetSuccessfully("students"),
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<GetMentorResponseModel>>(user)
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<GetMentorResponseModel>>()
             {
                 Message = e.Message,
                 IsSuccess = false,
