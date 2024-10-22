@@ -100,10 +100,9 @@ public class AuthService : BaseService<AuthService>, IAuthService
                         WalletPoint = 0
                     };
 
-                    await _studentRepository.CreateAsync(newStudent);
+                    var result = await _studentRepository.CreateAsync(newStudent);
 
-
-                    if (await _unitOfWork.CommitAsync() <= 0)
+                    if (!result)
                     {
                         throw new DatabaseInsertException("student");
                     }
