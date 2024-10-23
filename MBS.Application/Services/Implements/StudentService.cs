@@ -29,7 +29,7 @@ public class StudentService : BaseService2<StudentService>, IStudentService
     {
         try
         {
-            var user = await _studentRepository.GetPagedListAsync(page, size);
+            var user = await _studentRepository.GetStudentsAsync(page, size);
             return new BaseModel<Pagination<StudentResponseDto>>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("students"),
