@@ -12,8 +12,6 @@ namespace MBS.Application.Models.Groups
     public class StudentSearchDTO
     {
         public string StudentId { get; set; }
-
-        // Updated to use FullName object
         public string FullName { get; set; }
 
         public string Email { get; set; }

@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using MBS.Application.Models.General;
+using MBS.Application.Models.Groups;
 using MBS.Application.Models.User;
 using MBS.Core.Common.Pagination;
 
@@ -12,6 +13,9 @@ public interface IMentorService
     Task<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>> UploadOwnDegree(
         UploadOwnDegreeRequestModel request, ClaimsPrincipal claimsPrincipal);
 
+    Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(ClaimsPrincipal claimsPrincipal);
+
+    Task<BaseModel<List<MentorSearchDTO>>> SearchMentor(string searchItem);
     //Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(ClaimsPrincipal claimsPrincipal);
 
     Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(ClaimsPrincipal claimsPrincipal, int page, int size);

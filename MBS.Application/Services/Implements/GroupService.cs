@@ -215,11 +215,9 @@ namespace MBS.Application.Services.Implements
                 {
                     var searchUser = await _studentRepository.GetByUserIdAsync(student.UserId, m => m.Include(x => x.User));
 
-                    // Convert full name and email to lowercase for case-insensitive comparison
                     string fullName = searchUser.User.FullName.ToLower();
                     string email = searchUser.User.Email.ToLower();
 
-                    // Check if searchItem matches any part of the full name or email
                     if (fullName.Contains(searchItem) || email.Contains(searchItem))
                     {
                         studentSearchDTOs.Add(new StudentSearchDTO
