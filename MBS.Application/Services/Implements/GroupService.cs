@@ -7,22 +7,16 @@ using MBS.Core.Entities;
 using MBS.DataAccess.DAO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Threading.Tasks;
 using MBS.Core.Common.Pagination;
-<<<<<<< HEAD
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using System.Drawing.Text;
-=======
->>>>>>> parent of 4cb5763 (merge query to test api with data)
 
 
 namespace MBS.Application.Services.Implements
 {
     public class GroupService : BaseService<GroupService>, IGroupService
     {
-<<<<<<< HEAD
+
         private readonly IGroupRepository _groupRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IMajorRepository _majorRepository;
@@ -38,10 +32,7 @@ namespace MBS.Application.Services.Implements
             _projectRepository = projectRepository;
 
         }
-=======
-        public GroupService(IUnitOfWork unitOfWork, ILogger<GroupService> logger, IMapper mapper)
-            : base(unitOfWork, logger, mapper) { }
->>>>>>> parent of 4cb5763 (merge query to test api with data)
+
 
         public async Task<BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>> CreateNewGroupAsync(CreateNewGroupRequestModel request)
         {
@@ -190,7 +181,7 @@ namespace MBS.Application.Services.Implements
 
                 var response = new GroupStudentsResponseDTO
                 {
-                    Project = await _projectRepository.GetProjectById(projectId),
+                    Project = await _projectRepository.GetByIdAsync(projectId, "Id"),
                     Students = studentDTOs
                 };
 

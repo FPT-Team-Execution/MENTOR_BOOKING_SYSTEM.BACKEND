@@ -9,11 +9,6 @@ using MBS.Core.Entities;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-<<<<<<< HEAD
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
-=======
->>>>>>> parent of 4cb5763 (merge query to test api with data)
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;

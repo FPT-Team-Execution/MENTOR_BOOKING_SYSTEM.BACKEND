@@ -12,12 +12,10 @@ public interface IMentorService
     Task<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>> UploadOwnDegree(
         UploadOwnDegreeRequestModel request, ClaimsPrincipal claimsPrincipal);
 
-<<<<<<< HEAD
-    Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(ClaimsPrincipal claimsPrincipal);
-=======
+    //Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(ClaimsPrincipal claimsPrincipal);
+
     Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(ClaimsPrincipal claimsPrincipal, int page, int size);
 
->>>>>>> parent of 4cb5763 (merge query to test api with data)
     Task<BaseModel<GetMentorResponseModel, GetMentorRequestModel>> GetMentor(GetMentorRequestModel request);
     Task<BaseModel<Pagination<GetMentorResponseModel>>> GetMentors(int page, int size);
 }

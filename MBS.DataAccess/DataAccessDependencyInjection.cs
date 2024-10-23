@@ -40,15 +40,14 @@ namespace MBS.DataAccess
         {
             
             services.AddScoped<DAO.IUnitOfWork, DAO.UnitOfWork>();
-<<<<<<< HEAD
-            services.AddScoped(typeof(Repositories.IUnitOfWork<>), typeof(Repositories.UnitOfWork<>));
+
+            //services.AddScoped(typeof(Repositories.IUnitOfWork<>), typeof(Repositories.UnitOfWork<>));
             //services.AddScoped<IBaseRepository, BaseRepository>();
-=======
             services.AddScoped<ISkillRepository, SkillRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
->>>>>>> parent of 4cb5763 (merge query to test api with data)
+
             services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
-            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            services.AddScoped<IFeedbackRepository, FeedBackRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IMajorRepository, MajorRepository>();
             services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();

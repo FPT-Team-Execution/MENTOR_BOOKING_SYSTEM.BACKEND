@@ -177,15 +177,7 @@ public class MentorService : BaseService2<MentorService>, IMentorService
     {
         try
         {
-<<<<<<< HEAD
-            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync
-            (
-                predicate: x => x.UserId == request.Id,
-                include: x => x.Include(x => x.User)
-            );
-=======
             var mentor = await _mentorRepository.GetMentorByIdAsync(request.Id);
->>>>>>> parent of 4cb5763 (merge query to test api with data)
 
             if (mentor is null)
             {
@@ -227,15 +219,7 @@ public class MentorService : BaseService2<MentorService>, IMentorService
     {
         try
         {
-<<<<<<< HEAD
-            var user = await _unitOfWork.GetRepository<Mentor>().GetPagingListAsync(
-                include: s => s.Include(x => x.User),
-                page: page,
-                size: size
-            );
-=======
             var user = await _mentorRepository.GetPagedListAsync(page, size);
->>>>>>> parent of 4cb5763 (merge query to test api with data)
             return new BaseModel<Pagination<GetMentorResponseModel>>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("students"),

@@ -26,9 +26,10 @@ public class AuthService : BaseService<AuthService>, IAuthService
     private readonly IEmailService _emailService;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
-    
+    private readonly IStudentRepository _studentRepository;
     private readonly IConfiguration _configuration;
     public AuthService(IUnitOfWork unitOfWork, ILogger<AuthService> logger,
+        IStudentRepository studentRepository, 
         IMentorRepository mentorRepository,
         IEmailService emailService,
         ITemplateService templateService,
@@ -38,6 +39,7 @@ public class AuthService : BaseService<AuthService>, IAuthService
         IMapper mapper)
         : base(unitOfWork, logger, mapper)
     {
+        _studentRepository = studentRepository;
         _mentorRepository = mentorRepository;
         _emailService = emailService;
         _templateService = templateService;
@@ -99,16 +101,15 @@ public class AuthService : BaseService<AuthService>, IAuthService
                         MajorId = request.MajorId,
                         WalletPoint = 0
                     };
-
-<<<<<<< HEAD
+                    
                     var result = await _studentRepository.CreateAsync(newStudent);
 
                     if (!result)
-=======
-                    await _unitOfWork.GetRepository<Student>().InsertAsync(newStudent);
 
-                    if (await _unitOfWork.CommitAsync() <= 0)
->>>>>>> parent of 4cb5763 (merge query to test api with data)
+                    // await _unitOfWork.GetRepository<Student>().InsertAsync(newStudent);
+                    //
+                    // if (await _unitOfWork.CommitAsync() <= 0)
+
                     {
                         throw new DatabaseInsertException("student");
                     }
