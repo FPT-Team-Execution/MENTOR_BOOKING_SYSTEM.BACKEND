@@ -20,7 +20,12 @@ namespace MBS.DataAccess.Repositories.Implements
             return _dao.SingleOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<IEnumerable<Group>> GetGroupByProjectIdAsync(Guid project)
+        public Task<Group> GetGroupByProjectAndStudentIdAsync(Guid projectId, string studentId)
+        {
+            return _dao.SingleOrDefaultAsync(x => x.StudentId == studentId && x.ProjectId == projectId);
+        }
+
+        public async Task<IEnumerable<Group>> GetGroupsByProjectIdAsync(Guid project)
         {
             return await _dao.GetListAsync(a => a.ProjectId == project);
         }

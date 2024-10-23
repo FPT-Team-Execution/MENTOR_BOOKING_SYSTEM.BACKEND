@@ -10,6 +10,8 @@ namespace MBS.DataAccess.Repositories.Interfaces
     public interface IGroupRepository : IBaseRepository<Group>
     {
         Task<Group> GetGroupByIdAsync(Guid id);
-        Task<IEnumerable<Group>> GetGroupByProjectIdAsync(Guid projectId);
+        Task<IEnumerable<Group>> GetGroupsByProjectIdAsync(Guid projectId);
+
+        Task<Group> GetGroupByProjectAndStudentIdAsync(Guid projectId, string studentId);
     }
 }
