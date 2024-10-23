@@ -47,6 +47,22 @@ namespace MBS.Application.DependencyInjections
                     BearerFormat = "JWT",
                     Scheme = "Bearer"
                 });
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme()
+                        {
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+                            Reference = new OpenApiReference()
+                            {
+                                Id = "Bearer",
+                                Type = ReferenceType.SecurityScheme
+                            }
+                        },
+                        new List<string>()
+                    }
+                });
 
                 // Security requirements for OAuth2 and Bearer
                 // options.AddSecurityRequirement(new OpenApiSecurityRequirement()

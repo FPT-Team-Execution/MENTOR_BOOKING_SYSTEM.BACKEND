@@ -6,6 +6,8 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace MBS.Application.Exceptions
 {
@@ -45,6 +47,27 @@ namespace MBS.Application.Exceptions
                     errorResponse.StatusCode = (int)HttpStatusCode.BadRequest;
                     _logger.LogInformation(ex.ToString());
                     break;
+                case UnauthorizedAccessException:
+                {
+                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    errorResponse.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    _logger.LogInformation(ex.ToString());
+                    break;
+                }
+                case NotFoundException:
+                {
+                    response.StatusCode = (int)HttpStatusCode.NotFound;
+                    errorResponse.StatusCode = (int)HttpStatusCode.NotFound;
+                    _logger.LogInformation(ex.ToString());
+                    break;
+                }
+                case ForbiddenAccessException:
+                {
+                    response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    errorResponse.StatusCode = (int)HttpStatusCode.Forbidden;
+                    _logger.LogInformation(ex.ToString());
+                    break;
+                }
                 default:
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;
                     errorResponse.StatusCode = (int)HttpStatusCode.InternalServerError;
