@@ -14,9 +14,14 @@ namespace MBS.Core.Entities
     {
         [MaxLength(100)]
         public string Title { get; set; }
-        public  string CalendarEventId { get; set; }
-        [ForeignKey(nameof(CalendarEventId))]
-        public CalendarEvent CalendarEvent { get; set; }
+        //public  string CalendarEventId { get; set; }
+        //[ForeignKey(nameof(CalendarEventId))]
+        //public CalendarEvent CalendarEvent { get; set; }
+        public DateTime Start {  get; set; }
+        public DateTime End { get; set; }
+        public  string MentorId { get; set; }
+        [ForeignKey(nameof(MentorId))]
+        public Mentor Mentor { get; set; }
         public Guid? ProjectId { get; set; }
         [ForeignKey(nameof(ProjectId))]
         public Project Project { get; set; }
