@@ -13,7 +13,11 @@ public class GetMentorResponseModel
     public string? Industry { get; set; } = default;
     public int ConsumePoint { get; set; } = default;
     public IEnumerable<Major> Major { get; set; }
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> parent of 4cb5763 (merge query to test api with data)
     //inheritant
     public string FullName { get; set; }
     public string? AvatarUrl { get; set; }

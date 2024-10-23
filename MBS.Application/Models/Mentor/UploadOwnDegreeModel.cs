@@ -1,12 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using MBS.Application.ValidationAttributes;
 using Microsoft.AspNetCore.Http;
 
 namespace MBS.Application.Models.User;
 
 public class UploadOwnDegreeRequestModel
 {
+    [MaxFileSize(5)]
+    [AllowedExtensions(["jpg", "png", "jpeg"])]
     public required IFormFile File { get; set; }
+
     public string Name { get; set; } = default;
     [MaxLength(100)] public string? Institution { get; set; } = default;
 }

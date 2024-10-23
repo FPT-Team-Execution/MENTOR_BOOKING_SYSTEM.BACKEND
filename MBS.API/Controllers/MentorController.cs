@@ -37,9 +37,31 @@ namespace MBS.API.Controllers
         [Route("degree")]
         [Authorize(Roles = nameof(UserRoleEnum.Mentor))]
         public async Task<ActionResult<BaseModel<GetOwnDegreesResponseModel>>>
-            GetOwnDegrees()
+            GetOwnDegrees(int page, int size)
         {
-            var response = await _mentorService.GetOwnDegrees(User);
+            var response = await _mentorService.GetOwnDegrees(User, page, size);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        public async Task<IActionResult> GetMentor([FromRoute] string id)
+        {
+            var response = await _mentorService.GetMentor(new GetMentorRequestModel()
+            {
+                Id = id
+            });
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        [ProducesResponseType(typeof(BaseModel<Pagination<GetMentorResponseModel>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetMentors(int page, int size)
+        {
+            var response = await _mentorService.GetMentors(page, size);
             return StatusCode(response.StatusCode, response);
         }
 

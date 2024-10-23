@@ -10,15 +10,19 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using MBS.Core.Common.Pagination;
+<<<<<<< HEAD
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Drawing.Text;
+=======
+>>>>>>> parent of 4cb5763 (merge query to test api with data)
 
 
 namespace MBS.Application.Services.Implements
 {
     public class GroupService : BaseService<GroupService>, IGroupService
     {
+<<<<<<< HEAD
         private readonly IGroupRepository _groupRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IMajorRepository _majorRepository;
@@ -34,6 +38,10 @@ namespace MBS.Application.Services.Implements
             _projectRepository = projectRepository;
 
         }
+=======
+        public GroupService(IUnitOfWork unitOfWork, ILogger<GroupService> logger, IMapper mapper)
+            : base(unitOfWork, logger, mapper) { }
+>>>>>>> parent of 4cb5763 (merge query to test api with data)
 
         public async Task<BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>> CreateNewGroupAsync(CreateNewGroupRequestModel request)
         {
@@ -45,7 +53,8 @@ namespace MBS.Application.Services.Implements
                 PositionId = request.PositionId
             };
 
-           await _groupRepository.CreateAsync(newGroup);
+            await _unitOfWork.GetRepository<Group>().InsertAsync(newGroup);
+            await _unitOfWork.CommitAsync();
 
             return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
             {
@@ -62,7 +71,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<GroupModel>> GetGroupId(Guid requestId)
         {
-            var group = await _groupRepository.GetGroupByIdAsync(requestId);
+            var group = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(g => g.Id == requestId);
             if (group == null)
             {
                 return new BaseModel<GroupModel>
@@ -87,7 +96,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<GroupModel>> UpdateGroup(Guid id, UpdateGroupRequestModel request)
         {
-            var group = await _groupRepository.GetGroupByIdAsync(id);
+            var group = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(g => g.Id == id);
             if (group == null)
             {
                 return new BaseModel<GroupModel>
@@ -101,7 +110,8 @@ namespace MBS.Application.Services.Implements
             group.StudentId = request.studentId;
             group.PositionId = request.PositionId;
 
-            _groupRepository.Update(group);
+            _unitOfWork.GetRepository<Group>().UpdateAsync(group);
+            await _unitOfWork.CommitAsync();
 
             return new BaseModel<GroupModel>
             {
@@ -117,7 +127,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel> RemoveGroup(Guid id)
         {
-            var group = await _groupRepository.GetGroupByIdAsync(id);
+            var group = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(g => g.Id == id);
             if (group == null)
             {
                 return new BaseModel
@@ -128,28 +138,21 @@ namespace MBS.Application.Services.Implements
                 };
             }
 
-            if (group.StudentId == null)
-            {
-                _groupRepository.Delete(group);
-                return new BaseModel
-                {
-                    Message = MessageResponseHelper.DeleteSuccessfully("group"),
-                    IsSuccess = true,
-                    StatusCode = StatusCodes.Status200OK
-                };
-            }
+            //group. = MBS.Core.Enums.StatusEnum.Deactivated;
+            _unitOfWork.GetRepository<Group>().UpdateAsync(group);
+            await _unitOfWork.CommitAsync();
+
             return new BaseModel
             {
-                Message = MessageResponseHelper.DeleteFailed("group"),
+                Message = MessageResponseHelper.DeleteSuccessfully("group"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK
             };
-
         }
 
         public async Task<BaseModel<Pagination<GroupResponseDTO>>> GetGroups(int page, int size)
         {
-            var result = await _groupRepository.GetPagedListAsync(page, size);
+            var result = await _unitOfWork.GetRepository<Group>().GetPagingListAsync(page: page, size: size);
 
             return new BaseModel<Pagination<GroupResponseDTO>>
             {

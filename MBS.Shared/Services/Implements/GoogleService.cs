@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Runtime.Serialization;
-using MBS.Shared.Models;
 using MBS.Shared.Models.Google;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
@@ -10,8 +8,8 @@ using System.Security.Claims;
 using MBS.Shared.Models.Google.GoogleCalendar.Request;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using MBS.Shared.Models.Google.GoogleOAuth.Response;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
+using MBS.Shared.Utils;
+
 
 
 namespace MBS.Shared.Services.Implements
@@ -132,10 +130,10 @@ namespace MBS.Shared.Services.Implements
         public async Task<GoogleResponse> ListEvents(GetGoogleCalendarEventsRequest getRequest)
         {
             string url = $"https://www.googleapis.com/calendar/v3/calendars/{getRequest.Email}/events";
-            var queryParams = new Dictionary<string, string>
+            var queryParams = new Dictionary<string, string?>
             {
-                { "timeMin", FormatDateTime(getRequest.TimeMin, "yyyy-MM-ddTHH:mm:ssK") },
-                { "timeMax", FormatDateTime(getRequest.TimeMax, "yyyy-MM-ddTHH:mm:ssK") },
+                { "timeMin", getRequest.TimeMin != null ? FormatDateTime(getRequest.TimeMin.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
+                { "timeMax", getRequest.TimeMax != null ? FormatDateTime(getRequest.TimeMax.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
             };
             var headers = new Dictionary<string, string>
             {
@@ -274,6 +272,56 @@ namespace MBS.Shared.Services.Implements
             errorResult.IsSuccess = false;
             return errorResult;
 
+        }
+        /// <summary>
+        /// format start and end date for Asia_HCM timezone
+        /// </summary>
+        /// <param name="inputDate"></param>
+        /// <returns></returns>
+        private (DateTime start, DateTime end) GetStartAndEndOfDay(DateTime inputDay)
+        {
+            // Set the start time to midnight of the given date
+            DateTime start = new DateTime(inputDay.Year, inputDay.Month, inputDay.Day, 0, 0, 0, DateTimeKind.Utc);
+    
+            // Set the end time to one millisecond before midnight of the next day
+            DateTime end = new DateTime(start.Year, start.Month, start.Day, 23, 59, 0, DateTimeKind.Utc);
+
+            return (start, end);
+        }
+
+        public async Task<GoogleResponse> GetFreeBusyPeriod(FreeBusyParamters request)
+        {
+            string url = $"https://www.googleapis.com/calendar/v3/freeBusy";
+            var headers = new Dictionary<string, string>
+            {
+                { "Accept-Charset", "utf-8" },
+                { "Authorization", $"Bearer {request.AccessToken}" }
+            };
+            var (start, end) = GetStartAndEndOfDay(request.Day);
+            var bodyData = new FreeBusyRequest()
+            {
+                TimeMin = FormatDateTime(start, "yyyy-MM-ddTHH:mm:ssK"),
+                TimeMax = FormatDateTime(end, "yyyy-MM-ddTHH:mm:ssK"),  
+                Items = new List<CalendarItem>
+                {
+                    new CalendarItem
+                    {
+                        Id = request.Email
+                    }
+                },
+                TimeZone = "UTC"
+            };
+            HttpResponseMessage response = await WebUtils.PostAsync(url, bodyData, headers, request.AccessToken);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var successResult =  WebUtils.HandleResponse<FreeBusyResponse>(response);
+                successResult.IsSuccess = true;
+                return successResult;
+            }
+            //Other response - error
+            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            errorResult.IsSuccess = false;
+            return errorResult;
         }
     }
 

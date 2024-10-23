@@ -1,15 +1,18 @@
-﻿using MBS.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MBS.Core.Common.Pagination;
+using MBS.Core.Entities;
 
-namespace MBS.DataAccess.Repositories.Interfaces
+namespace MBS.DataAccess.Repositories.Interfaces;
+
+public interface IGroupRepository : IBaseRepository<Group>
 {
+<<<<<<< HEAD
     public interface IGroupRepository : IBaseRepository<Group>
     {
         Task<Group> GetGroupByIdAsync(Guid id);
         Task<IEnumerable<Group>> GetGroupByProjectIdAsync(Guid projectId);
     }
 }
+=======
+    Task<Pagination<Group>> GetGroupsByStudentId(string studentId, int page, int size, string sortOrder);
+}
+>>>>>>> parent of 4cb5763 (merge query to test api with data)

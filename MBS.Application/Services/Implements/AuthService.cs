@@ -21,29 +21,29 @@ namespace MBS.Application.Services.Implements;
 
 public class AuthService : BaseService<AuthService>, IAuthService
 {
+    private readonly IMentorRepository _mentorRepository;
     private readonly ITemplateService _templateService;
     private readonly IEmailService _emailService;
-    
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     
     private readonly IConfiguration _configuration;
-    private readonly IStudentRepository _studentRepository;
     public AuthService(IUnitOfWork unitOfWork, ILogger<AuthService> logger,
+        IMentorRepository mentorRepository,
         IEmailService emailService,
         ITemplateService templateService,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IConfiguration configuration,
-        IMapper mapper, IStudentRepository studentRepository)
+        IMapper mapper)
         : base(unitOfWork, logger, mapper)
     {
+        _mentorRepository = mentorRepository;
         _emailService = emailService;
         _templateService = templateService;
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
-        _studentRepository = studentRepository;
     }
 
     public async Task<BaseModel<RegisterResponseModel, RegisterRequestModel>> SignUpAsync(
@@ -100,9 +100,15 @@ public class AuthService : BaseService<AuthService>, IAuthService
                         WalletPoint = 0
                     };
 
+<<<<<<< HEAD
                     var result = await _studentRepository.CreateAsync(newStudent);
 
                     if (!result)
+=======
+                    await _unitOfWork.GetRepository<Student>().InsertAsync(newStudent);
+
+                    if (await _unitOfWork.CommitAsync() <= 0)
+>>>>>>> parent of 4cb5763 (merge query to test api with data)
                     {
                         throw new DatabaseInsertException("student");
                     }
@@ -406,7 +412,8 @@ public class AuthService : BaseService<AuthService>, IAuthService
                     IsSuccess = false,
                 };
             }
-
+            
+            //return response
             var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(user, _userManager, _configuration);
             var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(user, _configuration);
             return new BaseModel<ExternalSignInResponseModel>
@@ -442,6 +449,21 @@ public class AuthService : BaseService<AuthService>, IAuthService
          var createResult = await _userManager.CreateAsync(userCreate);
          if (createResult.Succeeded)
          {
+             //create mentor
+             var mentorCreate = new Mentor()
+             {
+                 UserId = userCreate.Id
+             };
+             var addMentorResult = await _mentorRepository.CreateAsync(mentorCreate);
+             if (!addMentorResult)
+             {
+                 return new BaseModel<ExternalSignInResponseModel>
+                 {
+                     Message = MessageResponseHelper.CreateFailed("mentor"),
+                     StatusCode = StatusCodes.Status500InternalServerError,
+                     IsSuccess = false
+                 };
+             }
              //*add role
              var user = await _userManager.FindByEmailAsync(userCreate.Email);
              await _userManager.AddToRoleAsync(user, UserRoleEnum.Mentor.ToString());

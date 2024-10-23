@@ -9,7 +9,6 @@ using MBS.DataAccess.DAO;
 using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
 
@@ -17,16 +16,14 @@ namespace MBS.Application.Services.Implements
 {
     public class MajorService : BaseService<MajorService>, IMajorService
     {
-        private readonly IMajorRepository _majorRepository; 
-        public MajorService(IUnitOfWork unitOfWork, IMajorRepository majorRepository, ILogger<MajorService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+        public MajorService(IUnitOfWork unitOfWork, ILogger<MajorService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
         {
-            _majorRepository = majorRepository;
         }
 
 		//OK
 		public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size)
         {
-            var result = await _majorRepository.GetPagedListAsync(page, size);
+            var result = await _unitOfWork.GetRepository<Major>().GetPagingListAsync(page: page, size: size);
             if (result == null)
             {
                 return new BaseModel<Pagination<MajorResponseDTO>>()
@@ -48,7 +45,7 @@ namespace MBS.Application.Services.Implements
         //OK
         public async Task<BaseModel<MajorModel>> GetMajorId(Guid requestId)
         {
-            var resultSet = await _majorRepository.GetMajorByIdAsync(requestId);
+            var resultSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == requestId);
             if (resultSet == null) 
             {
                 return new BaseModel<MajorModel>()
@@ -88,9 +85,21 @@ namespace MBS.Application.Services.Implements
                     RequestModel = request,
                 };
             }
+<<<<<<< HEAD
 
                 await _majorRepository.CreateAsync(major);
                 return new BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>()
+=======
+            
+            await _unitOfWork.GetRepository<Major>().InsertAsync(major);
+            await _unitOfWork.CommitAsync();
+            return new BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>()
+            {
+                Message = MessageResponseHelper.Successfully("Created" + nameof(Major)),
+                StatusCode = StatusCodes.Status202Accepted,
+                IsSuccess = true,
+                ResponseModel = new CreateMajorResponseModel()
+>>>>>>> parent of 4cb5763 (merge query to test api with data)
                 {
                     Message = MessageResponseHelper.Successfully("Created" + nameof(Major)),
                     StatusCode = StatusCodes.Status202Accepted,
@@ -105,7 +114,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<MajorModel>> UpdateMajor(Guid id, UpdateMajorRequestModel request)
         {
-            var majorSet = await _majorRepository.GetMajorByIdAsync(id);
+            var majorSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == id);
             if (majorSet == null)
             {
                 return new BaseModel<MajorModel>()
@@ -117,7 +126,8 @@ namespace MBS.Application.Services.Implements
             }
             majorSet.Name = request.Name;
             majorSet.ParentId = request.ParentId;
-            _majorRepository.Update(majorSet);
+            _unitOfWork.GetRepository<Major>().UpdateAsync(majorSet);
+            await _unitOfWork.CommitAsync();
             return new BaseModel<MajorModel>()
             {
                 Message = MessageResponseHelper.Successfully("Update " + nameof(Major)),
@@ -131,7 +141,7 @@ namespace MBS.Application.Services.Implements
         }
         public async Task<BaseModel> RemoveMajor(Guid id)
         {
-            var majorSet = await _majorRepository.GetMajorByIdAsync(id);
+            var majorSet = await _unitOfWork.GetRepository<Major>().SingleOrDefaultAsync(i => i.Id == id);
             if (majorSet == null)
             {
                 return new BaseModel()
@@ -142,7 +152,8 @@ namespace MBS.Application.Services.Implements
                 };
             }
             majorSet.Status = Core.Enums.StatusEnum.Deactivated;
-            _majorRepository.Delete(majorSet);
+            _unitOfWork.GetRepository<Major>().UpdateAsync(majorSet);
+            await _unitOfWork.CommitAsync();
             return new BaseModel()
             {
                 Message = MessageResponseHelper.Successfully("Remove " + nameof(Major)),
