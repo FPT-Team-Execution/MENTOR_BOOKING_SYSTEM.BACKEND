@@ -2,6 +2,7 @@
 using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
+using MBS.Application.Models.Groups;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Entities;
@@ -11,6 +12,7 @@ using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
@@ -188,5 +190,41 @@ public class MentorService : BaseService<MentorService>, IMentorService
                 StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
+    }
+
+    public async Task<BaseModel<List<MentorSearchDTO>>> SearchMentor(string searchItem)
+    {
+        var searching = searchItem.ToLower();
+        var mentorSearch = await _mentorRepository.GetMentorsAsync();
+        List<MentorSearchDTO> mentorSearchDTOs = new List<MentorSearchDTO>();
+        if (mentorSearch != null && mentorSearch.Any())
+        {
+            foreach (var item in mentorSearch)
+            {
+                var searchMentor = await _mentorRepository.GetByUserIdAsync(item.UserId, m => m.Include(x => x.User));
+
+                string searchByName = searchMentor.User.FullName.ToLower();
+                string searchByEmail = searchMentor.User.Email.ToLower();
+                if(searchByName.Contains(searchItem)  || searchByEmail.Contains(searchItem)) 
+                {
+                    mentorSearchDTOs.Add(new MentorSearchDTO
+                    {
+                        MentorId = item.UserId,
+                        FullName = searchMentor.User.FullName,
+                        Email = searchMentor.User.Email,
+                    });
+                }
+                
+            }
+           
+        }
+        var response = mentorSearchDTOs;
+        return new BaseModel<List<MentorSearchDTO>>()
+        {
+            Message = MessageResponseHelper.GetSuccessfully("mentors"),
+            IsSuccess = true,
+            StatusCode = StatusCodes.Status200OK,
+            ResponseRequestModel = response
+        };
     }
 }

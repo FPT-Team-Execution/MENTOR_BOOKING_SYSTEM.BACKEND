@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using MBS.Application.Models.General;
+using MBS.Application.Models.Groups;
 using MBS.Application.Models.User;
 
 namespace MBS.Application.Services.Interfaces;
@@ -12,4 +13,6 @@ public interface IMentorService
         UploadOwnDegreeRequestModel request, ClaimsPrincipal claimsPrincipal);
 
     Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(ClaimsPrincipal claimsPrincipal);
+
+    Task<BaseModel<List<MentorSearchDTO>>> SearchMentor(string searchItem);
 }

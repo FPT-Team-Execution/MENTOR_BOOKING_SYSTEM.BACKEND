@@ -1,3 +1,5 @@
+using MBS.Application.Models.Groups;
+
 namespace MBS.API.Controllers
 {
     [Route("api/mentors")]
@@ -38,6 +40,16 @@ namespace MBS.API.Controllers
             GetOwnDegrees()
         {
             var response = await _mentorService.GetOwnDegrees(User);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpGet]
+        [Route("search/{searchItem}")]
+        //[Authorize(Roles = nameof(UserRoleEnum.Mentor))]
+        public async Task<ActionResult<BaseModel<List<MentorSearchDTO>>>>
+            MentorSearch(string searchItem)
+        {
+            var response = await _mentorService.SearchMentor(searchItem);
             return StatusCode(response.StatusCode, response);
         }
     }
