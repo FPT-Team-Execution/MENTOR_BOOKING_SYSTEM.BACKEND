@@ -20,12 +20,8 @@ namespace MBS.Application.Services.Implements
 {
     public class PositionService : BaseService<PositionService>, IPositionService
     {
-        private readonly IPositionRepository _positionRepository;
-        public PositionService(IUnitOfWork unitOfWork, IPositionRepository positionRepository, ILogger<PositionService> logger, IMapper mapper)
-            : base(unitOfWork, logger, mapper)
-        { 
-            _positionRepository = positionRepository;
-        }
+        public PositionService(IUnitOfWork unitOfWork, ILogger<PositionService> logger, IMapper mapper)
+            : base(unitOfWork, logger, mapper) { }
 
         public async Task<BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>> CreateNewPosition(CreatePositionRequestModel request)
         {
@@ -47,7 +43,8 @@ namespace MBS.Application.Services.Implements
                 };
             }
 
-            await _positionRepository.CreateAsync(position);
+            await _unitOfWork.GetRepository<Position>().InsertAsync(position);
+            await _unitOfWork.CommitAsync();
 
             return new BaseModel<CreatePositionResponseModel, CreatePositionRequestModel>()
             {
@@ -63,7 +60,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<PositionModel>> GetPositionId(Guid requestId)
         {
-            var position = await _positionRepository.GetPositionByIdAsync(requestId);
+            var position = await _unitOfWork.GetRepository<Position>().SingleOrDefaultAsync(i => i.Id == requestId);
             if (position == null)
             {
                 return new BaseModel<PositionModel>()
@@ -88,7 +85,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<PositionModel>> UpdatePosition(Guid id, UpdatePositionRequestModel request)
         {
-            var position = await _positionRepository.GetPositionByIdAsync(id);
+            var position = await _unitOfWork.GetRepository<Position>().SingleOrDefaultAsync(i => i.Id == id);
             if (position == null)
             {
                 return new BaseModel<PositionModel>()
@@ -102,7 +99,9 @@ namespace MBS.Application.Services.Implements
             position.Name = request.name;
             position.Description = request.description;
 
-            _positionRepository.Update(position);
+            _unitOfWork.GetRepository<Position>().UpdateAsync(position);
+            await _unitOfWork.CommitAsync();
+
             return new BaseModel<PositionModel>()
             {
                 Message = MessageResponseHelper.Successfully("Update " + nameof(Position)),
@@ -117,7 +116,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel> RemovePosition(Guid id)
         {
-            var position = await _positionRepository.GetPositionByIdAsync(id);
+            var position = await _unitOfWork.GetRepository<Position>().SingleOrDefaultAsync(i => i.Id == id);
             if (position == null)
             {
                 return new BaseModel()
@@ -129,7 +128,9 @@ namespace MBS.Application.Services.Implements
             }
 
             position.Status = Core.Enums.StatusEnum.Deactivated;
-            _positionRepository.Update(position);
+            _unitOfWork.GetRepository<Position>().UpdateAsync(position);
+            await _unitOfWork.CommitAsync();
+
             return new BaseModel()
             {
                 Message = MessageResponseHelper.Successfully("Remove " + nameof(Position)),
@@ -140,7 +141,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<Pagination<PositionResponseDTO>>> GetPositions(int page, int size)
         {
-            var result = await _positionRepository.GetPagedListAsync(page, size);
+            var result = await _unitOfWork.GetRepository<Position>().GetPagingListAsync(page: page, size: size);
             if (result == null)
             {
                 return new BaseModel<Pagination<PositionResponseDTO>>()

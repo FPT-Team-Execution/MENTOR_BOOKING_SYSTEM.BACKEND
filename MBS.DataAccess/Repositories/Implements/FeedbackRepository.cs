@@ -1,38 +1,31 @@
-﻿using MBS.Core.Common.Pagination;
+using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Interfaces;
-using Microsoft.EntityFrameworkCore.Query;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 
-namespace MBS.DataAccess.Repositories.Implements
+namespace MBS.DataAccess.Repositories.Implements;
+
+public class FeedBackRepository(IBaseDAO<Feedback> dao) : BaseRepository<Feedback>(dao), IFeedbackRepository
 {
-    public class FeedbackRepository : BaseRepository<Feedback>, IFeedbackRepository
+    public Task<Pagination<Feedback>> GetMeetingFeedBacksByUserId(Guid meetingId, string userId, int page, int size, string sortBy)
     {
-        public FeedbackRepository(IBaseDAO<Feedback> dao) : base(dao)
-        {
-        }
-
-        public async Task<Feedback> GetFeedbackByIdAsync(Guid id)
-        {
-            return await _dao.SingleOrDefaultAsync(a => a.Id == id);
-        }
-
-        public async Task<Pagination<Feedback>> GetFeedbackPagingAsync(int page, int size, Expression<Func<Feedback, bool>> predicate = null, Func<IQueryable<Feedback>, IIncludableQueryable<Feedback, object>> include = null)
-        {
-            return await _dao.GetPagingListAsync(
-                predicate: predicate,
-                page: page,
-                size: size,
-                include: include
-                );
-        }
-
-        
+        return _dao.GetPagingListAsync(
+            predicate: f => f.MeetingId == meetingId && f.UserId == userId,
+            include: q => q.Include(f => f.User),
+            orderBy: q => (sortBy.ToLower() == "asc" ? q.OrderBy(f => f.CreatedOn) : q.OrderByDescending(f => f.CreatedOn)),
+            page: page,
+            size: size
+            );
+    }
+    public Task<Pagination<Feedback>> GetFeedBacksByMeetingId(Guid meetingId,int page, int size, string sortBy)
+    {
+        return _dao.GetPagingListAsync(
+            predicate: f => f.MeetingId == meetingId,
+            include: q => q.Include(f => f.User),
+            orderBy: q => (sortBy.ToLower() == "asc" ? q.OrderBy(f => f.CreatedOn) : q.OrderByDescending(f => f.CreatedOn)),
+            page: page,
+            size: size
+        );
     }
 }

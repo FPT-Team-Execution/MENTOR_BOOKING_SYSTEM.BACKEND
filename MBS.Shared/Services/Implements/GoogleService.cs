@@ -1,6 +1,4 @@
 ﻿using System.Net;
-using System.Runtime.Serialization;
-using MBS.Shared.Models;
 using MBS.Shared.Models.Google;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication;
@@ -10,8 +8,8 @@ using System.Security.Claims;
 using MBS.Shared.Models.Google.GoogleCalendar.Request;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using MBS.Shared.Models.Google.GoogleOAuth.Response;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Identity;
+using MBS.Shared.Utils;
+
 
 
 namespace MBS.Shared.Services.Implements
@@ -37,9 +35,11 @@ namespace MBS.Shared.Services.Implements
             string accessType = "access_type=" + "offline";
             string responseType = "response_type=" + "code";
             string clientId = "client_id=" + _configuration["Google:Authentication:ClientId"]!;
-            string approvalPrompt = "approval_prompt=" + "force";
+            //string approvalPrompt = "approval_prompt=" + "force";
 
-            string finalAuthUrl = $"{authenticateUrl}?{scope}&{responseType}&{clientId}&{accessType}&{approvalPrompt}&{redirectUri}";
+            //string finalAuthUrl = $"{authenticateUrl}?{scope}&{responseType}&{clientId}&{accessType}&{approvalPrompt}&{redirectUri}";
+            string finalAuthUrl = $"{authenticateUrl}?{scope}&{responseType}&{clientId}&{accessType}&{redirectUri}";
+
             return finalAuthUrl;
         }
 
@@ -65,7 +65,7 @@ namespace MBS.Shared.Services.Implements
             };
         }
 
-        public async Task<GoogleResponse> GetTokenGoogleUserAsync(string authenticatedCode)
+        public async Task<GoogleResponse> GetTokenGoogleUserAsync(string authenticatedCode, string externalCallbackUri)
         {
             string url = _configuration["Google:Authentication:TokenUrl"]!;
             var requestBody = new Dictionary<string, string>
@@ -73,10 +73,11 @@ namespace MBS.Shared.Services.Implements
                 { "code", authenticatedCode },
                 { "client_id", _configuration["Google:Authentication:ClientId"]! },
                 { "client_secret", _configuration["Google:Authentication:ClientSecret"]! },
-                { "redirect_uri", _configuration["Google:Authentication:CallbackUrl"]! },
+                //{ "redirect_uri", _configuration["Google:Authentication:CallbackUrl"]! },
+                { "redirect_uri", externalCallbackUri },
                 { "grant_type", "authorization_code" }
             };
-        
+
             var response = await WebUtils.PostAsync(url, requestBody);
 
             if (response.IsSuccessStatusCode)
@@ -85,17 +86,17 @@ namespace MBS.Shared.Services.Implements
                 result.IsSuccess = true;
                 return result;
             }
-            
-            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+
+            var errorResult = WebUtils.HandleResponse<GoogleAuthErrorResponse>(response);
             errorResult.IsSuccess = false;
             return errorResult;
-            
+
         }
 
         public async Task<GoogleResponse> GetProfileGoogleUserAsync(string accessToken)
         {
             string url = "https://www.googleapis.com/oauth2/v3/userinfo";
-            
+
             var headers = new Dictionary<string, string>
             {
                 { "Accept-Charset", "utf-8" },
@@ -108,8 +109,8 @@ namespace MBS.Shared.Services.Implements
                 result.IsSuccess = true;
                 return result;
             }
-            
-            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+
+            var errorResult = WebUtils.HandleResponse<GoogleErrorResponse>(response);
             errorResult.IsSuccess = false;
             return errorResult;
         }
@@ -118,7 +119,7 @@ namespace MBS.Shared.Services.Implements
         // {
         //     _claimService.SetCookieValue("Google.AccessToken", accessToken, expiredTime);
         // }
-        private string FormatDateTime( DateTime dateTime, string format)
+        private string FormatDateTime(DateTime dateTime, string format)
         {
             return dateTime.ToString(format);
         }
@@ -129,10 +130,10 @@ namespace MBS.Shared.Services.Implements
         public async Task<GoogleResponse> ListEvents(GetGoogleCalendarEventsRequest getRequest)
         {
             string url = $"https://www.googleapis.com/calendar/v3/calendars/{getRequest.Email}/events";
-            var queryParams = new Dictionary<string, string>
+            var queryParams = new Dictionary<string, string?>
             {
-                { "timeMin", FormatDateTime(getRequest.TimeMin, "yyyy-MM-ddTHH:mm:ssK") },
-                { "timeMax", FormatDateTime(getRequest.TimeMax, "yyyy-MM-ddTHH:mm:ssK") },
+                { "timeMin", getRequest.TimeMin != null ? FormatDateTime(getRequest.TimeMin.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
+                { "timeMax", getRequest.TimeMax != null ? FormatDateTime(getRequest.TimeMax.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
             };
             var headers = new Dictionary<string, string>
             {
@@ -142,12 +143,12 @@ namespace MBS.Shared.Services.Implements
             HttpResponseMessage response = await WebUtils.GetAsync(url, headers, getRequest.AccessToken, queryParams);
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var successResult =  WebUtils.HandleResponse<GetGoogleCalendarEventsResponse>(response);
+                var successResult = WebUtils.HandleResponse<GetGoogleCalendarEventsResponse>(response);
                 successResult.IsSuccess = true;
                 return successResult;
             }
             //Other response - error
-            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            var errorResult = WebUtils.HandleResponse<GoogleErrorResponse>(response);
             errorResult.IsSuccess = false;
             return errorResult;
         }
@@ -155,47 +156,47 @@ namespace MBS.Shared.Services.Implements
         /// Create event in user calendar
         /// </summary>
         /// <returns>Google Calendar Event</returns>
-         public async Task<GoogleResponse> InsertEvent(string email, string accessToken, CreateGoogleCalendarEventRequest createRequest)
-         {
-             string url = $"https://www.googleapis.com/calendar/v3/calendars/{email}/events";
-             var headers = new Dictionary<string, string>
+        public async Task<GoogleResponse> InsertEvent(string email, string accessToken, CreateGoogleCalendarEventRequest createRequest)
+        {
+            string url = $"https://www.googleapis.com/calendar/v3/calendars/{email}/events";
+            var headers = new Dictionary<string, string>
              {
                  { "Accept-Charset", "utf-8" },
                  { "Authorization", $"Bearer {accessToken}" }
              };
-             //anonymous data object
-             var bodyData = new 
-             {
-               Start = new EventTime
-               {
-                   DateTime = FormatDateTime(createRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
-                   TimeZone = "Asia/Ho_Chi_Minh"
-               },
-               End = new EventTime
-               {
-                   DateTime = FormatDateTime(createRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
-                   TimeZone = "Asia/Ho_Chi_Minh"
+            //anonymous data object
+            var bodyData = new
+            {
+                Start = new EventTime
+                {
+                    DateTime = FormatDateTime(createRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
+                    TimeZone = "Asia/Ho_Chi_Minh"
+                },
+                End = new EventTime
+                {
+                    DateTime = FormatDateTime(createRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
+                    TimeZone = "Asia/Ho_Chi_Minh"
                 }
-             };
-             var response = await WebUtils.PostAsync(
-                 url, 
-                 data: bodyData, 
-                 headers: headers,
-                 token: accessToken
-                 );
-            
-             if (response.StatusCode == HttpStatusCode.OK)
-             {
-                 var successResult =  WebUtils.HandleResponse<GoogleCalendarEvent>(response);
-                 successResult.IsSuccess = true;
-                 return successResult;
-             }
-             //Other response - error
-             var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
-             errorResult.IsSuccess = false;
-             return errorResult;
+            };
+            var response = await WebUtils.PostAsync(
+                url,
+                data: bodyData,
+                headers: headers,
+                token: accessToken
+                );
 
-         }
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var successResult = WebUtils.HandleResponse<GoogleCalendarEvent>(response);
+                successResult.IsSuccess = true;
+                return successResult;
+            }
+            //Other response - error
+            var errorResult = WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            errorResult.IsSuccess = false;
+            return errorResult;
+
+        }
         /// <summary>
         /// update event time in user calendar
         /// </summary>
@@ -209,7 +210,7 @@ namespace MBS.Shared.Services.Implements
                 { "Authorization", $"Bearer {accessToken}" }
             };
             //anonymous data object
-            var bodyData = new 
+            var bodyData = new
             {
                 Start = new EventTime
                 {
@@ -223,25 +224,25 @@ namespace MBS.Shared.Services.Implements
                 }
             };
             var response = await WebUtils.PutAsync(
-                url, 
-                data: bodyData, 
+                url,
+                data: bodyData,
                 headers: headers,
                 token: accessToken
             );
-            
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var successResult =  WebUtils.HandleResponse<GoogleCalendarEvent>(response);
+                var successResult = WebUtils.HandleResponse<GoogleCalendarEvent>(response);
                 successResult.IsSuccess = true;
                 return successResult;
             }
             //Other response - error
-            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            var errorResult = WebUtils.HandleResponse<GoogleErrorResponse>(response);
             errorResult.IsSuccess = false;
             return errorResult;
 
         }
-        
+
         /// <summary>
         /// update event time in user calendar
         /// </summary>
@@ -255,14 +256,65 @@ namespace MBS.Shared.Services.Implements
                 { "Authorization", $"Bearer {accessToken}" }
             };
             var response = await WebUtils.DeleteAsync(
-                url, 
+                url,
                 headers: headers,
                 token: accessToken
             );
-            
+
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var successResult =  WebUtils.HandleResponse<GoogleCalendarEvent>(response);
+                var successResult = WebUtils.HandleResponse<GoogleCalendarEvent>(response);
+                successResult.IsSuccess = true;
+                return successResult;
+            }
+            //Other response - error
+            var errorResult = WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            errorResult.IsSuccess = false;
+            return errorResult;
+
+        }
+        /// <summary>
+        /// format start and end date for Asia_HCM timezone
+        /// </summary>
+        /// <param name="inputDate"></param>
+        /// <returns></returns>
+        private (DateTime start, DateTime end) GetStartAndEndOfDay(DateTime inputDay)
+        {
+            // Set the start time to midnight of the given date
+            DateTime start = new DateTime(inputDay.Year, inputDay.Month, inputDay.Day, 0, 0, 0, DateTimeKind.Utc);
+    
+            // Set the end time to one millisecond before midnight of the next day
+            DateTime end = new DateTime(start.Year, start.Month, start.Day, 23, 59, 0, DateTimeKind.Utc);
+
+            return (start, end);
+        }
+
+        public async Task<GoogleResponse> GetFreeBusyPeriod(FreeBusyParamters request)
+        {
+            string url = $"https://www.googleapis.com/calendar/v3/freeBusy";
+            var headers = new Dictionary<string, string>
+            {
+                { "Accept-Charset", "utf-8" },
+                { "Authorization", $"Bearer {request.AccessToken}" }
+            };
+            var (start, end) = GetStartAndEndOfDay(request.Day);
+            var bodyData = new FreeBusyRequest()
+            {
+                TimeMin = FormatDateTime(start, "yyyy-MM-ddTHH:mm:ssK"),
+                TimeMax = FormatDateTime(end, "yyyy-MM-ddTHH:mm:ssK"),  
+                Items = new List<CalendarItem>
+                {
+                    new CalendarItem
+                    {
+                        Id = request.Email
+                    }
+                },
+                TimeZone = "UTC"
+            };
+            HttpResponseMessage response = await WebUtils.PostAsync(url, bodyData, headers, request.AccessToken);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var successResult =  WebUtils.HandleResponse<FreeBusyResponse>(response);
                 successResult.IsSuccess = true;
                 return successResult;
             }
@@ -270,8 +322,7 @@ namespace MBS.Shared.Services.Implements
             var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
             errorResult.IsSuccess = false;
             return errorResult;
-
         }
     }
-        
+
 }

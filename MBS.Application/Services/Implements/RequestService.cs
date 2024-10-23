@@ -6,39 +6,39 @@ using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
-using MBS.DataAccess.DAO;
-using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class RequestService : BaseService<RequestService>, IRequestService
+public class RequestService : BaseService2<RequestService>, IRequestService
 {
+    private readonly IProjectRepository _projectRepository;
+    private readonly ICalendarEventRepository _eventRepository;
+    private readonly IRequestRepository _requestRepository;
     private readonly UserManager<ApplicationUser> _userManager;
-    private IRequestRepository _requestRepository;
-    private ICalendarEventRepository _calendarEventRepository;
-
-    public RequestService(IUnitOfWork unitOfWork, IRequestRepository requestRepository, ICalendarEventRepository calendarEventRepository, ILogger<RequestService> logger,
+    
+    public RequestService(
+        IProjectRepository projectRepository,
+        ICalendarEventRepository eventRepository,
+        IRequestRepository requestRepository,
         UserManager<ApplicationUser> userManager,
+        ILogger<RequestService> logger,
         IMapper mapper
-        ) : base(unitOfWork, logger, mapper)
+        ) : base(logger, mapper)
     {
+        _projectRepository = projectRepository;
+        _eventRepository = eventRepository;
         _userManager = userManager;
         _requestRepository = requestRepository;
-        _calendarEventRepository = calendarEventRepository;
     }
-    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequests(int page, int size)
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequests(GetRequestsPaginationRequest request)
     {
         try
         {
-            var requests = await _requestRepository.GetPagedListAsync(
-                page: page,
-                size: size
-                );
+            var requests = await _requestRepository.GetRequestPaginationAsync(request.Page, request.Size, request.SortOrder);
             return new BaseModel<Pagination<RequestResponseDto>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
@@ -62,9 +62,8 @@ public class RequestService : BaseService<RequestService>, IRequestService
     {
         try
         {
-            //var request = await _unitOfWork.GetRepository<Request>().SingleOrDefaultAsync(r => r.Id == requestId);
-            var request = await _requestRepository.GetRequestByIdAsync(requestId);
-            if (request == null)
+            var request = await _requestRepository.GetRequestById(requestId);
+            if(request == null)
                 return new BaseModel<RequestResponseModel>
                 {
                     Message = MessageResponseHelper.RequestNotFound(requestId.ToString()),
@@ -93,42 +92,42 @@ public class RequestService : BaseService<RequestService>, IRequestService
         }
     }
 
-    public async Task<BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>> CreateRequest(CreateRequestRequestModel requestmodel)
+    public async Task<BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>> CreateRequest(CreateRequestRequestModel request)
     {
         try
         {
             //check calendar event
-            var calendarEvent = await _calendarEventRepository.GetCalendarEventByIdAsync(requestmodel.CalendarEventId);
-            if (calendarEvent == null)
+            var calendarEvent = await _eventRepository.GetByIdAsync(request.CalendarEventId, "Id");
+            if(calendarEvent == null)
                 return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
-                    Message = MessageResponseHelper.CalendarNotFound(requestmodel.CalendarEventId),
+                    Message = MessageResponseHelper.NotFoundCalendar(request.CalendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             //Check user ~ creater
-            var user = await _userManager.FindByIdAsync(requestmodel.CreaterId);
-            if (user == null)
+            var user = await _userManager.FindByIdAsync(request.CreaterId);
+            if(user == null)
                 return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
-                    Message = MessageResponseHelper.UserNotFound(requestmodel.CreaterId),
+                    Message = MessageResponseHelper.UserNotFound(request.CreaterId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
-
+            
             //Check project
-            var project = await _unitOfWork.GetRepository<Project>().SingleOrDefaultAsync(p => p.Id == requestmodel.ProjectId);
-            if (project == null)
+            var project = await _projectRepository.GetByIdAsync(request.ProjectId, "Id");
+            if(project == null)
                 return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
-                    Message = MessageResponseHelper.ProjectNotFound(requestmodel.CalendarEventId),
+                    Message = MessageResponseHelper.ProjectNotFound(request.CalendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
-            if (project.Status != ProjectStatusEnum.Activated)
+            if(project.Status != ProjectStatusEnum.Activated)
                 return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
-                    Message = MessageResponseHelper.ProjectNotActivated(requestmodel.ProjectId.ToString()),
+                    Message = MessageResponseHelper.ProjectNotActivated(request.ProjectId.ToString()!),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
@@ -139,28 +138,28 @@ public class RequestService : BaseService<RequestService>, IRequestService
                 CalendarEventId = calendarEvent.Id,
                 ProjectId = project.Id,
                 CreaterId = user.Id,
-                Title = requestmodel.Title,
+                Title = request.Title,
                 Status = RequestStatusEnum.Pending
             };
-            await _requestRepository.CreateAsync(newRequest);
-            //if (await _unitOfWork.CommitAsync() > 0)
+            var addResult = await _requestRepository.CreateAsync(newRequest);
+            if(addResult)
                 return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("request"),
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status200OK,
-                    RequestModel = requestmodel,
+                    RequestModel = request,
                     ResponseModel = new CreateRequestResponseModel
-                    {
+					{
                         RequestId = newRequest.Id
-                    }
+					}
                 };
-            //return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
-            //{
-            //    Message = MessageResponseHelper.CreateFailed("request"),
-            //    IsSuccess = false,
-            //    StatusCode = StatusCodes.Status200OK,
-            //};
+            return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
+            {
+                Message = MessageResponseHelper.CreateFailed("request"),
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
         }
         catch (Exception e)
         {
@@ -178,14 +177,14 @@ public class RequestService : BaseService<RequestService>, IRequestService
         try
         {
             //check request
-            var request = await _requestRepository.GetRequestByIdAsync(requestId);
+            var request = await _requestRepository.GetByIdAsync(requestId, "Id");
             if (request == null)
                 return new BaseModel<RequestResponseModel>
                 {
                     Message = MessageResponseHelper.RequestNotFound(requestId.ToString()),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
-
+                    
                 };
             if (request.Status != RequestStatusEnum.Pending)
                 return new BaseModel<RequestResponseModel>
@@ -193,61 +192,57 @@ public class RequestService : BaseService<RequestService>, IRequestService
                     Message = MessageResponseHelper.InvalidRequestStatus(requestId.ToString(), nameof(RequestStatusEnum.Pending)),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status400BadRequest,
-
+                    
                 };
             //Check calendar event
-            var calendarEvent = await _calendarEventRepository.GetCalendarEventAsync(requestModel.CalendarEventId);
-            if (calendarEvent == null)
+            var calendarEvent = await _eventRepository.GetEventByIdAsync(request.CalendarEventId);
+            if(calendarEvent == null)
                 return new BaseModel<RequestResponseModel>
                 {
-                    Message = MessageResponseHelper.CalendarNotFound(requestModel.CalendarEventId),
+                    Message = MessageResponseHelper.NotFoundCalendar(requestModel.CalendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
-
+                    
                 };
             //check calendar and meeting
-            if (calendarEvent.Start <= DateTime.Now)
+            if(calendarEvent.Start <= DateTime.Now)
                 return new BaseModel<RequestResponseModel>
                 {
                     Message = MessageResponseHelper.CalendarInThePast(requestModel.CalendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status400BadRequest,
-
+                    
                 };
-            if (calendarEvent.Meeting.Status == MeetingStatusEnum.New)
+            if(calendarEvent.Meeting != null && calendarEvent.Meeting.Status == MeetingStatusEnum.New)
                 return new BaseModel<RequestResponseModel>
                 {
                     Message = MessageResponseHelper.BusyCalendar(requestModel.CalendarEventId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status400BadRequest,
-
+                    
                 };
-            //TODO: call google calendar api to recheck event props
-            //~
-
+            
             //Update request
             request.CalendarEventId = requestModel.CalendarEventId;
             request.Title = requestModel.Title;
             request.Status = requestModel.Status;
-
-            //_unitOfWork.GetRepository<Request>().UpdateAsync(request);
-            _requestRepository.Update(request);
-            //if (_requestRepository.)
+            var updateResult = _requestRepository.Update(request);
+            if (updateResult)
+                return new BaseModel<RequestResponseModel>
+                {
+                    Message = MessageResponseHelper.UpdateSuccessfully("event"),
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    ResponseRequestModel = new RequestResponseModel()
+                    {
+                        Request = _mapper.Map<RequestResponseDto>(request),
+                    }
+                };
             return new BaseModel<RequestResponseModel>
             {
-                Message = MessageResponseHelper.UpdateSuccessfully("event"),
-                IsSuccess = true,
-                StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new RequestResponseModel()
-                {
-                    Request = _mapper.Map<RequestResponseDto>(request),
-                }
-                //};
-                //return new BaseModel<RequestResponseModel>
-                //{
-                //    Message = MessageResponseHelper.UpdateFailed("event"),
-                //    IsSuccess = false,
-                //    StatusCode = StatusCodes.Status200OK,
+                Message = MessageResponseHelper.UpdateFailed("event"),
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
         catch (Exception e)
@@ -260,5 +255,5 @@ public class RequestService : BaseService<RequestService>, IRequestService
             };
         }
     }
-
+    
 }

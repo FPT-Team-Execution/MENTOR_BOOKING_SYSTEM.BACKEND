@@ -4,12 +4,12 @@ using System.Text;
 using MBS.Shared.Models.Google.GoogleCalendar;
 using Newtonsoft.Json;
 
-namespace MBS.Shared.Models
+namespace MBS.Shared.Utils
 {
     public class WebUtils
     {
         // GET Request
-        public static async Task<HttpResponseMessage> GetAsync(string url, Dictionary<string, string>? headers = null, string? token = null, Dictionary<string, string>? queryParams = null)
+        public static async Task<HttpResponseMessage> GetAsync(string url, Dictionary<string, string>? headers = null, string? token = null, Dictionary<string, string?>? queryParams = null)
         {
             if (queryParams != null && queryParams.Any())
             {
@@ -135,7 +135,7 @@ namespace MBS.Shared.Models
         {
             try
             {
-                response.EnsureSuccessStatusCode();
+                //response.EnsureSuccessStatusCode();
 
                 var content = response.Content.ReadAsStringAsync().Result;
                 if (string.IsNullOrEmpty(content))
