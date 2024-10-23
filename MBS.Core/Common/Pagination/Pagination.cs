@@ -8,14 +8,7 @@ public class Pagination<T> where T : class
 
     public int TotalPages
     {
-        get
-        {
-            return _totalPage;
-        }
-        set
-        {
-            _totalPage = (int)Math.Ceiling((double)(TotalPages /PageSize));
-        }
+        get; set;
     }
 
     public IEnumerable<T> Items { get; set; }
