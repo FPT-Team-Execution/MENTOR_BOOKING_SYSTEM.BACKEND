@@ -65,7 +65,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 {
                     Message = MessageResponseHelper.OverlayCalendar(),
                     IsSuccess = false,
-                    StatusCode = StatusCodes.Status500InternalServerError,
+                    StatusCode = StatusCodes.Status400BadRequest,
                 }; 
             }
             //create event on google calendar

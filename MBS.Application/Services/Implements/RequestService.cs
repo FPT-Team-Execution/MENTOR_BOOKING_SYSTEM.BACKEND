@@ -1,5 +1,6 @@
 using AutoMapper;
 using MBS.Application.Helpers;
+using MBS.Application.Models.CalendarEvent;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Request;
 using MBS.Application.Services.Interfaces;
@@ -7,6 +8,7 @@ using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
+using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -15,12 +17,15 @@ namespace MBS.Application.Services.Implements;
 
 public class RequestService : BaseService2<RequestService>, IRequestService
 {
+    private readonly IMentorRepository _mentorRepository;
     private readonly IProjectRepository _projectRepository;
     private readonly ICalendarEventRepository _eventRepository;
     private readonly IRequestRepository _requestRepository;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly CalendarEventService _calendarEventService;
     
     public RequestService(
+        IMentorRepository mentorRepository,
         IProjectRepository projectRepository,
         ICalendarEventRepository eventRepository,
         IRequestRepository requestRepository,
@@ -29,6 +34,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
         IMapper mapper
         ) : base(logger, mapper)
     {
+        _mentorRepository = mentorRepository;
         _projectRepository = projectRepository;
         _eventRepository = eventRepository;
         _userManager = userManager;
@@ -96,15 +102,36 @@ public class RequestService : BaseService2<RequestService>, IRequestService
     {
         try
         {
-            //check calendar event
-            var calendarEvent = await _eventRepository.GetByIdAsync(request.CalendarEventId, "Id");
-            if(calendarEvent == null)
+            if (request.Start <= DateTime.Now || request.End <= DateTime.Now || request.Start >= request.End)
                 return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
-                    Message = MessageResponseHelper.NotFoundCalendar(request.CalendarEventId),
+                    Message = MessageResponseHelper.InvalidInputParameterDetail("time range"),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                };
+            //check mentor 
+            var mentor = _mentorRepository.GetByIdAsync(request.MentorId, "UserId");
+            if(mentor == null)
+                return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
+                {
+                    Message = MessageResponseHelper.UserNotFound(request.MentorId),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
+            var dateRange = GetDateTimeRangeForDate(request.Start);
+            var events =  await _eventRepository.GetCalendarEventsByMentorIdAsync(request.MentorId, dateRange.Start, dateRange.End);
+
+            var isOverlayed = IsOverlapping(request.Start, request.End, events.Where(x => x.Start >= DateTime.Now).ToList());
+            if (isOverlayed)
+            {
+                return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
+                {
+                    Message = MessageResponseHelper.OverlayCalendar(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                };
+            }
+            
             //Check user ~ creater
             var user = await _userManager.FindByIdAsync(request.CreaterId);
             if(user == null)
@@ -120,7 +147,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
             if(project == null)
                 return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
-                    Message = MessageResponseHelper.ProjectNotFound(request.CalendarEventId),
+                    Message = MessageResponseHelper.ProjectNotFound(request.ProjectId.ToString()),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
@@ -135,7 +162,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
             var newRequest = new Request()
             {
                 Id = Guid.NewGuid(),
-                CalendarEventId = calendarEvent.Id,
+                //CalendarEventId = calendarEvent.Id,
                 ProjectId = project.Id,
                 CreaterId = user.Id,
                 Title = request.Title,
@@ -171,6 +198,33 @@ public class RequestService : BaseService2<RequestService>, IRequestService
             };
         }
     }
+    private bool IsOverlapping(DateTime start, DateTime end, List<CalendarEvent> events)
+    {
+
+        foreach (var item in events)
+        {
+            if(item.Start >= DateTime.Now)
+            {
+                // Check if the two intervals overlap
+                if (start < item.End && end > item.Start)
+                {
+                    return true;
+                }
+            }  
+        }
+        return false;
+    }
+    private (DateTime Start, DateTime End) GetDateTimeRangeForDate(DateTime date)
+    {
+        // Start of the day: 00:00:00
+        DateTime start = date.Date;
+
+        // End of the day: 23:59:59.999
+        DateTime end = date.Date.AddDays(1).AddMilliseconds(-1);
+
+        return (start, end);
+    }
+
 
     public async Task<BaseModel<RequestResponseModel>> UpdateRequest(Guid requestId, UpdateRequestRequestModel requestModel)
     {
@@ -195,35 +249,35 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                     
                 };
             //Check calendar event
-            var calendarEvent = await _eventRepository.GetEventByIdAsync(request.CalendarEventId);
-            if(calendarEvent == null)
-                return new BaseModel<RequestResponseModel>
-                {
-                    Message = MessageResponseHelper.NotFoundCalendar(requestModel.CalendarEventId),
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status404NotFound,
+            //var calendarEvent = await _eventRepository.GetEventByIdAsync(request.CalendarEventId);
+            //if(calendarEvent == null)
+            //    return new BaseModel<RequestResponseModel>
+            //    {
+            //        Message = MessageResponseHelper.NotFoundCalendar(requestModel.CalendarEventId),
+            //        IsSuccess = false,
+            //        StatusCode = StatusCodes.Status404NotFound,
                     
-                };
+            //    };
             //check calendar and meeting
-            if(calendarEvent.Start <= DateTime.Now)
-                return new BaseModel<RequestResponseModel>
-                {
-                    Message = MessageResponseHelper.CalendarInThePast(requestModel.CalendarEventId),
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status400BadRequest,
+            //if(calendarEvent.Start <= DateTime.Now)
+            //    return new BaseModel<RequestResponseModel>
+            //    {
+            //        Message = MessageResponseHelper.CalendarInThePast(requestModel.CalendarEventId),
+            //        IsSuccess = false,
+            //        StatusCode = StatusCodes.Status400BadRequest,
                     
-                };
-            if(calendarEvent.Meeting != null && calendarEvent.Meeting.Status == MeetingStatusEnum.New)
-                return new BaseModel<RequestResponseModel>
-                {
-                    Message = MessageResponseHelper.BusyCalendar(requestModel.CalendarEventId),
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status400BadRequest,
+            //    };
+            //if(calendarEvent.Meeting != null && calendarEvent.Meeting.Status == MeetingStatusEnum.New)
+            //    return new BaseModel<RequestResponseModel>
+            //    {
+            //        Message = MessageResponseHelper.BusyCalendar(requestModel.CalendarEventId),
+            //        IsSuccess = false,
+            //        StatusCode = StatusCodes.Status400BadRequest,
                     
-                };
+            //    };
             
             //Update request
-            request.CalendarEventId = requestModel.CalendarEventId;
+            //request.CalendarEventId = requestModel.CalendarEventId;
             request.Title = requestModel.Title;
             request.Status = requestModel.Status;
             var updateResult = _requestRepository.Update(request);
