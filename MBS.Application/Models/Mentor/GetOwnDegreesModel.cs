@@ -1,4 +1,5 @@
-﻿using MBS.Core.Entities;
+﻿using MBS.Core.Common.Pagination;
+using MBS.Core.Entities;
 
 namespace MBS.Application.Models.User;
 
@@ -8,5 +9,5 @@ public class GetOwnDegreesRequestModel
 
 public class GetOwnDegreesResponseModel
 {
-    public IEnumerable<GetOwnDegreeResponseModel?> DegreeResponseModels { get; set; }
+    public Pagination<GetOwnDegreeResponseModel> degrees;
 }

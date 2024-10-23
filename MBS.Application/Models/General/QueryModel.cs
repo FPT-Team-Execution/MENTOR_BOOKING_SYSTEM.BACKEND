@@ -4,6 +4,7 @@ namespace MBS.Application.Models.General;
 
 public class QueryModel
 {
+
     [FromQuery] public string? FilterOn { get; set; }
     [FromQuery] public string? FilterParam { get; set; }
     [FromQuery] public string? SortOn { get; set; }
@@ -15,6 +16,7 @@ public class QueryModel
 public class QueryModel<T>
 {
     [FromQuery] public required T Condition { get; set; }
+
     [FromQuery] public string? FilterOn { get; set; }
     [FromQuery] public string? FilterParam { get; set; }
     [FromQuery] public string? SortOn { get; set; }

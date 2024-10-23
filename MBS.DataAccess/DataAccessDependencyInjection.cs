@@ -40,17 +40,19 @@ namespace MBS.DataAccess
         {
             
             services.AddScoped<DAO.IUnitOfWork, DAO.UnitOfWork>();
-            services.AddScoped(typeof(Repositories.IUnitOfWork<>), typeof(Repositories.UnitOfWork<>));
+
+            //services.AddScoped(typeof(Repositories.IUnitOfWork<>), typeof(Repositories.UnitOfWork<>));
             //services.AddScoped<IBaseRepository, BaseRepository>();
+            services.AddScoped<ISkillRepository, SkillRepository>();
+            services.AddScoped<IMentorRepository, MentorRepository>();
             services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
-            services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            services.AddScoped<IFeedbackRepository, FeedBackRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
             services.AddScoped<IMajorRepository, MajorRepository>();
             services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
             services.AddScoped<IMeetingRepository, MeetingRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
-
-            //services.AddScoped<IDegreeRepository, DegreeRepository>();
+            services.AddScoped<IDegreeRepository, DegreeRepository>();
             //SeedData
             services.AddScoped<DbInitializer>();
             services.AddScoped<SeedMajors>();

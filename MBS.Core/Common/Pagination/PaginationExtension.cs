@@ -17,9 +17,10 @@ public class PaginationExtension<T> where T : class
         
         pagination.PageIndex = page;
         pagination.PageSize = size;
-        pagination.TotalPages = (int)Math.Ceiling(totalItemCount / (double) pagination.PageSize);
+        var totalPage = Math.Ceiling((double)totalItemCount / pagination.PageSize);
+        pagination.TotalPages = (int)totalPage;
 
-        if (page > pagination.TotalPages && totalItemCount > 0)
+        if (page > totalPage && totalItemCount > 0)
         {
             throw new ArgumentException($"Page number ({page}) exceeds the total pages ({pagination.TotalPages}).");
         }

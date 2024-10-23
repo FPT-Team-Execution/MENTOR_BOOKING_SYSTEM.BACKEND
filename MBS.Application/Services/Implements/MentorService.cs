@@ -7,7 +7,6 @@ using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.DAO;
-using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -18,28 +17,26 @@ using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class MentorService : BaseService<MentorService>, IMentorService
+public class MentorService : BaseService2<MentorService>, IMentorService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ISupabaseService _supabaseService;
     private readonly IConfiguration _configuration;
-    private IMentorRepository _mentorRepository;
-    public MentorService(
-        IUnitOfWork unitOfWork,
-        IMentorRepository mentorRepository,
-        ILogger<MentorService> logger,
-        UserManager<ApplicationUser> userManager,
-        ISupabaseService supabaseService, 
-        IConfiguration configuration,
-        IMapper mapper) : base(unitOfWork, logger, mapper)
+    private readonly IMentorRepository _mentorRepository;
+    private readonly IDegreeRepository _degreeRepository;
+
+    public MentorService(ILogger<MentorService> logger, IMapper mapper, IMentorRepository mentorRepository,
+        UserManager<ApplicationUser> userManager, ISupabaseService supabaseService, IConfiguration configuration,
+        IDegreeRepository degreeRepository) : base(logger, mapper)
     {
+        _mentorRepository = mentorRepository;
         _userManager = userManager;
         _supabaseService = supabaseService;
         _configuration = configuration;
-        _mentorRepository = mentorRepository;
+        _degreeRepository = degreeRepository;
     }
 
-    public async Task<BaseModel<GetMentorOwnProfileResponseModel>> GetOwnProfile(ClaimsPrincipal claimsPrincipal)
+    public async Task<BaseModel<GetMentorResponseModel>> GetOwnProfile(ClaimsPrincipal claimsPrincipal)
     {
         try
         {
@@ -47,7 +44,7 @@ public class MentorService : BaseService<MentorService>, IMentorService
 
             if (userId is null)
             {
-                return new BaseModel<GetMentorOwnProfileResponseModel>()
+                return new BaseModel<GetMentorResponseModel>()
                 {
                     Message = MessageResponseHelper.UserNotFound(),
                     IsSuccess = false,
@@ -59,7 +56,7 @@ public class MentorService : BaseService<MentorService>, IMentorService
 
             if (user is null)
             {
-                return new BaseModel<GetMentorOwnProfileResponseModel>()
+                return new BaseModel<GetMentorResponseModel>()
                 {
                     Message = MessageResponseHelper.UserNotFound(),
                     IsSuccess = false,
@@ -67,11 +64,11 @@ public class MentorService : BaseService<MentorService>, IMentorService
                 };
             }
 
-            var mentor = await _mentorRepository.GetMentorbyId(userId);
+            var mentor = await _mentorRepository.GetByIdAsync(userId, "UserId");
 
             if (mentor is null)
             {
-                return new BaseModel<GetMentorOwnProfileResponseModel>()
+                return new BaseModel<GetMentorResponseModel>()
                 {
                     Message = MessageResponseHelper.UserNotFound(),
                     IsSuccess = false,
@@ -79,25 +76,17 @@ public class MentorService : BaseService<MentorService>, IMentorService
                 };
             }
 
-            return new BaseModel<GetMentorOwnProfileResponseModel>()
+            return new BaseModel<GetMentorResponseModel>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("mentor profile"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new GetMentorOwnProfileResponseModel()
-                {
-                    FullName = user.FullName,
-                    Birthday = user.Birthday,
-                    Gender = user.Gender,
-                    AvatarUrl = user.AvatarUrl,
-                    Industry = mentor.Industry,
-                    ConsumePoint = mentor.ConsumePoint
-                }
+                ResponseRequestModel = _mapper.Map<GetMentorResponseModel>(mentor)
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<GetMentorOwnProfileResponseModel>()
+            return new BaseModel<GetMentorResponseModel>()
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -128,7 +117,7 @@ public class MentorService : BaseService<MentorService>, IMentorService
                 ImageUrl = degreeUrl
             };
 
-            await _unitOfWork.GetRepository<Degree>().InsertAsync(degree);
+            await _degreeRepository.CreateAsync(degree);
 
             return new BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>()
             {
@@ -155,20 +144,12 @@ public class MentorService : BaseService<MentorService>, IMentorService
     }
 
     public async Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(
-        ClaimsPrincipal claimsPrincipal)
+        ClaimsPrincipal claimsPrincipal, int page, int size)
     {
         try
         {
             var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
-            var degrees = await _unitOfWork.GetRepository<Degree>().GetListAsync(x => x.MentorId == userId);
-
-            var degreeResponseModels = degrees.Select(x => new GetOwnDegreeResponseModel()
-            {
-                Id = x.Id,
-                Name = x.Name,
-                Institution = x.Institution,
-                ImageUrl = x.ImageUrl
-            });
+            var degrees = await _degreeRepository.GetDegreesByMentorId(userId, page, size);
 
             return new BaseModel<GetOwnDegreesResponseModel>()
             {
@@ -177,7 +158,7 @@ public class MentorService : BaseService<MentorService>, IMentorService
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = new GetOwnDegreesResponseModel()
                 {
-                    DegreeResponseModels = degreeResponseModels
+                    degrees = _mapper.Map<Pagination<GetOwnDegreeResponseModel>>(degrees)
                 }
             };
         }
@@ -196,11 +177,7 @@ public class MentorService : BaseService<MentorService>, IMentorService
     {
         try
         {
-            var mentor = await _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync
-            (
-                predicate: x => x.UserId == request.Id,
-                include: x => x.Include(x => x.User)
-            );
+            var mentor = await _mentorRepository.GetMentorByIdAsync(request.Id);
 
             if (mentor is null)
             {
@@ -242,11 +219,7 @@ public class MentorService : BaseService<MentorService>, IMentorService
     {
         try
         {
-            var user = await _unitOfWork.GetRepository<Mentor>().GetPagingListAsync(
-                include: s => s.Include(x => x.User),
-                page: page,
-                size: size
-            );
+            var user = await _mentorRepository.GetMentorsAsync(page, size);
             return new BaseModel<Pagination<GetMentorResponseModel>>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("students"),

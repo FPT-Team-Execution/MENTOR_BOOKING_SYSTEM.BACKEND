@@ -18,9 +18,9 @@ namespace MBS.API.Controllers
         // [Authorize(Roles = nameof(UserRoleEnum.Admin))]
         [ProducesResponseType(typeof(BaseModel<Pagination<StudentResponseDto>>),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetStudents(int page, int size)
+        public async Task<IActionResult> GetStudents(int page, int size, string? sortOrder)
         {
-            var response = await _studentService.GetStudents(page, size);
+            var response = await _studentService.GetStudents(page, size, sortOrder);
             return StatusCode(response.StatusCode, response);
         }
         
