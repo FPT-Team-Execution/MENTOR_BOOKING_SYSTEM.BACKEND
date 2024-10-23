@@ -97,23 +97,7 @@ namespace MBS.API.Controllers
             
             
             //TODO: return right json 
-			//return StatusCode(response.StatusCode, response);
-            
-			if (!response.IsSuccess)
-			{
-				return StatusCode(response.StatusCode, response);
-			}
-
-			var accessToken = response.ResponseRequestModel.JwtModel.AccessToken;  
-			var refreshToken = response.ResponseRequestModel.JwtModel.RefreshToken;
-
-			// Redirect to your frontend with tokens
-			var redirectUrl = $"http://localhost:5173/homepage?accessToken={accessToken}&refreshToken={refreshToken}";
-
-			return Redirect(redirectUrl);
-
-
-
+			return StatusCode(response.StatusCode, response);
 		}
         
         [HttpPost]
