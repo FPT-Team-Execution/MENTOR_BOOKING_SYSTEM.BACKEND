@@ -8,6 +8,11 @@ namespace MBS.DataAccess.Repositories.Implements;
 
 public class SkillRepository(IBaseDAO<Skill> dao) : BaseRepository<Skill>(dao), ISkillRepository
 {
+    public Task<Skill?> GetByIdAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Pagination<Skill>> GetPagedListAsyncByMentorId(int page, int size, string mentorId)
     {
         return await _dao.GetPagingListAsync(
