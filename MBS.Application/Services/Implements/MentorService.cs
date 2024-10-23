@@ -219,7 +219,7 @@ public class MentorService : BaseService2<MentorService>, IMentorService
     {
         try
         {
-            var user = await _mentorRepository.GetPagedListAsync(page, size);
+            var user = await _mentorRepository.GetMentorsAsync(page, size);
             return new BaseModel<Pagination<GetMentorResponseModel>>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("students"),
