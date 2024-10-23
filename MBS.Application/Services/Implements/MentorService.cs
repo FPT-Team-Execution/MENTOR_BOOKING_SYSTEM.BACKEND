@@ -188,7 +188,7 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 
                 string searchByName = searchMentor.User.FullName.ToLower();
                 string searchByEmail = searchMentor.User.Email.ToLower();
-                if(searchByName.Contains(searchItem)  || searchByEmail.Contains(searchItem)) 
+                if (searchByName.Contains(searchItem) || searchByEmail.Contains(searchItem))
                 {
                     mentorSearchDTOs.Add(new MentorSearchDTO
                     {
@@ -197,10 +197,9 @@ public class MentorService : BaseService2<MentorService>, IMentorService
                         Email = searchMentor.User.Email,
                     });
                 }
-                
             }
-           
         }
+
         var response = mentorSearchDTOs;
         return new BaseModel<List<MentorSearchDTO>>()
         {
@@ -209,8 +208,10 @@ public class MentorService : BaseService2<MentorService>, IMentorService
             StatusCode = StatusCodes.Status200OK,
             ResponseRequestModel = response
         };
+    }
 
-    public async Task<BaseModel<GetMentorResponseModel, GetMentorRequestModel>> GetMentor(GetMentorRequestModel request)
+    public async Task<BaseModel<GetMentorResponseModel, GetMentorRequestModel>> GetMentor(
+        GetMentorRequestModel request)
     {
         try
         {
