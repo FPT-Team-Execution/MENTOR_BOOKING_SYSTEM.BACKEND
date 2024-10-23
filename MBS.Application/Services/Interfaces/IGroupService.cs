@@ -19,5 +19,6 @@ namespace MBS.Application.Services.Interfaces
         Task<BaseModel<Pagination<GroupResponseDTO>>> GetGroups(int page, int size);
         Task<BaseModel<GroupStudentsResponseDTO>> GetStudentsInGroupByProjectId(Guid projectId);
         Task<BaseModel<List<StudentSearchDTO>>> SearchStudent(string searchItem);
+
     }
 }

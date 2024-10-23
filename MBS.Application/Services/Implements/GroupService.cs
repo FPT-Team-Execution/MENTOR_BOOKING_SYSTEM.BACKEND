@@ -44,7 +44,17 @@ namespace MBS.Application.Services.Implements
                 StudentId = request.StudentId,
                 PositionId = request.PositionId
             };
-
+            if(newGroup.StudentId.Any().Equals(request.StudentId))
+            {
+                return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
+                {
+                    Message = MessageResponseHelper.CreateFailed("group"),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status200OK,
+                    RequestModel = request,
+                    ResponseModel = null
+                };
+            }
            await _groupRepository.CreateAsync(newGroup);
 
             return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
@@ -84,6 +94,8 @@ namespace MBS.Application.Services.Implements
                 }
             };
         }
+
+
 
         public async Task<BaseModel<GroupModel>> UpdateGroup(Guid id, UpdateGroupRequestModel request)
         {

@@ -73,8 +73,6 @@ namespace MBS.API.Controllers
         {
             var response = await _groupService.SearchStudent(searchItem);
             return StatusCode((int)response.StatusCode, response);
-
-
         }
     }
 }

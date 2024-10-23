@@ -26,6 +26,7 @@ public class BaseRepository<T> : Interfaces.IBaseRepository<T> where T: class
 
     public async Task<bool> CreateAsync(T entity)
     {
+
         return await _dao.InsertAsync(entity) > 0;
     }
 

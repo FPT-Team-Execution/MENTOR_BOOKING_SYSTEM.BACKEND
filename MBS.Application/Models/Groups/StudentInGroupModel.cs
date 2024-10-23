@@ -13,9 +13,5 @@ public class StudentInGroupDTO
     public string Email { get; set; }
     public Major Major { get; set; }
     public string University { get; set; }
-
     public int WalletPoint {  get; set; }
-
-
-
 }
