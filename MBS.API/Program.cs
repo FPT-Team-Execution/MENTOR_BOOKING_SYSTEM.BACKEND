@@ -1,4 +1,3 @@
-using MBS.API.ApiDependencyInjections;
 using MBS.Application.Exceptions;
 using MBS.Application.DependencyInjections;
 using MBS.DataAccess;

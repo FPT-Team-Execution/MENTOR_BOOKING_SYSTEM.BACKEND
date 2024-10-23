@@ -45,7 +45,6 @@ namespace MBS.DataAccess
             //services.AddScoped<IBaseRepository, BaseRepository>();
             services.AddScoped<ISkillRepository, SkillRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
-
             services.AddScoped<ICalendarEventRepository, CalendarEventRepository>();
             services.AddScoped<IFeedbackRepository, FeedBackRepository>();
             services.AddScoped<IGroupRepository, GroupRepository>();
@@ -53,8 +52,7 @@ namespace MBS.DataAccess
             services.AddScoped<IMeetingMemberRepository, MeetingMemberRepository>();
             services.AddScoped<IMeetingRepository, MeetingRepository>();
             services.AddScoped<IMentorRepository, MentorRepository>();
-
-            //services.AddScoped<IDegreeRepository, DegreeRepository>();
+            services.AddScoped<IDegreeRepository, DegreeRepository>();
             //SeedData
             services.AddScoped<DbInitializer>();
             services.AddScoped<SeedMajors>();

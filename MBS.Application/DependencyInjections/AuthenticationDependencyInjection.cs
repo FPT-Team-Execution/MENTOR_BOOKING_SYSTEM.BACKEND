@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
-namespace MBS.API.ApiDependencyInjections
+namespace MBS.Application.DependencyInjections
 {
     public static class AuthenticationDependencyInjection
     {
@@ -17,37 +17,38 @@ namespace MBS.API.ApiDependencyInjections
             IConfiguration configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
             services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-            })
-              .AddJwtBearer(options =>
-              {
-                  options.SaveToken = true;
-                  options.RequireHttpsMetadata = false;
-                  options.TokenValidationParameters = new TokenValidationParameters()
-                  {
-                      ValidateIssuer = true,
-                      ValidateAudience = true,
-                      ValidIssuer = configuration["JWT:ValidIssuer"],
-                      ValidAudience = configuration["JWT:ValidAudience"],
-                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!))
-                  };
-              })
-              .AddCookie(options =>
-              {
-                  options.Cookie.SameSite = SameSiteMode.Lax;
-                  options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-              })
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.SaveToken = true;
+                    options.RequireHttpsMetadata = false;
+                    options.TokenValidationParameters = new TokenValidationParameters()
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidIssuer = configuration["JWT:ValidIssuer"],
+                        ValidAudience = configuration["JWT:ValidAudience"],
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!))
+                    };
+                })
+                .AddCookie(options =>
+                {
+                    options.Cookie.SameSite = SameSiteMode.Lax;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                });
 
-              .AddGoogle(options =>
-              {
-                  options.ClientId = configuration["Google:Authentication:ClientId"]!; 
-                  options.ClientSecret = configuration["Google:Authentication:ClientSecret"]!;
-                  options.SaveTokens = true;
-              });
+              // .AddGoogle(options =>
+              // {
+              //     options.ClientId = configuration["Google:Authentication:ClientId"]!; 
+              //     options.ClientSecret = configuration["Google:Authentication:ClientSecret"]!;
+              //     options.SaveTokens = true;
+              // });
 
             return services;
         }

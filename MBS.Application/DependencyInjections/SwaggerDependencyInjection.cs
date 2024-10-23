@@ -23,20 +23,20 @@ namespace MBS.Application.DependencyInjections
 
                 var serverCallbackUrl = googleOAuthConfig["Google:Authentication:CallbackUrl"];
                 // OAuth2 configuration
-                options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
-                {
-                    Type = SecuritySchemeType.OAuth2,
-                    Flows = new OpenApiOAuthFlows
-                    {
-                        AuthorizationCode = new OpenApiOAuthFlow
-                        {
-                            AuthorizationUrl = new Uri(authorizationUrl!),
-                            RefreshUrl = new Uri(tokenUrl!),
-                            TokenUrl = new Uri(tokenUrl!),
-                            Scopes = scopes
-                        }
-                    }
-                });
+                // options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+                // {
+                //     Type = SecuritySchemeType.OAuth2,
+                //     Flows = new OpenApiOAuthFlows
+                //     {
+                //         AuthorizationCode = new OpenApiOAuthFlow
+                //         {
+                //             AuthorizationUrl = new Uri(authorizationUrl!),
+                //             RefreshUrl = new Uri(tokenUrl!),
+                //             TokenUrl = new Uri(tokenUrl!),
+                //             Scopes = scopes
+                //         }
+                //     }
+                // });
 
                 // Bearer token configuration
                 options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -49,8 +49,8 @@ namespace MBS.Application.DependencyInjections
                 });
 
                 // Security requirements for OAuth2 and Bearer
-                options.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
+                // options.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                // {
                     // {
                     //     new OpenApiSecurityScheme
                     //     {
@@ -62,18 +62,18 @@ namespace MBS.Application.DependencyInjections
                     //     },
                     //     scopes!.Keys.ToList()
                     // },
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer" // Bearer reference
-                            }
-                        },
-                        new List<string>() // Empty list for Bearer
-                    }
-                });
+                //     {
+                //         new OpenApiSecurityScheme
+                //         {
+                //             Reference = new OpenApiReference
+                //             {
+                //                 Type = ReferenceType.SecurityScheme,
+                //                 Id = "Bearer" // Bearer reference
+                //             }
+                //         },
+                //         new List<string>() // Empty list for Bearer
+                //     }
+                // });
 
                 // options.OperationFilter<AuthorizeCheckOperationFilter>();
             });
