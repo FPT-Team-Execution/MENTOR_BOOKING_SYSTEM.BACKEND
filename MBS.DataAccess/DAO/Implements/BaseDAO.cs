@@ -48,7 +48,7 @@ public class BaseDAO<T>  : IBaseDAO<T> where T : class
 	        IQueryable<T> query = dbSet.AsNoTracking();
 	        if(include != null) query = include(query);
 	        if(predicate != null) query = query.Where(predicate);
-	        if (orderBy != null)  orderBy(query);
+	        if (orderBy != null)  query = orderBy(query);
             return PaginationExtension<T>.Paginate(query, page, size, 1);
 	 
         }
