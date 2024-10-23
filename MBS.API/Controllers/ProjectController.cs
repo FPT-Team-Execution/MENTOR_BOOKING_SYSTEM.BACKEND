@@ -25,7 +25,7 @@ namespace MBS.API.Controllers
 
         // GET: api/projects/student/{studentId}?projectStatus=Active
         [HttpGet("student/{studentId}")]
-        public async Task<IActionResult> GetProjectsByStudentId(GetProjectsByStudentIdRequest request)
+        public async Task<IActionResult> GetProjectsByStudentId([FromQuery] GetProjectsByStudentIdRequest request)
         {
             var result = await _projectService.GetProjectsByStudentId(request);
             return StatusCode(result.StatusCode, result);
