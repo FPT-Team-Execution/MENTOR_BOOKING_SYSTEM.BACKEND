@@ -25,11 +25,11 @@ public class StudentService : BaseService2<StudentService>, IStudentService
         _userManager = userManager;
     }
 
-    public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size)
+    public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size, string? sortOrder)
     {
         try
         {
-            var user = await _studentRepository.GetStudentsAsync(page, size);
+            var user = await _studentRepository.GetStudentsAsync(page, size, sortOrder);
             return new BaseModel<Pagination<StudentResponseDto>>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("students"),

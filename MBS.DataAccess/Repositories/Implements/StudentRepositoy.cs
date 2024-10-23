@@ -15,10 +15,11 @@ public class StudentRepository : BaseRepository<Student>, IStudentRepository
     {
     }
 
-    public async Task<Pagination<Student>> GetStudentsAsync(int page, int size)
+    public async Task<Pagination<Student>> GetStudentsAsync(int page, int size, string sortOrder = "asc")
     {
         return await _dao.GetPagingListAsync(
             include: s => s.Include(x => x.User),
+            orderBy: q => (sortOrder.ToLower() == "asc") ? q.OrderBy(x => x.User.FullName) : q.OrderByDescending(x => x.User.FullName),
             page: page,
             size: size
         );
