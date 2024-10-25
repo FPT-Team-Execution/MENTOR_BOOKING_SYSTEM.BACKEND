@@ -9,6 +9,7 @@ using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
+using MBS.Shared.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -118,7 +119,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
-            var dateRange = GetDateTimeRangeForDate(request.Start);
+            var dateRange = ConvertUtils.GetStartEndTime(request.Start);
             var events =  await _eventRepository.GetCalendarEventsByMentorIdAsync(request.MentorId, dateRange.Start, dateRange.End);
 
             var isOverlayed = IsOverlapping(request.Start, request.End, events.Where(x => x.Start >= DateTime.Now).ToList());
@@ -213,16 +214,6 @@ public class RequestService : BaseService2<RequestService>, IRequestService
             }  
         }
         return false;
-    }
-    private (DateTime Start, DateTime End) GetDateTimeRangeForDate(DateTime date)
-    {
-        // Start of the day: 00:00:00
-        DateTime start = date.Date;
-
-        // End of the day: 23:59:59.999
-        DateTime end = date.Date.AddDays(1).AddMilliseconds(-1);
-
-        return (start, end);
     }
 
 

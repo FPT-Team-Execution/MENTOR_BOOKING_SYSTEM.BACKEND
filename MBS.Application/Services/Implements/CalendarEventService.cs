@@ -10,6 +10,7 @@ using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Models.Google.GoogleCalendar.Request;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using MBS.Shared.Services.Interfaces;
+using MBS.Shared.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -274,6 +275,46 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
         catch (Exception e)
         {
             return new BaseModel<CalendarEventResponseModel>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
+    public async Task<BaseModel<GetBusyEventResponse, GetBusyEventRequest>> GetBusyEvent(GetBusyEventRequest request)
+    {
+        try
+        {
+            var mentor = await _mentorRepository.GetByIdAsync(request.MentorId, "UserId");
+            if (mentor == null)
+            {
+                return new BaseModel<GetBusyEventResponse, GetBusyEventRequest>
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+            var (start, end) = ConvertUtils.GetStartEndTime(request.Day);
+            var events = await _calendarEventRepository.GetCalendarEventsByMentorIdAsync(request.MentorId, start, end);
+            var busyEventsInDay = _mapper.Map<IEnumerable<BusyEventModel>>(events);
+            return new BaseModel<GetBusyEventResponse, GetBusyEventRequest>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("events"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                RequestModel = request,
+                ResponseModel = new GetBusyEventResponse
+                {
+                    Events = busyEventsInDay.ToList()
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetBusyEventResponse, GetBusyEventRequest>
             {
                 Message = e.Message,
                 IsSuccess = false,

@@ -40,6 +40,16 @@ public class CalendarEventController : ControllerBase
         return StatusCode(result.StatusCode, result);
         
     }
+    [HttpGet("busy-event")]
+    [ProducesResponseType(typeof(BaseModel<GetBusyEventResponse, GetBusyEventRequest>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetBusyEvents([FromQuery] GetBusyEventRequest request)
+    {
+        var result = await _calendarEventService.GetBusyEvent(request);
+        return StatusCode(result.StatusCode, result);
+        
+    }
     [HttpPost("")]
     [ProducesResponseType(typeof(BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
