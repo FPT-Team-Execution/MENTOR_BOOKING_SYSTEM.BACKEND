@@ -18,5 +18,5 @@ public class ProjectResponseModel
 	public string Semester { get; set; }
 	public string? CreatedBy { get; set; }
 	public string MentorId { get; set; }
-	public ProjectStatusEnum Status { get; set; }
+	public string Status { get; set; }
 }

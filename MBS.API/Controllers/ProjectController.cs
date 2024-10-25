@@ -1,6 +1,7 @@
 
 
 using MBS.Application.Models.Project;
+using MBS.Core.Common.Pagination;
 
 namespace MBS.API.Controllers
 {
@@ -25,7 +26,11 @@ namespace MBS.API.Controllers
 
         // GET: api/projects/student/{studentId}?projectStatus=Active
         [HttpGet("student/{studentId}")]
-        public async Task<IActionResult> GetProjectsByStudentId([FromQuery] GetProjectsByStudentIdRequest request)
+        [ProducesResponseType(typeof(BaseModel<Pagination<ProjectResponseDto>>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseModel),StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetProjectsByStudentId(GetProjectsByStudentIdRequest request)
         {
             var result = await _projectService.GetProjectsByStudentId(request);
             return StatusCode(result.StatusCode, result);
