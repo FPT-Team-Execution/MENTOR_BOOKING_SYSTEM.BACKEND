@@ -165,6 +165,9 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                 //CalendarEventId = calendarEvent.Id,
                 ProjectId = project.Id,
                 CreaterId = user.Id,
+                MentorId = request.MentorId,
+                Start = request.Start,
+                End = request.End,
                 Title = request.Title,
                 Status = RequestStatusEnum.Pending
             };
