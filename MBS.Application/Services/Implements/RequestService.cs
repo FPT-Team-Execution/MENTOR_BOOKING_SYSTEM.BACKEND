@@ -111,7 +111,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
             //check mentor 
-            var mentor = _mentorRepository.GetByIdAsync(request.MentorId, "UserId");
+            var mentor = await _mentorRepository.GetByIdAsync(request.MentorId, "UserId");
             if(mentor == null)
                 return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
                 {
@@ -166,6 +166,9 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                 //CalendarEventId = calendarEvent.Id,
                 ProjectId = project.Id,
                 CreaterId = user.Id,
+                MentorId = request.MentorId,
+                Start = request.Start,
+                End = request.End,
                 Title = request.Title,
                 Status = RequestStatusEnum.Pending
             };
