@@ -5,9 +5,13 @@ namespace MBS.Application.Models.User;
 
 public class SignInRequestModel
 {
-    [Required] public required string Email { get; set; }
+    [Required]
+    [DataType(DataType.EmailAddress)]
+    public required string Email { get; set; }
 
-    [Required] public required string Password { get; set; }
+    [Required] 
+    [DataType(DataType.Password)]
+    public required string Password { get; set; }
 }
 
 public class SignInResponseModel

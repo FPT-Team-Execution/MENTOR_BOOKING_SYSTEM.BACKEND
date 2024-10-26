@@ -1,4 +1,5 @@
-﻿using MBS.Application.Models.General;
+﻿using System.ComponentModel.DataAnnotations;
+using MBS.Application.Models.General;
 
 namespace MBS.Application.Models.User;
 

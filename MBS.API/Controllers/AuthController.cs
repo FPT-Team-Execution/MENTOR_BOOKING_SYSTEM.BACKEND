@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Net;
 using MBS.Application.Helpers;
 using MBS.Core.Entities;
 using MBS.DataAccess.Repositories.Interfaces;
@@ -49,7 +50,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
 
-        public async Task<IActionResult> GoogleResponse(string code, string callbackUri)
+        public async Task<IActionResult> GoogleResponse([Required] string code, [Required] string callbackUri)
         {
             // Get Provider Info
              // var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
@@ -105,9 +106,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(ActionResult<BaseModel<RegisterResponseModel, RegisterRequestModel>>),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BaseModel<RegisterResponseModel, RegisterRequestModel>>>
-        SignUpStudent(
-            [FromBody] RegisterRequestModel request)
+        public async Task<ActionResult<BaseModel<RegisterResponseModel, RegisterRequestModel>>> SignUpStudent([FromBody] RegisterRequestModel request)
         {
             var response = await _authService.SignUpAsync(request);
             return StatusCode(response.StatusCode, response);
@@ -120,8 +119,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status403Forbidden)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BaseModel<SignInResponseModel, SignInRequestModel>>> SignIn(
-            SignInRequestModel request)
+        public async Task<ActionResult<BaseModel<SignInResponseModel, SignInRequestModel>>> SignIn(SignInRequestModel request)
         {
             var response = await _authService.SignIn(request);
             return StatusCode(response.StatusCode, response);
@@ -132,8 +130,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(ActionResult<BaseModel<RegisterResponseModel, RegisterRequestModel>>),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>>> Refresh(
-            GetRefreshTokenRequestModel request)
+        public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>>> Refresh(GetRefreshTokenRequestModel request)
         {
             var response = await _authService.Refresh(request);
             return StatusCode(response.StatusCode, response);
@@ -146,8 +143,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>>> ConfirmEmail(
-            ConfirmEmailRequestModel request)
+        public async Task<ActionResult<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>>> ConfirmEmail(ConfirmEmailRequestModel request)
         {
             var response = await _authService.ConfirmEmailAsync(request);
             return StatusCode(response.StatusCode, response);

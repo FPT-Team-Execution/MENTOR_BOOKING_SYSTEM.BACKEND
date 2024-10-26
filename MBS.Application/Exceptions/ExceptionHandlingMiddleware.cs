@@ -1,13 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
@@ -74,7 +67,11 @@ namespace MBS.Application.Exceptions
                     errorResponse.StatusCode = (int)HttpStatusCode.Forbidden;
                     _logger.LogInformation(ex.ToString());
                     break;
-
+                case ArgumentException:
+                    response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    errorResponse.StatusCode = (int)HttpStatusCode.Forbidden;
+                    _logger.LogInformation(ex.ToString());
+                    break;
                 // JWT-specific exceptions
                 case SecurityTokenExpiredException: // Token hết hạn
                     response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -122,11 +119,6 @@ namespace MBS.Application.Exceptions
             public string Error { get; set; }
 
             public DateTime TimeStamp { get; set; }
-
-            //public override string ToString()
-            //{
-            //    return JsonSerializer.Serialize(this);
-            //}
         }
     }
 }
