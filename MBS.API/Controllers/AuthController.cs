@@ -130,8 +130,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(ActionResult<BaseModel<RegisterResponseModel, RegisterRequestModel>>),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>>> Refresh(
-            GetRefreshTokenRequestModel request)
+        public async Task<ActionResult<BaseModel<GetRefreshTokenResponseModel, GetRefreshTokenRequestModel>>> Refresh(GetRefreshTokenRequestModel request)
         {
             var response = await _authService.Refresh(request);
             return StatusCode(response.StatusCode, response);
@@ -144,8 +143,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>>> ConfirmEmail(
-            ConfirmEmailRequestModel request)
+        public async Task<ActionResult<BaseModel<ConfirmEmailResponseModel, ConfirmEmailRequestModel>>> ConfirmEmail(ConfirmEmailRequestModel request)
         {
             var response = await _authService.ConfirmEmailAsync(request);
             return StatusCode(response.StatusCode, response);
