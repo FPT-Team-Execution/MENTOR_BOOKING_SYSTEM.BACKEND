@@ -105,9 +105,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(ActionResult<BaseModel<RegisterResponseModel, RegisterRequestModel>>),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<BaseModel<RegisterResponseModel, RegisterRequestModel>>>
-        SignUpStudent(
-            [FromBody] RegisterRequestModel request)
+        public async Task<ActionResult<BaseModel<RegisterResponseModel, RegisterRequestModel>>> SignUpStudent([FromBody] RegisterRequestModel request)
         {
             var response = await _authService.SignUpAsync(request);
             return StatusCode(response.StatusCode, response);
