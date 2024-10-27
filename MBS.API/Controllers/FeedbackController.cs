@@ -1,5 +1,6 @@
 using MBS.Application.Models.Feedback;
 using MBS.Application.Models.Meeting;
+using MBS.Application.ValidationAttributes;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +9,7 @@ namespace MBS.API.Controllers;
 
 [ApiController]
 [Route("api/feedbacks")]
+[Authorize]
 public class FeedbackController : ControllerBase
 {
     private readonly IFeedbackService _feedbackService;
@@ -29,6 +31,7 @@ public class FeedbackController : ControllerBase
     // }
     
     [HttpGet("meeting/{meetingId}/user/{userId}")]
+    [CustomAuthorize(UserRoleEnum.Admin)]
     [ProducesResponseType(typeof(BaseModel<Pagination<FeedbackResponseDto>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
@@ -39,6 +42,7 @@ public class FeedbackController : ControllerBase
         
     }
     [HttpGet("meeting/{meetingId}")]
+    [CustomAuthorize(UserRoleEnum.Admin)]
     [ProducesResponseType(typeof(BaseModel<Pagination<FeedbackResponseDto>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
