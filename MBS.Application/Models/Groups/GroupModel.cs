@@ -15,10 +15,9 @@ namespace MBS.Application.Models.Groups
 
     public class GroupResponseDTO
     {
-        public Guid ProjectId { get; set; }
-        public string StudentId { get; set; }
-        
-        public Guid PositionId { get; set; }
+        public string ProjectName { get; set; }
+        public string StudentName { get; set; }
+        public string PositionName { get; set; }
     }
 
 }

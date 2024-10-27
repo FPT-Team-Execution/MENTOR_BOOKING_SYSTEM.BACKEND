@@ -185,16 +185,38 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<Pagination<GroupResponseDTO>>> GetGroups(int page, int size)
         {
-            var result = await _groupRepository.GetPagedListAsync(page: page, size: size);
+            var result = await _groupRepository.GetPagedListBaseAsync(page: page, size: size);
+
+            var groupDtoList = new List<GroupResponseDTO>();
+            
+            foreach (var group in result.Items)
+            {
+                var studentFound = await _studentRepository.GetByUserIdAsync(group.StudentId, include: m => m.Include( t => t.User));
+                var groupDto = new GroupResponseDTO
+                {
+                    ProjectName = group.Project.Title,
+                    StudentName =  studentFound.User.FullName,
+                    PositionName = group.Position.Name
+                };
+                groupDtoList.Add(groupDto);
+            }
+
+            var paginatedDtoList = new Pagination<GroupResponseDTO>
+            {
+                Items = groupDtoList,
+                PageIndex = page,
+                PageSize = size
+            };
 
             return new BaseModel<Pagination<GroupResponseDTO>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("groups"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = _mapper.Map<Pagination<GroupResponseDTO>>(result)
+                ResponseRequestModel = paginatedDtoList
             };
         }
+
 
         public async Task<BaseModel<GroupStudentsResponseDTO>> GetStudentsInGroupByProjectId(Guid projectId)
         {
