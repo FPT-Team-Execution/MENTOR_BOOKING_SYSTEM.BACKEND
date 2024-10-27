@@ -182,7 +182,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
             projectUpdate.Description = request.Description;
             projectUpdate.DueDate = request.DueDate;
             projectUpdate.Semester = request.Semester;
-            projectUpdate.Status = request.Status;
+            projectUpdate.Status = (ProjectStatusEnum)Enum.Parse<RequestStatusEnum>(request.Status, true);
             var updateResult = _projectRepository.Update(projectUpdate);
             if (updateResult)
                 return new BaseModel<ProjectResponseModel>

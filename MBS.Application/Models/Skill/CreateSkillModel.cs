@@ -2,6 +2,6 @@ namespace MBS.Application.Models.Skill;
 
 public class CreateSkillRequestModel
 {
-    public string Name { get; set; }
-    public string MentorId { get; set; }
+    public required string Name { get; set; }
+    public required string MentorId { get; set; }
 }
