@@ -14,10 +14,10 @@ public class UpdateCalendarEventRequestModel
     // [Required]
     // [Description("new updated time's event after updating from Google Calendar")]
     // public DateTime Updated { get; set; }
-    [Required, RegularExpression(@"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$")]
+    [Required, RegularExpression(@"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$")]
     [Description("new updated Start time's event after updating from Google Calendar")]
     public DateTime? Start { get; set; }
-    [Required, RegularExpression(@"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$")]
+    [Required, RegularExpression(@"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$")]
     [Description("new updated End time's event after updating from Google Calendar")]
     public DateTime? End { get; set; }
     [Required]
