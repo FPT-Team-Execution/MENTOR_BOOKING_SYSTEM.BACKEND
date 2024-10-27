@@ -2,6 +2,7 @@ using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Meeting;
+using MBS.Application.Models.PointTransaction;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
@@ -16,12 +17,14 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
 {
     private readonly IMeetingRepository _meetingRepository;
     private readonly IRequestRepository _requestRepository;
+    private readonly IPointTransactionSerivce _pointTransactionSerivce;
     public MeetingService(
         IRequestRepository requestRepository,
         IMeetingRepository meetingRepository,
-        ILogger<MeetingService> logger, IMapper mapper) : base(logger, mapper)
+        ILogger<MeetingService> logger, IMapper mapper, IPointTransactionSerivce pointTransactionSerivce) : base(logger, mapper)
     {
         _meetingRepository = meetingRepository;
+        _pointTransactionSerivce = pointTransactionSerivce;
         _requestRepository = requestRepository;
     }
     public async Task<BaseModel<MeetingResponseModel>> GetMeetingId(Guid meetingId)
@@ -126,6 +129,8 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                         RequestId = newMeeting.Id,
                     }
                 };
+            
+
             return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
             {
                 Message = MessageResponseHelper.CreateFailed("meeting"),
