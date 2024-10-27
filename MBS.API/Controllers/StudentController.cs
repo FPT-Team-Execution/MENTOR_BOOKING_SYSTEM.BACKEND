@@ -15,7 +15,7 @@ namespace MBS.API.Controllers
         }
 
         [HttpGet]
-        // [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
         [ProducesResponseType(typeof(BaseModel<Pagination<StudentResponseDto>>),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetStudents(int page, int size, string? sortOrder)
