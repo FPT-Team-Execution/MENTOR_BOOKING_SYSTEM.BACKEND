@@ -130,7 +130,42 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                 Status = MeetingStatusEnum.New
             };
             var addResult = await _meetingRepository.CreateAsync(newMeeting);
+            
             if (addResult)
+            {
+                switch (requestCheck.ProjectId)
+                {
+                    case null:
+                    {
+                        var transactionResult = await _pointTransactionService.ModifyStudentPoint(
+                            new ModifyStudentPointRequestModel()
+                            {
+                                Amout = 100,
+                                StudentId = requestCheck.CreaterId,
+                                TransactionType = TransactionTypeEnum.Debit
+                            });
+                        break;
+                    }
+                    default:
+                    {
+                        var project = await _projectRepository.GetByIdAsync(requestCheck.ProjectId, "Id");
+                        var groups = await _groupRepository.GetGroupByProjectIdAsync(project.Id);
+
+                        foreach (var group in groups)
+                        {
+                            var transactionResult = await _pointTransactionService.ModifyStudentPoint(
+                                new ModifyStudentPointRequestModel()
+                                {
+                                    Amout = 100,
+                                    StudentId = group.StudentId,
+                                    TransactionType = TransactionTypeEnum.Debit
+                                });
+                        }
+
+                        break;
+                    }
+                }
+
                 return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("meeting"),
@@ -142,37 +177,6 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                         RequestId = newMeeting.Id,
                     }
                 };
-
-            switch (requestCheck.ProjectId)
-            {
-                case null:
-                {
-                    var transactionResult = await _pointTransactionService.ModifyStudentPoint(
-                        new ModifyStudentPointRequestModel()
-                        {
-                            Amout = 100,
-                            StudentId = requestCheck.CreaterId,
-                            TransactionType = TransactionTypeEnum.Debit
-                        });
-                    break;
-                }
-                default:
-                {
-                    var project = await _projectRepository.GetByIdAsync(requestCheck.ProjectId, "Id");
-                    var groups = await _groupRepository.GetGroupByProjectIdAsync(project.Id);
-
-                    foreach (var group in groups)
-                    {
-                        var transactionResult = await _pointTransactionService.ModifyStudentPoint(
-                            new ModifyStudentPointRequestModel()
-                            {
-                                Amout = 100,
-                                StudentId = group.StudentId,
-                                TransactionType = TransactionTypeEnum.Debit
-                            });
-                    }
-                    break;
-                }
             }
 
             return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
