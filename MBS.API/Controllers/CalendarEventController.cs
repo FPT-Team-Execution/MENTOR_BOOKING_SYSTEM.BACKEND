@@ -1,16 +1,19 @@
 using MBS.Application.Helpers;
 using MBS.Application.Models.CalendarEvent;
+using MBS.Application.ValidationAttributes;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Models.Google.GoogleCalendar.Request;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
+using MBS.Shared.Utils;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MBS.API.Controllers;
 
 [ApiController]
 [Route("/api/calendar-events")]
+[Authorize]
 public class CalendarEventController : ControllerBase
 {
     private readonly ICalendarEventService _calendarEventService;
@@ -31,6 +34,7 @@ public class CalendarEventController : ControllerBase
         
     }
     [HttpGet("{calendarEventId}")]
+    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<CalendarEventResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
@@ -41,6 +45,7 @@ public class CalendarEventController : ControllerBase
         
     }
     [HttpGet("busy-event")]
+    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<GetBusyEventResponse, GetBusyEventRequest>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
@@ -51,6 +56,7 @@ public class CalendarEventController : ControllerBase
         
     }
     [HttpPost("")]
+    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
@@ -63,6 +69,7 @@ public class CalendarEventController : ControllerBase
     }
     
     [HttpPut("{calendarEventId}")]
+    [CustomAuthorize(UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<UpdateCalendarEventResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
@@ -74,6 +81,7 @@ public class CalendarEventController : ControllerBase
         
     }
     [HttpDelete("{calendarEventId}")]
+    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<DeleteCalendarEventResponseModel>),StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
