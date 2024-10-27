@@ -119,10 +119,7 @@ namespace MBS.Shared.Services.Implements
         // {
         //     _claimService.SetCookieValue("Google.AccessToken", accessToken, expiredTime);
         // }
-        private string FormatDateTime(DateTime dateTime, string format)
-        {
-            return dateTime.ToString(format);
-        }
+        
         /// <summary>
         /// Get events from user calendar
         /// </summary>
@@ -132,8 +129,8 @@ namespace MBS.Shared.Services.Implements
             string url = $"https://www.googleapis.com/calendar/v3/calendars/{getRequest.Email}/events";
             var queryParams = new Dictionary<string, string?>
             {
-                { "timeMin", getRequest.TimeMin != null ? FormatDateTime(getRequest.TimeMin.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
-                { "timeMax", getRequest.TimeMax != null ? FormatDateTime(getRequest.TimeMax.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
+                { "timeMin", getRequest.TimeMin != null ? ConvertUtils.FormatDateTime(getRequest.TimeMin.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
+                { "timeMax", getRequest.TimeMax != null ? ConvertUtils.FormatDateTime(getRequest.TimeMax.Value, "yyyy-MM-ddTHH:mm:ssK") : null },
             };
             var headers = new Dictionary<string, string>
             {
@@ -169,12 +166,12 @@ namespace MBS.Shared.Services.Implements
             {
                 Start = new EventTime
                 {
-                    DateTime = FormatDateTime(createRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
+                    DateTime = ConvertUtils.FormatDateTime(createRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
                     TimeZone = "Asia/Ho_Chi_Minh"
                 },
                 End = new EventTime
                 {
-                    DateTime = FormatDateTime(createRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
+                    DateTime = ConvertUtils.FormatDateTime(createRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
                     TimeZone = "Asia/Ho_Chi_Minh"
                 }
             };
@@ -214,12 +211,12 @@ namespace MBS.Shared.Services.Implements
             {
                 Start = new EventTime
                 {
-                    DateTime = FormatDateTime(updateRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
+                    DateTime = ConvertUtils.FormatDateTime(updateRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
                     TimeZone = "Asia/Ho_Chi_Minh"
                 },
                 End = new EventTime
                 {
-                    DateTime = FormatDateTime(updateRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
+                    DateTime = ConvertUtils.FormatDateTime(updateRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
                     TimeZone = "Asia/Ho_Chi_Minh"
                 }
             };
@@ -300,8 +297,8 @@ namespace MBS.Shared.Services.Implements
             var (start, end) = GetStartAndEndOfDay(request.Day);
             var bodyData = new FreeBusyRequest()
             {
-                TimeMin = FormatDateTime(start, "yyyy-MM-ddTHH:mm:ssK"),
-                TimeMax = FormatDateTime(end, "yyyy-MM-ddTHH:mm:ssK"),  
+                TimeMin = ConvertUtils.FormatDateTime(start, "yyyy-MM-ddTHH:mm:ssK"),
+                TimeMax = ConvertUtils.FormatDateTime(end, "yyyy-MM-ddTHH:mm:ssK"),  
                 Items = new List<CalendarItem>
                 {
                     new CalendarItem
@@ -309,7 +306,7 @@ namespace MBS.Shared.Services.Implements
                         Id = request.Email
                     }
                 },
-                TimeZone = "UTC"
+                TimeZone = "Asia/Ho_Chi_Minh"
             };
             HttpResponseMessage response = await WebUtils.PostAsync(url, bodyData, headers, request.AccessToken);
             if (response.StatusCode == HttpStatusCode.OK)

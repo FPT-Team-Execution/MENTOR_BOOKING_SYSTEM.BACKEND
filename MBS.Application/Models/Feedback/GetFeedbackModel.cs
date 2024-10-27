@@ -2,16 +2,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MBS.Application.Models.Feedback;
 
-public class GetFeedbackRequestModel
-{
-    public IEnumerable<Core.Entities.Feedback> Feedbacks { get; set; } = new List<Core.Entities.Feedback>();
-}
+// public class GetFeedbackRequestModel
+// {
+//     public IEnumerable<Core.Entities.Feedback> Feedbacks { get; set; } = new List<Core.Entities.Feedback>();
+// }
 public class GetMeetingFeedbacksByUserIdRequest
 {
     [FromRoute]
     public Guid MeetingId { get; set; }
     [FromRoute]
-    public string UserId { get; set; }
+    public required string UserId { get; set; }
     [FromQuery]
     public int Page { get; set; } = 1;
     [FromQuery]
