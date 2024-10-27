@@ -31,7 +31,8 @@ namespace MBS.Shared.Services.Implements
             string calendarScope = _configuration["Google:Authentication:Scope:calendar"]!;
             string profileScope = _configuration["Google:Authentication:Scope:profile"]!;
             string emailScope = _configuration["Google:Authentication:Scope:email"]!;
-            string scope = "scope=" + Uri.EscapeDataString($"{calendarScope} {profileScope} {emailScope}");
+            string meetingScope = _configuration["Google:Authentication:Scope:meeting"]!;
+            string scope = "scope=" + Uri.EscapeDataString($"{calendarScope} {profileScope} {emailScope} {meetingScope}");
             string redirectUri = "redirect_uri=" + _configuration["Google:Authentication:CallbackUrl"]!;
             string accessType = "access_type=" + "offline";
             string responseType = "response_type=" + "code";
