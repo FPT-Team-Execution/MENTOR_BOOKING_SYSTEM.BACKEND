@@ -9,6 +9,7 @@ using MBS.Core.Entities;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
@@ -49,6 +50,61 @@ public class StudentService : BaseService2<StudentService>, IStudentService
         }
     }
 
+    public async Task<BaseModel<UpdateStudentResponseModel>> UpdateOwnProfile(ClaimsPrincipal User,
+        UpdateStudentRequestModel request)
+    {
+        try
+        {
+            var student = await _studentRepository.GetByUserIdAsync(request.Id, include: x => x.Include(x => x.User));
+            if (student is null)
+            {
+                return new BaseModel<UpdateStudentResponseModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK
+                };
+            }
+
+            student.University = request.University;
+            student.WalletPoint = request.WalletPoint;
+            student.MajorId = Guid.Parse(request.MajorId);
+
+            var user = student.User;
+            user.FullName = request.FullName;
+            user.Birthday = request.Birthday;
+            user.Gender = request.Gender;
+            user.PhoneNumber = request.PhoneNumber;
+            user.LockoutEnd = request.LockoutEnd;
+            user.LockoutEnabled = request.LockoutEnabled;
+            user.UpdatedBy = User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.Name).Value.ToString();
+            user.UpdatedOn = DateTime.UtcNow;
+
+            _studentRepository.Update(student);
+            _userManager.UpdateAsync(user);
+
+            return new BaseModel<UpdateStudentResponseModel>()
+            {
+                Message = MessageResponseHelper.Successfully("Update student"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<UpdateStudentResponseModel>()
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+                ResponseRequestModel = new UpdateStudentResponseModel()
+                {
+                    Succeed = false
+                }
+            };
+        }
+    }
+
     public async Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetOwnProfile(
         ClaimsPrincipal claimsPrincipal)
     {
@@ -81,7 +137,7 @@ public class StudentService : BaseService2<StudentService>, IStudentService
             }
 
             student.User = user;
-            
+
             return new BaseModel<GetStudentResponseModel, GetStudentRequestModel>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("student profile"),
