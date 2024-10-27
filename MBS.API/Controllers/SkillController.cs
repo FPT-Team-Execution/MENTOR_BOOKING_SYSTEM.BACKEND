@@ -1,4 +1,5 @@
 using MBS.Application.Models.Skill;
+using MBS.Application.ValidationAttributes;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 
@@ -6,6 +7,7 @@ using MBS.Core.Entities;
 namespace MBS.API.Controllers;
 [ApiController]
 [Route("api/skills")]
+[Authorize]
 public class SkillController : ControllerBase
 {
    private readonly ISkillService _skillService;
@@ -28,7 +30,7 @@ public class SkillController : ControllerBase
     [ProducesResponseType(typeof(BaseModel<Pagination<Skill>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetMeetingById([FromRoute] Guid skillId)
+    public async Task<IActionResult> GetSkillById([FromRoute] Guid skillId)
     {
         var result = await _skillService.GetSkillById(skillId);
         return StatusCode(result.StatusCode, result);
@@ -45,6 +47,7 @@ public class SkillController : ControllerBase
         
     }
     [HttpPost("")]
+    [CustomAuthorize(UserRoleEnum.Admin,UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<SkillResponseModel,CreateSkillRequestModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
