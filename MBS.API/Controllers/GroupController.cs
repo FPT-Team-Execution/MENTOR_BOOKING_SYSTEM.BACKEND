@@ -3,11 +3,13 @@ using MBS.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using MBS.Application.ValidationAttributes;
 
 namespace MBS.API.Controllers
 {
 	[Route("api/groups")]
 	[ApiController]
+	[Authorize]
 	public class GroupController : ControllerBase
 	{
 		private readonly IGroupService _groupService;
@@ -18,6 +20,7 @@ namespace MBS.API.Controllers
 		}
 		//Tested
 		[HttpGet]
+		[CustomAuthorize(UserRoleEnum.Admin)]
 		[EndpointSummary("Get all available groups")]
 		public async Task<IActionResult> GetAllGroups(int page, int size)
 		{
@@ -42,7 +45,9 @@ namespace MBS.API.Controllers
 		}
 		//Tested
 		[HttpPut("{id}")]
+		[CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Student)]
 		[EndpointSummary("Update specific group by id")]
+		
 		public async Task<IActionResult> UpdateGroup(Guid id, [FromBody] UpdateGroupRequestModel request)
 		{
 			var response = await _groupService.UpdateGroup(id, request);
@@ -50,6 +55,7 @@ namespace MBS.API.Controllers
 		}
 		//Tested
 		[HttpDelete("{id}")]
+		[CustomAuthorize(UserRoleEnum.Admin)]
 		[EndpointSummary("Delete specific group by id")]
 		public async Task<IActionResult> RemoveGroup(Guid id)
 		{
@@ -62,8 +68,6 @@ namespace MBS.API.Controllers
 		{
 			var response = await _groupService.GetStudentsInGroupByProjectId(id);
 			return StatusCode((int)response.StatusCode, response);
-
-
         }
 
         [HttpGet("students/search/{searchItem}")]
@@ -71,8 +75,6 @@ namespace MBS.API.Controllers
         {
             var response = await _groupService.SearchStudent(searchItem);
             return StatusCode((int)response.StatusCode, response);
-
-
         }
     }
 }
