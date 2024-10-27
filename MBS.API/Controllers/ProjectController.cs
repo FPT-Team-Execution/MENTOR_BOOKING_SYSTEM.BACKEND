@@ -17,6 +17,13 @@ namespace MBS.API.Controllers
             _projectService = projectService;
         }
 
+        [HttpGet("")]
+        public async Task<IActionResult> GetProjectPagination([FromQuery] string search = "",[FromQuery] int page = 1, [FromQuery] int pageSize = 5)
+        {
+            var result = await _projectService.GetProjectPagination(search, page, pageSize);
+            return StatusCode(result.StatusCode, result);
+        }
+
         // POST: api/projects
         [HttpPost("")]
         public async Task<ActionResult<BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>>> CreateProject([FromBody] CreateProjectRequestModel request)

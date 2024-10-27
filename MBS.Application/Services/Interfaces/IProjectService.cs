@@ -13,4 +13,5 @@ public interface IProjectService
     Task<BaseModel<ProjectResponseModel>> UpdateProject(Guid projectId, UpdateProjectRequestModel request);
     // Task<BaseModel<ProjectResponseModel>> UpdateProjectStatus(Guid projectId, ProjectStatusEnum newStatus);
     Task<BaseModel<AssignMentorResponseModel>> AssignMentor(Guid projectId, string mentorId);
+    Task<BaseModel<Pagination<ProjectResponseDto>>> GetProjectPagination(string search,int page, int pageSize);
 }

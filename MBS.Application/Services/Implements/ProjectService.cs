@@ -352,4 +352,36 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
             };
         }
     }
+
+    public async Task<BaseModel<Pagination<ProjectResponseDto>>> GetProjectPagination(string search, int page, int pageSize)
+    {
+        try
+        {
+            var projectList = await _projectRepository.GetPagedProject(search, page, pageSize);
+
+            if (projectList == null)
+                return new BaseModel<Pagination<ProjectResponseDto>>
+                {
+                    Message = MessageResponseHelper.ProjectNotFound(""),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            return new BaseModel<Pagination<ProjectResponseDto>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("project"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<ProjectResponseDto>>(projectList)
+            };
+
+        } catch (Exception e)
+        {
+            return new BaseModel<Pagination<ProjectResponseDto>>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
 }
