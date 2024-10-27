@@ -19,7 +19,7 @@ using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
 
-public class AuthService : BaseService<AuthService>, IAuthService
+public class AuthService : BaseService2<AuthService>, IAuthService
 {
     private readonly IMentorRepository _mentorRepository;
     private readonly ITemplateService _templateService;
@@ -28,7 +28,7 @@ public class AuthService : BaseService<AuthService>, IAuthService
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IStudentRepository _studentRepository;
     private readonly IConfiguration _configuration;
-    public AuthService(IUnitOfWork unitOfWork, ILogger<AuthService> logger,
+    public AuthService(ILogger<AuthService> logger,
         IStudentRepository studentRepository, 
         IMentorRepository mentorRepository,
         IEmailService emailService,
@@ -37,7 +37,7 @@ public class AuthService : BaseService<AuthService>, IAuthService
         SignInManager<ApplicationUser> signInManager,
         IConfiguration configuration,
         IMapper mapper)
-        : base(unitOfWork, logger, mapper)
+        : base(logger, mapper)
     {
         _studentRepository = studentRepository;
         _mentorRepository = mentorRepository;
@@ -477,7 +477,7 @@ public class AuthService : BaseService<AuthService>, IAuthService
                  var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(userCreate, _configuration);
                  return new BaseModel<ExternalSignInResponseModel>
                  {
-                     Message = MessageResponseHelper.GetSuccessfully("athorization"),
+                     Message = MessageResponseHelper.GetSuccessfully("authentication"),
                      StatusCode = StatusCodes.Status200OK,
                      IsSuccess = true,
                      ResponseRequestModel = new ExternalSignInResponseModel

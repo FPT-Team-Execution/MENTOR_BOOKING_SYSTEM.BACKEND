@@ -14,80 +14,112 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MBS.Application.Services.Implements
 {
-    public class GroupService : BaseService<GroupService>, IGroupService
+    public class GroupService : BaseService2<GroupService>, IGroupService
     {
-
         private readonly IGroupRepository _groupRepository;
         private readonly IStudentRepository _studentRepository;
         private readonly IMajorRepository _majorRepository;
         private readonly IProjectRepository _projectRepository;
 
-
-        public GroupService(IUnitOfWork unitOfWork, IMajorRepository majorRepository, IProjectRepository projectRepository, IGroupRepository groupRepository, ILogger<GroupService> logger, IMapper mapper, IStudentRepository studentRepository)
-            : base(unitOfWork, logger, mapper)
+        public GroupService(
+            IMajorRepository majorRepository,
+            IProjectRepository projectRepository,
+            IGroupRepository groupRepository,
+            IStudentRepository studentRepository,
+            ILogger<GroupService> logger, IMapper mapper)
+            : base(logger, mapper)
         {
-            _groupRepository = groupRepository; 
+            _groupRepository = groupRepository;
             _studentRepository = studentRepository;
             _majorRepository = majorRepository;
             _projectRepository = projectRepository;
-
         }
 
-
-        public async Task<BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>> CreateNewGroupAsync(CreateNewGroupRequestModel request)
+        public async Task<BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>> CreateNewGroupAsync(
+            CreateNewGroupRequestModel request)
         {
-            var newGroup = new Group
+            try
             {
-                Id = Guid.NewGuid(),
-                ProjectId = request.ProjectId,
-                StudentId = request.StudentId,
-                PositionId = request.PositionId
-            };
-
-            await _unitOfWork.GetRepository<Group>().InsertAsync(newGroup);
-            await _unitOfWork.CommitAsync();
-
-            return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
-            {
-                Message = MessageResponseHelper.CreateSuccessfully("group"),
-                IsSuccess = true,
-                StatusCode = StatusCodes.Status200OK,
-                RequestModel = request,
-                ResponseModel = new CreateNewGroupResponseModel
+                var newGroup = new Group
                 {
-                    Id = newGroup.Id,
-                }
-            };
+                    Id = Guid.NewGuid(),
+                    ProjectId = request.ProjectId,
+                    StudentId = request.StudentId,
+                    PositionId = request.PositionId
+                };
+
+                var addResult = await _groupRepository.CreateAsync(newGroup);
+                if (!addResult)
+                    return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
+                    {
+                        Message = MessageResponseHelper.CreateFailed("group"),
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status500InternalServerError,
+                        RequestModel = request,
+                    };
+                return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
+                {
+                    Message = MessageResponseHelper.CreateSuccessfully("group"),
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    RequestModel = request,
+                    ResponseModel = new CreateNewGroupResponseModel
+                    {
+                        Id = newGroup.Id,
+                    }
+                };
+            }
+            catch (Exception e)
+            {
+                return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
+                {
+                    Message = e.Message,
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    RequestModel = request,
+                };
+            }
         }
 
         public async Task<BaseModel<GroupModel>> GetGroupId(Guid requestId)
         {
-            var group = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(g => g.Id == requestId);
-            if (group == null)
+            try
+            {
+                var group = await _groupRepository.GetByIdAsync(requestId, "Id");
+                if (group == null)
+                {
+                    return new BaseModel<GroupModel>
+                    {
+                        Message = MessageResponseHelper.GetFailed("group"),
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status404NotFound
+                    };
+                }
+
+                return new BaseModel<GroupModel>
+                {
+                    Message = MessageResponseHelper.GetSuccessfully("group"),
+                    IsSuccess = true,
+                    StatusCode = StatusCodes.Status200OK,
+                    ResponseRequestModel = new GroupModel
+                    {
+                        groupResponseDTO = _mapper.Map<GroupResponseDTO>(group)
+                    }
+                };
+            }
+            catch (Exception e)
             {
                 return new BaseModel<GroupModel>
                 {
-                    Message = MessageResponseHelper.GetFailed("group"),
+                    Message = e.Message,
                     IsSuccess = false,
-                    StatusCode = StatusCodes.Status404NotFound
+                    StatusCode = StatusCodes.Status500InternalServerError
                 };
             }
-
-            return new BaseModel<GroupModel>
-            {
-                Message = MessageResponseHelper.GetSuccessfully("group"),
-                IsSuccess = true,
-                StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new GroupModel
-                {
-                    groupResponseDTO = _mapper.Map<GroupResponseDTO>(group)
-                }
-            };
         }
-
         public async Task<BaseModel<GroupModel>> UpdateGroup(Guid id, UpdateGroupRequestModel request)
         {
-            var group = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(g => g.Id == id);
+            var group = await _groupRepository.GetByIdAsync(id, "Id");
             if (group == null)
             {
                 return new BaseModel<GroupModel>
@@ -101,9 +133,14 @@ namespace MBS.Application.Services.Implements
             group.StudentId = request.studentId;
             group.PositionId = request.PositionId;
 
-            _unitOfWork.GetRepository<Group>().UpdateAsync(group);
-            await _unitOfWork.CommitAsync();
-
+            var updateRs = _groupRepository.Update(group);
+            if (!updateRs)
+                return new BaseModel<GroupModel>
+                {
+                    Message = MessageResponseHelper.UpdateFailed("group"),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
             return new BaseModel<GroupModel>
             {
                 Message = MessageResponseHelper.UpdateSuccessfully("group"),
@@ -118,7 +155,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel> RemoveGroup(Guid id)
         {
-            var group = await _unitOfWork.GetRepository<Group>().SingleOrDefaultAsync(g => g.Id == id);
+            var group = await _groupRepository.GetByIdAsync(id, "Id");
             if (group == null)
             {
                 return new BaseModel
@@ -130,9 +167,14 @@ namespace MBS.Application.Services.Implements
             }
 
             //group. = MBS.Core.Enums.StatusEnum.Deactivated;
-            _unitOfWork.GetRepository<Group>().UpdateAsync(group);
-            await _unitOfWork.CommitAsync();
-
+            var updateRs = _groupRepository.Update(group);
+            if (!updateRs)
+                return new BaseModel
+                {
+                    Message = MessageResponseHelper.DeleteFailed("group"),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
             return new BaseModel
             {
                 Message = MessageResponseHelper.DeleteSuccessfully("group"),
@@ -143,7 +185,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<Pagination<GroupResponseDTO>>> GetGroups(int page, int size)
         {
-            var result = await _unitOfWork.GetRepository<Group>().GetPagingListAsync(page: page, size: size);
+            var result = await _groupRepository.GetPagedListAsync(page: page, size: size);
 
             return new BaseModel<Pagination<GroupResponseDTO>>
             {
@@ -163,7 +205,8 @@ namespace MBS.Application.Services.Implements
 
                 foreach (var group in groupFound)
                 {
-                    Student student = await _studentRepository.GetByUserIdAsync(group.StudentId, m => m.Include(x => x.User));
+                    Student student =
+                        await _studentRepository.GetByUserIdAsync(group.StudentId, m => m.Include(x => x.User));
                     if (student != null)
                     {
                         studentDTOs.Add(new StudentInGroupDTO
@@ -174,7 +217,6 @@ namespace MBS.Application.Services.Implements
                             University = student.University,
                             Major = await _majorRepository.GetMajorByIdAsync(student.MajorId),
                             WalletPoint = student.WalletPoint,
-                            
                         });
                     }
                 }
@@ -213,7 +255,8 @@ namespace MBS.Application.Services.Implements
             {
                 foreach (var student in students)
                 {
-                    var searchUser = await _studentRepository.GetByUserIdAsync(student.UserId, m => m.Include(x => x.User));
+                    var searchUser =
+                        await _studentRepository.GetByUserIdAsync(student.UserId, m => m.Include(x => x.User));
 
                     string fullName = searchUser.User.FullName.ToLower();
                     string email = searchUser.User.Email.ToLower();
@@ -232,6 +275,7 @@ namespace MBS.Application.Services.Implements
                     }
                 }
             }
+
             var response = studentSearchDTOs;
             return new BaseModel<List<StudentSearchDTO>>
             {
@@ -241,6 +285,5 @@ namespace MBS.Application.Services.Implements
                 ResponseRequestModel = response
             };
         }
-
     }
 }
