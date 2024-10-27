@@ -345,4 +345,17 @@ public static class MessageResponseHelper
     }
 
     #endregion
+
+    #region Point
+
+    public static string InvalidBalancePoint(string objectName)
+    {
+        var stringBuilder = new StringBuilder();
+        stringBuilder.Append("Balance point of ");
+        stringBuilder.Append(objectName);
+        stringBuilder.Append(" not enough!");
+        return stringBuilder.ToString();
+    }
+
+    #endregion
 }
