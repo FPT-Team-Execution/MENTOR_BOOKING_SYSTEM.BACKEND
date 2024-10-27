@@ -2,6 +2,7 @@
 using MBS.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using MBS.Application.ValidationAttributes;
 
 namespace MBS.API.Controllers
 {
@@ -25,8 +26,8 @@ namespace MBS.API.Controllers
         }
         //Tested
         [HttpGet ("{id}")]
+        [Authorize]
         [EndpointSummary("Get specific major by id")]
-
         public async Task<IActionResult> GetMajor(Guid id)
         {
             var response = await _majorService.GetMajorId(id);
@@ -35,7 +36,7 @@ namespace MBS.API.Controllers
         //Tested
         [HttpPost]
         [EndpointSummary("Create new major")]
-
+        [CustomAuthorize(UserRoleEnum.Admin)]
         public async Task<IActionResult> CreateMajor([FromBody] CreateMajorRequestModel request)
         {
             var response = await _majorService.CreateNewMajorAsync(request);
@@ -44,7 +45,7 @@ namespace MBS.API.Controllers
         //Tested
         [HttpPut ("{id}")]
         [EndpointSummary("Update specific major by id")]
-
+        [CustomAuthorize(UserRoleEnum.Admin)]
         public async Task<IActionResult> UpdateMajor(Guid id, [FromBody] UpdateMajorRequestModel request)
         {
             var response = await _majorService.UpdateMajor(id, request);
@@ -52,6 +53,7 @@ namespace MBS.API.Controllers
         }
         //Tested
         [HttpDelete("{id}")]
+        [CustomAuthorize(UserRoleEnum.Admin)]
         [EndpointSummary("Delete specific major by id")]
         public async Task<IActionResult> RemoveMajor(Guid id)
         {

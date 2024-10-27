@@ -171,7 +171,7 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
             meeting.Description = request.Description;
             meeting.Location = request.Location;
             meeting.MeetUp = meeting.MeetUp;
-            meeting.Status = request.Status;
+            meeting.Status = Enum.Parse<MeetingStatusEnum>(request.Status, true);
             var updateResult = _meetingRepository.Update(meeting);
             if (updateResult)
                 return new BaseModel<MeetingResponseModel>

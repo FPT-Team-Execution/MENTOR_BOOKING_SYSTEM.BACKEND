@@ -1,6 +1,7 @@
 using MBS.Application.Models.Feedback;
 using MBS.Application.Models.Meeting;
 using MBS.Application.Models.MeetingMember;
+using MBS.Application.ValidationAttributes;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,6 +9,7 @@ namespace MBS.API.Controllers;
 
 [ApiController]
 [Route("api/meetings")]
+[Authorize]
 public class MeetingController : ControllerBase
 {
     private readonly IMeetingService _meetingService;
@@ -40,11 +42,12 @@ public class MeetingController : ControllerBase
         
     }
     [HttpPost("")]
+    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<MeetingResponseModel, CreateMeetingRequestModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateRequest([FromBody]CreateMeetingRequestModel requestModel)
+    public async Task<IActionResult> CreateMeeting([FromBody]CreateMeetingRequestModel requestModel)
     {
         var result = await _meetingService.CreateMeeting(requestModel);
         return StatusCode(result.StatusCode, result);
@@ -52,6 +55,7 @@ public class MeetingController : ControllerBase
     }
     
     [HttpPut("{meetingId}")]
+    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<MeetingResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
@@ -60,6 +64,5 @@ public class MeetingController : ControllerBase
     {
         var result = await _meetingService.UpdateMeeting(meetingId, requestModel);
         return StatusCode(result.StatusCode, result);
-        
     }
 }

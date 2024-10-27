@@ -1,10 +1,12 @@
 using MBS.Application.Models.Request;
+using MBS.Application.ValidationAttributes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MBS.API.Controllers;
 
 [ApiController]
 [Route("api/requests")]
+[Authorize]
 public class RequestController : ControllerBase
 {
     private readonly IRequestService _requestService;
@@ -33,10 +35,12 @@ public class RequestController : ControllerBase
         
     }
     [HttpPost("")]
+    [CustomAuthorize(UserRoleEnum.Admin,UserRoleEnum.Student)]
     [ProducesResponseType(typeof(BaseModel<RequestResponseModel, CreateRequestRequestModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+    
     public async Task<ActionResult<BaseModel<RequestResponseModel, CreateRequestRequestModel>>> CreateRequest([FromBody]CreateRequestRequestModel requestModel)
     {
         var result = await _requestService.CreateRequest(requestModel);
@@ -49,7 +53,7 @@ public class RequestController : ControllerBase
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<BaseModel<RequestResponseModel>>> UpdateEvent([FromRoute] Guid requestId, UpdateRequestRequestModel requestModel)
+    public async Task<ActionResult<BaseModel<RequestResponseModel>>> UpdateRequest([FromRoute] Guid requestId, UpdateRequestRequestModel requestModel)
     {
         var result = await _requestService.UpdateRequest(requestId, requestModel);
         return StatusCode(result.StatusCode, result);

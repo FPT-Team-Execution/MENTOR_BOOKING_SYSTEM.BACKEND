@@ -1,11 +1,13 @@
 using MBS.Application.Models.Meeting;
 using MBS.Application.Models.MeetingMember;
+using MBS.Application.ValidationAttributes;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MBS.API.Controllers;
 
 [ApiController]
 [Route("api/meeting-members")]
+[Authorize]
 public class MeetingMemberController : ControllerBase
 {
     private readonly IMeetingMemberService _meetingMemberService;
