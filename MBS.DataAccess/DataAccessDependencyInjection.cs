@@ -38,9 +38,6 @@ namespace MBS.DataAccess
         }
         private static void AddRepositories(this IServiceCollection services)
         {
-            
-            services.AddScoped<DAO.IUnitOfWork, DAO.UnitOfWork>();
-
             //services.AddScoped(typeof(Repositories.IUnitOfWork<>), typeof(Repositories.UnitOfWork<>));
             //services.AddScoped<IBaseRepository, BaseRepository>();
             services.AddScoped<ISkillRepository, SkillRepository>();
