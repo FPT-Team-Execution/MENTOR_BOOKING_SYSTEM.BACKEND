@@ -1,4 +1,5 @@
 
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace MBS.Application.Models.CalendarEvent;
@@ -7,7 +8,7 @@ public class CalendarEventPaginationQueryParameters
 {
     public DateTime? StartTime { get; set; }
     public DateTime? EndTime { get; set; }
-    public string? SortBy { get; set; }
+    public required string SortBy { get; set; } = "asc";
     public int Page { get; set; } = 1;
     public int Size { get; set; } = 10;
 }

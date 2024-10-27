@@ -154,6 +154,16 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
     {
         try
         {
+            //check time
+            if (parameters.StartTime >= parameters.EndTime)
+            {
+                return new BaseModel<Pagination<CalendarEvent>>
+                {
+                    Message = MessageResponseHelper.InvalidInputParameterDetail("starttime and endtime"),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                };
+            }
             //check mentor
             var mentor = await _mentorRepository.GetMentorByIdAsync(mentorId);
             if (mentor == null)
@@ -200,7 +210,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 }
             }
             var asyncEvents = await _calendarEventRepository.GetCalendarEventsByMentorIdPaginationAsync(
-                mentorId, parameters.StartTime, parameters.EndTime, parameters.SortBy!, parameters.Page, parameters.Size);
+                mentorId, parameters.StartTime, parameters.EndTime, parameters.SortBy, parameters.Page, parameters.Size);
             return new BaseModel<Pagination<CalendarEvent>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
