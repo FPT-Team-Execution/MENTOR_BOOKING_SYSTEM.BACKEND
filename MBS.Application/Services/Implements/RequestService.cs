@@ -23,13 +23,15 @@ public class RequestService : BaseService2<RequestService>, IRequestService
     private readonly ICalendarEventRepository _eventRepository;
     private readonly IRequestRepository _requestRepository;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly CalendarEventService _calendarEventService;
+    private readonly ICalendarEventService _calendarEventService;
+    private readonly IStudentRepository _studentRepository;
     
     public RequestService(
         IMentorRepository mentorRepository,
         IProjectRepository projectRepository,
         ICalendarEventRepository eventRepository,
         IRequestRepository requestRepository,
+        IStudentRepository _studentRepository,
         UserManager<ApplicationUser> userManager,
         ILogger<RequestService> logger,
         IMapper mapper
@@ -40,6 +42,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
         _eventRepository = eventRepository;
         _userManager = userManager;
         _requestRepository = requestRepository;
+        this._studentRepository = _studentRepository;
     }
     public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequests(GetRequestsPaginationRequest request)
     {
@@ -142,6 +145,15 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
+            
+            // check student point
+            switch (request.ProjectId)
+            {
+                case null:
+                {
+                    break;
+                }
+            }
             
             //Check project
             var project = await _projectRepository.GetByIdAsync(request.ProjectId, "Id");

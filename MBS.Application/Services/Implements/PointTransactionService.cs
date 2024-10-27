@@ -19,7 +19,7 @@ namespace MBS.Application.Services.Implements
         public PointTransactionService(
             IStudentRepository studentRepository,
             IPointTransactionRepository pointTransactionRepository,
-            Logger<PointTransactionService> logger, IMapper mapper) : base(logger, mapper)
+            ILogger<PointTransactionService> logger, IMapper mapper) : base(logger, mapper)
         {
             _studentRepository = studentRepository;
             _pointTransactionRepository = pointTransactionRepository;
