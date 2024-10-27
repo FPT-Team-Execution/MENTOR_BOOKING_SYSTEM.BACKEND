@@ -26,5 +26,9 @@ public class ConvertUtils
 
         return (start, end);
     }
+    public static string FormatDateTime(DateTime dateTime, string format)
+    {
+        return dateTime.ToString(format);
+    }
 
 }
