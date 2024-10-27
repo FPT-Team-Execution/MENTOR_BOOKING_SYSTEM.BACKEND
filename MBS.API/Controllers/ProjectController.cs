@@ -1,6 +1,7 @@
 
 
 using MBS.Application.Models.Project;
+using MBS.Application.ValidationAttributes;
 using MBS.Core.Common.Pagination;
 
 namespace MBS.API.Controllers
@@ -38,6 +39,7 @@ namespace MBS.API.Controllers
 
         // PUT: api/projects/{projectId}
         [HttpPut("{projectId}")]
+        [CustomAuthorize(UserRoleEnum.Admin)]
         public async Task<IActionResult> UpdateProject([FromRoute] Guid projectId, [FromBody] UpdateProjectRequestModel request)
         {
             if (projectId == Guid.Empty)
@@ -78,6 +80,7 @@ namespace MBS.API.Controllers
 
         // PUT: api/projects/{projectId}/mentor/{mentorId}
         [HttpPut("{projectId}/mentor/{mentorId}")]
+        [CustomAuthorize(UserRoleEnum.Admin)]
         public async Task<IActionResult> AssignMentor([FromRoute] Guid projectId, [FromRoute] string mentorId)
         {
             if (projectId == Guid.Empty || string.IsNullOrWhiteSpace(mentorId))
