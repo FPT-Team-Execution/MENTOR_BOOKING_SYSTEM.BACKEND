@@ -1,11 +1,7 @@
 namespace MBS.Shared.Utils;
 
 public class ConvertUtils
-{
-    public string JoinAuthorizeRoles(params string[] roles)
-    {
-        return string.Join(',', roles);
-    }
+{ 
     public static (DateTime Start, DateTime End) GetStartEndTime(DateTime date)
     {
         // Start of the day: 00:00:00
