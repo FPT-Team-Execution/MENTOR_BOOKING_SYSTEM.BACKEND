@@ -171,11 +171,9 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                                 TransactionType = TransactionTypeEnum.Debit
                             });
                     }
-
                     break;
                 }
             }
-
 
             return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
             {
