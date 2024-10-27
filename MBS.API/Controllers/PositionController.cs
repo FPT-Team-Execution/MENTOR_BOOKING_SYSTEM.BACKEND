@@ -3,11 +3,13 @@ using MBS.Application.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Threading.Tasks;
+using MBS.Application.ValidationAttributes;
 
 namespace MBS.API.Controllers
 {
 	[Route("api/positions")]
 	[ApiController]
+	[Authorize]
 	public class PositionController : ControllerBase
 	{
 		private readonly IPositionService _positionService;
@@ -34,6 +36,7 @@ namespace MBS.API.Controllers
 		}
 
 		[HttpPost]
+		[CustomAuthorize(UserRoleEnum.Admin)]
 		[EndpointSummary("Create a new position")]
 		public async Task<IActionResult> CreatePosition([FromBody] CreatePositionRequestModel request)
 		{
@@ -42,6 +45,7 @@ namespace MBS.API.Controllers
 		}
 
 		[HttpPut("{id}")]
+		[CustomAuthorize(UserRoleEnum.Admin)]
 		[EndpointSummary("Update specific position by id")]
 		public async Task<IActionResult> UpdatePosition(Guid id, [FromBody] UpdatePositionRequestModel request)
 		{
@@ -51,6 +55,7 @@ namespace MBS.API.Controllers
 
 
 		[HttpDelete("{id}")]
+		[CustomAuthorize(UserRoleEnum.Admin)]
 		[EndpointSummary("Delete specific position by id")]
 		public async Task<IActionResult> RemovePosition(Guid id)
 		{
