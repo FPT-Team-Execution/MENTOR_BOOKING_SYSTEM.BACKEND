@@ -16,14 +16,14 @@ namespace MBS.API.Controllers
 
         [HttpGet]
         // [Authorize(Roles = nameof(UserRoleEnum.Admin))]
-        [ProducesResponseType(typeof(BaseModel<Pagination<StudentResponseDto>>),StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(BaseModel<Pagination<StudentResponseDto>>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetStudents(int page, int size, string? sortOrder)
         {
             var response = await _studentService.GetStudents(page, size, sortOrder);
             return StatusCode(response.StatusCode, response);
         }
-        
+
         [HttpGet]
         [Route("profile")]
         [Authorize(Roles = nameof(UserRoleEnum.Student))]
@@ -43,6 +43,15 @@ namespace MBS.API.Controllers
             {
                 Id = id
             });
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPut]
+        [Route("profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateStudent(UpdateStudentRequestModel request)
+        {
+            var response = await _studentService.UpdateOwnProfile(User, request);
             return StatusCode(response.StatusCode, response);
         }
     }
