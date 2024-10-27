@@ -28,4 +28,15 @@ public class GroupRepository(IBaseDAO<Group> dao) : BaseRepository<Group>(dao), 
         );
     }
 
+    public async Task<Pagination<Group>> GetPagedListBaseAsync(int page, int size)
+    {
+        return await _dao.GetPagingListAsync
+            (
+                include: p => p.Include(
+                    x => x.Project).Include(y => y.Student).Include(z => z.Position)
+                );
+    }
+
+
+
 }

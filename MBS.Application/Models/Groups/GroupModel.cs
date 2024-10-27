@@ -15,9 +15,8 @@ namespace MBS.Application.Models.Groups
 
     public class GroupResponseDTO
     {
-        public string Name { get; set; }
+        public string ProjectName { get; set; }
         public string StudentName { get; set; }
-
         public string PositionName { get; set; }
     }
 
