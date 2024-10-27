@@ -19,6 +19,8 @@ namespace MBS.Shared.Services.Interfaces
         Task<GoogleResponse> UpdateEvent(string email, string eventId, string accessToken, UpdateGoogleCalendarEventRequest updateRequest);
         Task<GoogleResponse> DeleteEvent(string email, string eventId, string accessToken);
         Task<GoogleResponse> GetFreeBusyPeriod(FreeBusyParamters request);
+        Task<GoogleResponse> CreateMeeting(string accessToken);
+
 
     }
 }
