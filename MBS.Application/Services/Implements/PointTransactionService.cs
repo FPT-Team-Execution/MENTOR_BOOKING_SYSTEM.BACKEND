@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Transactions;
+using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.PointTransaction;
@@ -7,23 +8,28 @@ using MBS.Core.Entities;
 using MBS.Core.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using MBS.DataAccess.DAO;
+using MBS.DataAccess.Repositories.Interfaces;
 
 namespace MBS.Application.Services.Implements
 {
-    public class PointTransactionService : BaseService<PointTransactionService>, IPointTransactionSerivce
+    public class PointTransactionService : BaseService2<PointTransactionService>, IPointTransactionSerivce
     {
-        public PointTransactionService(IUnitOfWork unitOfWork, ILogger<PointTransactionService> logger, IMapper mapper) : base(unitOfWork, logger, mapper)
+        private readonly IStudentRepository _studentRepository;
+        private readonly IPointTransactionRepository _pointTransactionRepository; 
+        public PointTransactionService(
+            IStudentRepository studentRepository,
+            IPointTransactionRepository pointTransactionRepository,
+            Logger<PointTransactionService> logger, IMapper mapper) : base(logger, mapper)
         {
-
+            _studentRepository = studentRepository;
+            _pointTransactionRepository = pointTransactionRepository;
         }
 
         public async Task<BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>> ModifyStudentPoint(ModifyStudentPointRequestModel request)
         {
             try
             {
-                var student = await _unitOfWork.GetRepository<Student>().SingleOrDefaultAsync(predicate: (x) => x.UserId == request.StudentId);
-
+                var student = await _studentRepository.GetByIdAsync(request.StudentId, "Id");
                 if (student == null)
                 {
                     return new BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>
@@ -60,13 +66,31 @@ namespace MBS.Application.Services.Implements
                             break;
                         }
                 }
-
-                _unitOfWork.GetRepository<Student>().UpdateAsync(student);
-
-                await _unitOfWork.GetRepository<PointTransaction>().InsertAsync(pointTransaction);
-
-                await _unitOfWork.CommitAsync();
-
+                using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                {
+                    var updateRs = _studentRepository.Update(student);
+                    if(!updateRs)
+                        return new BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>
+                        {
+                            Message = MessageResponseHelper.UpdateFailed("student"),
+                            IsSuccess = false,
+                            RequestModel = request,
+                            ResponseModel = null,
+                            StatusCode = StatusCodes.Status500InternalServerError
+                        };
+                    var pointInsertRs = await _pointTransactionRepository.CreateAsync(pointTransaction);
+                    if(!pointInsertRs)
+                        return new BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>
+                        {
+                            Message = MessageResponseHelper.CreateFailed("point transaction"),
+                            IsSuccess = false,
+                            RequestModel = request,
+                            ResponseModel = null,
+                            StatusCode = StatusCodes.Status500InternalServerError
+                        };
+                    transactionScope.Complete();
+                }
+                
                 return new BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>
                 {
                     Message = MessageResponseHelper.Successfully("Credit student point"),
