@@ -9,6 +9,8 @@ using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
+using MBS.Shared.Models.Google.GoogleMeeting.Response;
+using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
@@ -22,14 +24,17 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
     private readonly IPointTransactionSerivce _pointTransactionService;
     private readonly IProjectRepository _projectRepository;
     private readonly IGroupRepository _groupRepository;
+    private readonly IGoogleService _googleService;
 
     public MeetingService(
+        IGoogleService googleService,
         IRequestRepository requestRepository,
         IMeetingRepository meetingRepository,
         ILogger<MeetingService> logger, IMapper mapper, IPointTransactionSerivce pointTransactionService,
         IProjectRepository projectRepository, IGroupRepository groupRepository) : base(logger,
         mapper)
     {
+        _googleService = googleService;
         _meetingRepository = meetingRepository;
         _pointTransactionService = pointTransactionService;
         _projectRepository = projectRepository;
@@ -95,8 +100,7 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
         }
     }
 
-    public async Task<BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>> CreateMeeting(
-        CreateMeetingRequestModel request)
+    public async Task<BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>> CreateMeeting(string accessToken, CreateMeetingRequestModel request)
     {
         try
         {
@@ -118,7 +122,14 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
-
+            //create google meeting to get meeting url
+            var googleMeetingUrl = string.Empty;
+            if (request.IsOnline)
+            {
+                GoogleMeetingResponse googleMeetingResponse = (GoogleMeetingResponse)await _googleService.CreateMeeting(accessToken);
+                if (googleMeetingResponse.IsSuccess)
+                    googleMeetingUrl = googleMeetingResponse.MeetingUri;
+            }
             //Create meeting
             var newMeeting = new Meeting()
             {
@@ -126,7 +137,7 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                 RequestId = request.RequestId,
                 Description = request.Description,
                 Location = request.Location,
-                MeetUp = request.MeetUp,
+                MeetUp = googleMeetingUrl,
                 Status = MeetingStatusEnum.New
             };
             var addResult = await _meetingRepository.CreateAsync(newMeeting);

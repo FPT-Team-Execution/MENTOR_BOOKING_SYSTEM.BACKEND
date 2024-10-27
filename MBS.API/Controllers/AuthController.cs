@@ -50,8 +50,10 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
 
-        public async Task<IActionResult> GoogleResponse([Required] string code, [Required] string callbackUri)
+        public async Task<IActionResult> GoogleResponse([Required] string code, string? callbackUri)
         {
+            if (callbackUri == null)
+                callbackUri = _configuration["Google:Authentication:CallbackUrl"]!;
             // Get Provider Info
              // var googleAuthResponse = await _googleService.AuthenticateGoogleUserAsync(HttpContext);
              // if (!googleAuthResponse.IsSuccess)

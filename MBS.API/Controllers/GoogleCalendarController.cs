@@ -7,7 +7,7 @@ namespace MBS.API.Controllers;
 
 [Route("api/calendars")]
 [ApiController]
-//TODO: not show google calendar api
+//* not show google calendar api
 [ApiExplorerSettings(IgnoreApi = true)]
 public class GoogleCalendarController : ControllerBase
 {
