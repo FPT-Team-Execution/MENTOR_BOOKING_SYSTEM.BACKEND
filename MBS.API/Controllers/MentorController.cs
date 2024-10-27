@@ -1,4 +1,5 @@
 using MBS.Application.Models.Groups;
+using MBS.Application.Models.Mentor;
 using MBS.Core.Common.Pagination;
 
 
@@ -18,7 +19,7 @@ namespace MBS.API.Controllers
         [HttpGet]
         [Route("profile")]
         [Authorize(Roles = nameof(UserRoleEnum.Mentor))]
-        public async Task<ActionResult<BaseModel<GetMentorOwnProfileResponseModel>>>
+        public async Task<ActionResult<BaseModel<GetMentorResponseModel>>>
             GetOwnProfile()
         {
             var response = await _mentorService.GetOwnProfile(User);
@@ -74,6 +75,14 @@ namespace MBS.API.Controllers
             MentorSearch(string searchItem)
         {
             var response = await _mentorService.SearchMentor(searchItem);
+            return StatusCode(response.StatusCode, response);
+        }
+
+        [HttpPut]
+        [Route("profile")]
+        public async Task<IActionResult> UpdateMentor(UpdateMentorRequestModel request)
+        {
+            var response = await _mentorService.UpdateOwnProfile(User, request);
             return StatusCode(response.StatusCode, response);
         }
     }
