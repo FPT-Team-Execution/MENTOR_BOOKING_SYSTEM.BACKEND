@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using System.Security.Claims;
 using MBS.Shared.Models.Google.GoogleCalendar.Request;
 using MBS.Shared.Models.Google.GoogleCalendar.Response;
+using MBS.Shared.Models.Google.GoogleMeeting.Response;
 using MBS.Shared.Models.Google.GoogleOAuth.Response;
 using MBS.Shared.Utils;
 
@@ -30,7 +31,8 @@ namespace MBS.Shared.Services.Implements
             string calendarScope = _configuration["Google:Authentication:Scope:calendar"]!;
             string profileScope = _configuration["Google:Authentication:Scope:profile"]!;
             string emailScope = _configuration["Google:Authentication:Scope:email"]!;
-            string scope = "scope=" + Uri.EscapeDataString($"{calendarScope} {profileScope} {emailScope}");
+            string meetingScope = _configuration["Google:Authentication:Scope:meeting"]!;
+            string scope = "scope=" + Uri.EscapeDataString($"{calendarScope} {profileScope} {emailScope} {meetingScope}");
             string redirectUri = "redirect_uri=" + _configuration["Google:Authentication:CallbackUrl"]!;
             string accessType = "access_type=" + "offline";
             string responseType = "response_type=" + "code";
@@ -319,6 +321,42 @@ namespace MBS.Shared.Services.Implements
             var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
             errorResult.IsSuccess = false;
             return errorResult;
+        }
+
+        public async Task<GoogleResponse> CreateMeeting(string accessToken)
+        {
+            try
+            {
+                string url = $"https://meet.googleapis.com/v2/spaces";
+                var headers = new Dictionary<string, string>
+                {
+                    { "Accept-Charset", "utf-8" },
+                    { "Authorization", $"Bearer {accessToken}" }
+                };
+                HttpResponseMessage response = await WebUtils.PostAsync(
+                    url: url,
+                    data: null,
+                    headers: headers,
+                    accessToken);
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    var successResult = WebUtils.HandleResponse<GoogleMeetingResponse>(response);
+                    successResult.IsSuccess = true;
+                    return successResult;
+                }
+
+                //Other response - error
+                var errorResult = WebUtils.HandleResponse<GoogleErrorResponse>(response);
+                errorResult.IsSuccess = false;
+                return errorResult;
+            }
+            catch (Exception e)
+            {
+                return new GoogleErrorResponse()
+                {
+                    IsSuccess = false,
+                };
+            }
         }
     }
 

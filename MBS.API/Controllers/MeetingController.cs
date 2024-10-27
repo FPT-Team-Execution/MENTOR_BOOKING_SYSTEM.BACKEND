@@ -4,6 +4,7 @@ using MBS.Application.Models.MeetingMember;
 using MBS.Application.ValidationAttributes;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Build.Framework;
 
 namespace MBS.API.Controllers;
 
@@ -47,9 +48,9 @@ public class MeetingController : ControllerBase
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CreateMeeting([FromBody]CreateMeetingRequestModel requestModel)
+    public async Task<IActionResult> CreateMeeting(string accessToken, [FromBody]CreateMeetingRequestModel requestModel)
     {
-        var result = await _meetingService.CreateMeeting(requestModel);
+        var result = await _meetingService.CreateMeeting(accessToken, requestModel);
         return StatusCode(result.StatusCode, result);
    
     }
