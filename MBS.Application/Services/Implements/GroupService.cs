@@ -39,7 +39,7 @@ namespace MBS.Application.Services.Implements
             var newGroup = new Group
             {
                 Id = Guid.NewGuid(),
-                ProjectId = request.projectId,
+                ProjectId = request.ProjectId,
                 StudentId = request.StudentId,
                 PositionId = request.PositionId
             };
@@ -55,7 +55,7 @@ namespace MBS.Application.Services.Implements
                 RequestModel = request,
                 ResponseModel = new CreateNewGroupResponseModel
                 {
-                    id = newGroup.Id,
+                    Id = newGroup.Id,
                 }
             };
         }
