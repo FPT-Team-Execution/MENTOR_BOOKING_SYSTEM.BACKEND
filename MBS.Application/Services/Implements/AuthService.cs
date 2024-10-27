@@ -477,7 +477,7 @@ public class AuthService : BaseService2<AuthService>, IAuthService
                  var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(userCreate, _configuration);
                  return new BaseModel<ExternalSignInResponseModel>
                  {
-                     Message = MessageResponseHelper.GetSuccessfully("athorization"),
+                     Message = MessageResponseHelper.GetSuccessfully("authentication"),
                      StatusCode = StatusCodes.Status200OK,
                      IsSuccess = true,
                      ResponseRequestModel = new ExternalSignInResponseModel
