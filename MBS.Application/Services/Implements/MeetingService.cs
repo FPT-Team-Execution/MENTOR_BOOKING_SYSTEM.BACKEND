@@ -151,9 +151,10 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                         var transactionResult = await _pointTransactionService.ModifyStudentPoint(
                             new ModifyStudentPointRequestModel()
                             {
-                                Amout = 100,
+                                Amount = 100,
                                 StudentId = requestCheck.CreaterId,
-                                TransactionType = TransactionTypeEnum.Debit
+                                Kind = nameof(TransactionKindEnum.Personal),
+                                TransactionType = TransactionTypeEnum.Debit.ToString()
                             });
                         break;
                     }
@@ -167,9 +168,10 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                             var transactionResult = await _pointTransactionService.ModifyStudentPoint(
                                 new ModifyStudentPointRequestModel()
                                 {
-                                    Amout = 100,
+                                    Amount = 100,
                                     StudentId = group.StudentId,
-                                    TransactionType = TransactionTypeEnum.Debit
+                                    Kind = nameof(TransactionKindEnum.Project),
+                                    TransactionType = TransactionTypeEnum.Debit.ToString()
                                 });
                         }
 
