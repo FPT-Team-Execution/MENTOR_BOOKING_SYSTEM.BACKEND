@@ -16,7 +16,7 @@ namespace MBS.API.Controllers
         }
 
         [HttpPost]
-        // [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
         public async Task<IActionResult> ModifyStudentPoint(ModifyStudentPointRequestModel request)
         {
             var response = await _pointTransactionSerivce.ModifyStudentPoint(request);
