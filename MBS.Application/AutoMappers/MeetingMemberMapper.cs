@@ -1,10 +1,6 @@
 ﻿using AutoMapper;
 using MBS.Application.Models.MeetingMember;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MBS.Core.Entities;
 
 namespace MBS.Application.AutoMappers
 {
@@ -12,7 +8,7 @@ namespace MBS.Application.AutoMappers
 	{
         public MeetingMemberMapper()
         {
-            CreateMap<MeetingMapper, MeetingMemberResponseDto>();
+            CreateMap<MeetingMember, MeetingMemberResponseDto>();
         }
     }
 }

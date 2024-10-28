@@ -9,7 +9,7 @@ namespace MBS.API.Controllers;
 
 [ApiController]
 [Route("api/feedbacks")]
-// [Authorize]
+[Authorize]
 public class FeedbackController : ControllerBase
 {
     private readonly IFeedbackService _feedbackService;
@@ -42,7 +42,7 @@ public class FeedbackController : ControllerBase
         
     }
     [HttpGet("meeting/{meetingId}")]
-    // [CustomAuthorize(UserRoleEnum.Admin)]
+    [CustomAuthorize(UserRoleEnum.Admin)]
     [ProducesResponseType(typeof(BaseModel<Pagination<FeedbackResponseDto>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
