@@ -13,7 +13,5 @@ public class UploadAvatarRequestModel
 
 public class UploadAvatarResponseModel
 {
-    [MaxFileSize(5)]
-    [AllowedExtensions(["jpg", "png", "jpeg"])]
-    public required IFormFile File { get; set; }
+    public required string AvatarUrl { get; set; }
 }

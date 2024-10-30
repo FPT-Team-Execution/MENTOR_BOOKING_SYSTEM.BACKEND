@@ -28,15 +28,17 @@ public class AuthService : BaseService2<AuthService>, IAuthService
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IStudentRepository _studentRepository;
     private readonly IConfiguration _configuration;
+    private readonly ISupabaseService _supabaseService;
+
     public AuthService(ILogger<AuthService> logger,
-        IStudentRepository studentRepository, 
+        IStudentRepository studentRepository,
         IMentorRepository mentorRepository,
         IEmailService emailService,
         ITemplateService templateService,
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IConfiguration configuration,
-        IMapper mapper)
+        IMapper mapper, ISupabaseService supabaseService)
         : base(logger, mapper)
     {
         _studentRepository = studentRepository;
@@ -46,6 +48,7 @@ public class AuthService : BaseService2<AuthService>, IAuthService
         _userManager = userManager;
         _signInManager = signInManager;
         _configuration = configuration;
+        _supabaseService = supabaseService;
     }
 
     public async Task<BaseModel<RegisterResponseModel, RegisterRequestModel>> SignUpAsync(
@@ -101,14 +104,14 @@ public class AuthService : BaseService2<AuthService>, IAuthService
                         MajorId = request.MajorId,
                         WalletPoint = 0
                     };
-                    
+
                     var result = await _studentRepository.CreateAsync(newStudent);
 
                     if (!result)
 
-                    // await _unitOfWork.GetRepository<Student>().InsertAsync(newStudent);
-                    //
-                    // if (await _unitOfWork.CommitAsync() <= 0)
+                        // await _unitOfWork.GetRepository<Student>().InsertAsync(newStudent);
+                        //
+                        // if (await _unitOfWork.CommitAsync() <= 0)
 
                     {
                         throw new DatabaseInsertException("student");
@@ -393,7 +396,6 @@ public class AuthService : BaseService2<AuthService>, IAuthService
     public async Task<BaseModel<ExternalSignInResponseModel>> LoginOrSignUpExternal(
         ExternalSignInRequestModel request)
     {
-       
         // var provider = request.authenticationResult;
         var profile = request.profile;
         var token = request.token;
@@ -413,7 +415,7 @@ public class AuthService : BaseService2<AuthService>, IAuthService
                     IsSuccess = false,
                 };
             }
-            
+
             //return response
             var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(user, _userManager, _configuration);
             var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(user, _configuration);
@@ -444,60 +446,118 @@ public class AuthService : BaseService2<AuthService>, IAuthService
             AvatarUrl = profile.picture,
             EmailConfirmed = profile.email_verified
             //TODO: get more info from email
-         };
-         //create user, add role,add external login 
-         //* create user
-         var createResult = await _userManager.CreateAsync(userCreate);
-         if (createResult.Succeeded)
-         {
-             //create mentor
-             var mentorCreate = new Mentor()
-             {
-                 UserId = userCreate.Id
-             };
-             var addMentorResult = await _mentorRepository.CreateAsync(mentorCreate);
-             if (!addMentorResult)
-             {
-                 return new BaseModel<ExternalSignInResponseModel>
-                 {
-                     Message = MessageResponseHelper.CreateFailed("mentor"),
-                     StatusCode = StatusCodes.Status500InternalServerError,
-                     IsSuccess = false
-                 };
-             }
-             //*add role
-             var user = await _userManager.FindByEmailAsync(userCreate.Email);
-             await _userManager.AddToRoleAsync(user, UserRoleEnum.Mentor.ToString());
-             //*Add external login
-             var userLoginInfo = new UserLoginInfo(providerKey: profile.sub, loginProvider: "Google", displayName: "Google");
-             var addResult = await _userManager.AddLoginAsync(userCreate, userLoginInfo);
-             if (addResult.Succeeded)
-             {
-                 var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(userCreate, _userManager, _configuration);
-                 var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(userCreate, _configuration);
-                 return new BaseModel<ExternalSignInResponseModel>
-                 {
-                     Message = MessageResponseHelper.GetSuccessfully("authentication"),
-                     StatusCode = StatusCodes.Status200OK,
-                     IsSuccess = true,
-                     ResponseRequestModel = new ExternalSignInResponseModel
-                     {
-                         JwtModel = new JwtModel
-                         {
-                             AccessToken = accessToken,
-                             RefreshToken =   refreshToken,
-                         },
-                         //TODO: return refresh token
-                         GoogleToken = token
-                     }
-                 };
-             }
-         }
-         return new BaseModel<ExternalSignInResponseModel>
-         {
-             Message = "",
-             StatusCode = StatusCodes.Status500InternalServerError,
-             IsSuccess = false,
-         };
-     }
+        };
+        //create user, add role,add external login 
+        //* create user
+        var createResult = await _userManager.CreateAsync(userCreate);
+        if (createResult.Succeeded)
+        {
+            //create mentor
+            var mentorCreate = new Mentor()
+            {
+                UserId = userCreate.Id
+            };
+            var addMentorResult = await _mentorRepository.CreateAsync(mentorCreate);
+            if (!addMentorResult)
+            {
+                return new BaseModel<ExternalSignInResponseModel>
+                {
+                    Message = MessageResponseHelper.CreateFailed("mentor"),
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                    IsSuccess = false
+                };
+            }
+
+            //*add role
+            var user = await _userManager.FindByEmailAsync(userCreate.Email);
+            await _userManager.AddToRoleAsync(user, UserRoleEnum.Mentor.ToString());
+            //*Add external login
+            var userLoginInfo =
+                new UserLoginInfo(providerKey: profile.sub, loginProvider: "Google", displayName: "Google");
+            var addResult = await _userManager.AddLoginAsync(userCreate, userLoginInfo);
+            if (addResult.Succeeded)
+            {
+                var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(userCreate, _userManager, _configuration);
+                var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(userCreate, _configuration);
+                return new BaseModel<ExternalSignInResponseModel>
+                {
+                    Message = MessageResponseHelper.GetSuccessfully("authentication"),
+                    StatusCode = StatusCodes.Status200OK,
+                    IsSuccess = true,
+                    ResponseRequestModel = new ExternalSignInResponseModel
+                    {
+                        JwtModel = new JwtModel
+                        {
+                            AccessToken = accessToken,
+                            RefreshToken = refreshToken,
+                        },
+                        //TODO: return refresh token
+                        GoogleToken = token
+                    }
+                };
+            }
+        }
+
+        return new BaseModel<ExternalSignInResponseModel>
+        {
+            Message = "",
+            StatusCode = StatusCodes.Status500InternalServerError,
+            IsSuccess = false,
+        };
+    }
+
+    public async Task<BaseModel<UploadAvatarResponseModel, UploadAvatarRequestModel>> UploadAvatar(
+        UploadAvatarRequestModel request, ClaimsPrincipal claimsPrincipal)
+    {
+        try
+        {
+            var userId = claimsPrincipal.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)!.Value;
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                return new BaseModel<UploadAvatarResponseModel, UploadAvatarRequestModel>()
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    RequestModel = request,
+                    StatusCode = StatusCodes.Status404NotFound,
+                    ResponseModel = null
+                };
+            }
+
+            var bucketName = _configuration["Supabase:MainBucket"]!;
+            var fileByte = await FileHelper.ConvertIFormFileToByteArrayAsync(request.File);
+            var fileName = request.File.FileName;
+            var filePath = $"Users/{userId}/Avatar/{fileName}";
+
+            await _supabaseService.UploadFile(fileByte, filePath, bucketName);
+
+            var avatarUrl = _supabaseService.RetrievePublicUrl(bucketName, filePath);
+
+            user.AvatarUrl = avatarUrl;
+
+            await _userManager.UpdateAsync(user);
+
+            return new BaseModel<UploadAvatarResponseModel, UploadAvatarRequestModel>()
+            {
+                Message = MessageResponseHelper.Successfully("Upload avatar"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status201Created,
+                ResponseModel = new UploadAvatarResponseModel()
+                {
+                    AvatarUrl = avatarUrl
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<UploadAvatarResponseModel, UploadAvatarRequestModel>()
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
 }
