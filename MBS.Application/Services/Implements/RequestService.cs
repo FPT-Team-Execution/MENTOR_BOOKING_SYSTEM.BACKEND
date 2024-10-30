@@ -59,7 +59,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             }
-            var requests = await _requestRepository.GetRequestByProjectdPaginationAsync(request.ProjectId, request.Page, request.Size, request.SortOrder, request.RequestStatus);
+            var requests = await _requestRepository.GetRequestByProjectIdPaginationAsync(request.ProjectId, request.Page, request.Size, request.SortOrder, request.RequestStatus);
             return new BaseModel<Pagination<RequestResponseDto>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("requests"),
