@@ -10,7 +10,14 @@ namespace MBS.DataAccess.Repositories.Implements;
 
 public class RequestRepository(IBaseDAO<Request> dao) : BaseRepository<Request>(dao), IRequestRepository
 {
-    public async Task<Pagination<Request>> GetRequestByProjectdPaginationAsync(Guid projectId, int page, int size, string sortOrder, string? requestStatus)
+    public async Task<IEnumerable<Request>> GetRequestByProjectIdAsync(Guid projectId, string? status)
+    {
+        Expression<Func<Request, bool>> filter = x => x.ProjectId == projectId 
+                                                      && (!string.IsNullOrEmpty(status) && x.Status == Enum.Parse<RequestStatusEnum>(status, true)); ;
+        return await _dao.GetListAsync(
+            predicate:  filter);
+    }
+    public async Task<Pagination<Request>> GetRequestByProjectIdPaginationAsync(Guid projectId, int page, int size, string sortOrder, string? requestStatus)
     {
         Expression<Func<Request, bool>> filter = x => x.ProjectId == projectId 
                                                       && (!string.IsNullOrEmpty(requestStatus) && x.Status == Enum.Parse<RequestStatusEnum>(requestStatus, true)); ;
