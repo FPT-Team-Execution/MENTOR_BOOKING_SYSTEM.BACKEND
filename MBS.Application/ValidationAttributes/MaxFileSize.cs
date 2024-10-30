@@ -17,7 +17,7 @@ public class MaxFileSize: System.ComponentModel.DataAnnotations.ValidationAttrib
 
         if (file != null)
         {
-            if (file.Length > (_maxFileSize * 1024 * 1024))
+            if (file.Length > (_maxFileSize * 1024))
             {
                 return new ValidationResult($"Maximum allowed file size is {_maxFileSize} MB.");
             }
