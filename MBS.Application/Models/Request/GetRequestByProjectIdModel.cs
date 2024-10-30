@@ -7,7 +7,7 @@ namespace MBS.Application.Models.Request;
 public class GetRequestByProjectIdPaginationRequest
 {
     [FromRoute(Name = "projectId")]
-    public required string ProjectId { get; set; }
+    public required Guid ProjectId { get; set; }
     [FromQuery]
     public int Page { get; set; } = 1;
     [FromQuery]
