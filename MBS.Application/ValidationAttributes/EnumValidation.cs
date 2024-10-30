@@ -15,7 +15,7 @@ public class EnumValidation : ValidationAttribute
 
     protected override ValidationResult IsValid(object? value, ValidationContext validationContext)
     {
-        if (value == null || !Enum.IsDefined(_enumType, value))
+        if (value != null && !Enum.IsDefined(_enumType, value))
         {
             return new ValidationResult($"Invalid value for {validationContext.DisplayName}");
         }
