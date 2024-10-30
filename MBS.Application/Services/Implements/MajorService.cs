@@ -28,6 +28,29 @@ namespace MBS.Application.Services.Implements
         public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size)
         {
             var result = await _majorRepository.GetPagedListAsync(page: page, size: size);
+            var MajorDTOList = new List<MajorResponseDTO>();
+            foreach (var item in result.Items) 
+            {
+                var majorFound = await _majorRepository.GetMajorByIdAsync(item.Id);
+                var majorDTO = new MajorResponseDTO
+                {
+                    Id = majorFound.Id,
+                    Name = majorFound.Name,
+                    ParentName = majorFound.ParentMajor?.Name,
+                    CreatedOn = majorFound.CreatedOn,
+                    UpdatedOn = majorFound.UpdatedOn
+                };
+                MajorDTOList.Add(majorDTO);
+
+                
+            }
+
+            var paginatedMajor = new Pagination<MajorResponseDTO>()
+            {
+                Items = MajorDTOList,
+                PageSize = size,
+                PageIndex = page
+            };
             if (result == null)
             {
                 return new BaseModel<Pagination<MajorResponseDTO>>()
@@ -43,7 +66,7 @@ namespace MBS.Application.Services.Implements
                 Message = MessageResponseHelper.Successfully("Get all " + nameof(Major)),
                 StatusCode = StatusCodes.Status200OK,
                 IsSuccess = true,
-                ResponseRequestModel = _mapper.Map<Pagination<MajorResponseDTO>>(result)
+                ResponseRequestModel =paginatedMajor
             };
         }
         //OK

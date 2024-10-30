@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Skill;
@@ -16,27 +16,20 @@ namespace MBS.Application.Services.Implements;
 public class SkillService : BaseService2<SkillService>, ISkillService
 {
     private readonly ISkillRepository _skillRepository;
+    private readonly IMentorRepository _mentorRepository;
+
     public SkillService(ILogger<SkillService> logger, IMapper mapper,
-        ISkillRepository skillRepository
+        ISkillRepository skillRepository, IMentorRepository mentorRepository
     ) : base(logger, mapper)
     {
         _skillRepository = skillRepository;
+        _mentorRepository = mentorRepository;
     }
 
     public async Task<BaseModel<SkillResponseModel, CreateSkillRequestModel>> CreateSkill(CreateSkillRequestModel request)
     {
         try
         {
-            //check mentor
-            // var mentor = _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(x => x.UserId == request.MentorId);
-            // if(mentor == null)
-            //     return new BaseModel<SkillResponseModel, CreateSkillRequestModel>
-            //     {
-            //         Message = MessageResponseHelper.UserNotFound(request.MentorId),
-            //         IsSuccess = false,
-            //         StatusCode = StatusCodes.Status404NotFound,
-            //     };
-            //Create meeting
             var newSkill = new Skill()
             {
                 Id = Guid.NewGuid(),
@@ -78,15 +71,6 @@ public class SkillService : BaseService2<SkillService>, ISkillService
     {
         try
         {
-            //check mentor
-            // var mentor = _unitOfWork.GetRepository<Mentor>().SingleOrDefaultAsync(x => x.UserId == mentorId);
-            // if (mentor == null)
-            //     return new BaseModel<Pagination<Skill>>
-            //     {
-            //         Message = MessageResponseHelper.UserNotFound(mentorId),
-            //         IsSuccess = false,
-            //         StatusCode = StatusCodes.Status404NotFound,
-            //     };
             var skills = await _skillRepository.GetPagedListAsyncByMentorId(page, size, mentorId);
 
             return new BaseModel<Pagination<Skill>>()
@@ -108,30 +92,8 @@ public class SkillService : BaseService2<SkillService>, ISkillService
         }
     }
 
-    public async Task<BaseModel<Pagination<Skill>>> Getskills(int page, int size)
-    {
-        try
-        {
-            var skills = await _skillRepository.GetPagedListAsync(page, size);
+    
 
-            return new BaseModel<Pagination<Skill>>()
-            {
-                Message = MessageResponseHelper.Successfully("Get all " + nameof(Major)),
-                StatusCode = StatusCodes.Status200OK,
-                IsSuccess = true,
-                ResponseRequestModel = skills,
-            };
-        }
-        catch (Exception e)
-        {
-            return new BaseModel<Pagination<Skill>>()
-            {
-                Message = e.Message,
-                StatusCode = StatusCodes.Status500InternalServerError,
-                IsSuccess = false,
-            };
-        }
-    }
 
     public async Task<BaseModel<SkillResponseModel>> GetSkillById(Guid skillId)
     {
@@ -256,4 +218,52 @@ public class SkillService : BaseService2<SkillService>, ISkillService
             };
         }
     }
+
+    public async Task<BaseModel<Pagination<SkillSummaryResponseDTO>>> Getskills(int page, int size)
+    {
+        try
+        {
+            var result = await _skillRepository.GetPagedListAsync(page: page, size: size);
+            var skillDTOList = new List<SkillSummaryResponseDTO>();
+
+            foreach (var item in result.Items)
+            {
+                var skillFound = await _skillRepository.GetSkillByIdAsync(item.Id);
+                var mentorBySkill = await _mentorRepository.GetMentorByIdAsync(skillFound.MentorId);
+                var skillDTO = new SkillSummaryResponseDTO
+                {
+                    Name = skillFound.Name,
+                    MentorName = mentorBySkill.User.FullName,
+                    MentorEmail = mentorBySkill.User.Email
+
+                };
+                skillDTOList.Add(skillDTO);
+            }
+
+            var paginatedSkill = new Pagination<SkillSummaryResponseDTO>
+            {
+                Items = skillDTOList,
+                PageSize = size,
+                PageIndex = page
+            };
+
+            return new BaseModel<Pagination<SkillSummaryResponseDTO>>
+            {
+                Message = MessageResponseHelper.Successfully("Get all " + nameof(Skill)),
+                StatusCode = StatusCodes.Status200OK,
+                IsSuccess = true,
+                ResponseRequestModel = paginatedSkill
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<SkillSummaryResponseDTO>>
+            {
+                Message = e.Message,
+                StatusCode = StatusCodes.Status500InternalServerError,
+                IsSuccess = false
+            };
+        }
+    }
+
 }

@@ -160,14 +160,44 @@ namespace MBS.Application.Services.Implements
         public async Task<BaseModel<Pagination<PositionResponseDTO>>> GetPositions(int page, int size)
         {
             var result = await _positionRepository.GetPagedListAsync(page: page, size: size);
-            
-            return new BaseModel<Pagination<PositionResponseDTO>>()
+            var positionDTOList = new List<PositionResponseDTO>();
+
+            foreach (var item in result.Items)
+            {
+                var positionFound = await _positionRepository.GetPositionByIdAsync(item.Id);
+                var positionDTO = new PositionResponseDTO
+                {
+                    Name = positionFound.Name,
+                    Description = positionFound.Description,
+                };
+                positionDTOList.Add(positionDTO);
+            }
+
+            var paginatedPosition = new Pagination<PositionResponseDTO>
+            {
+                Items = positionDTOList,
+                PageSize = size,
+                PageIndex = page
+            };
+
+            if (result == null)
+            {
+                return new BaseModel<Pagination<PositionResponseDTO>>
+                {
+                    Message = MessageResponseHelper.Fail("Get all " + nameof(Position)),
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    IsSuccess = false
+                };
+            }
+
+            return new BaseModel<Pagination<PositionResponseDTO>>
             {
                 Message = MessageResponseHelper.Successfully("Get all " + nameof(Position)),
                 StatusCode = StatusCodes.Status200OK,
                 IsSuccess = true,
-                ResponseRequestModel = _mapper.Map<Pagination<PositionResponseDTO>>(result)
+                ResponseRequestModel = paginatedPosition
             };
         }
+
     }
 }
