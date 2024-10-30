@@ -48,10 +48,21 @@ public class RequestService : BaseService2<RequestService>, IRequestService
     {
         try
         {
+            //TODO: check user
+            var studentCheck = await _studentRepository.GetByIdAsync(request.UserId, "UserId");
+            if (studentCheck == null)
+            {
+                return new BaseModel<Pagination<RequestResponseDto>>
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
             var requests = await _requestRepository.GetRequestByUserIdPaginationAsync(request.UserId, request.Page, request.Size, request.SortOrder, request.Status);
             return new BaseModel<Pagination<RequestResponseDto>>
             {
-                Message = MessageResponseHelper.GetSuccessfully("events"),
+                Message = MessageResponseHelper.GetSuccessfully("requests"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
@@ -76,7 +87,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                 await _requestRepository.GetRequestPaginationAsync(request.Page, request.Size, request.SortOrder);
             return new BaseModel<Pagination<RequestResponseDto>>
             {
-                Message = MessageResponseHelper.GetSuccessfully("events"),
+                Message = MessageResponseHelper.GetSuccessfully("request"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
@@ -107,7 +118,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                 };
             return new BaseModel<RequestResponseModel>
             {
-                Message = MessageResponseHelper.GetSuccessfully("event"),
+                Message = MessageResponseHelper.GetSuccessfully("request"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = new RequestResponseModel
