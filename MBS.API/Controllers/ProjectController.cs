@@ -24,6 +24,17 @@ namespace MBS.API.Controllers
             var result = await _projectService.CreateProject(request);
             return StatusCode(result.StatusCode, result);
         }
+        // GET: api/projects/student/{studentId}?projectStatus=Active
+        [HttpGet("user/{userId}")]
+        [ProducesResponseType(typeof(BaseModel<Pagination<ProjectResponseDto>>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseModel),StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetProjectsByUserId(GetProjectsByUserIdRequest request)
+        {
+            var result = await _projectService.GetProjectsByUserId(request);
+            return StatusCode(result.StatusCode, result);
+        }
 
         // GET: api/projects/student/{studentId}?projectStatus=Active
         [HttpGet("student/{studentId}")]
