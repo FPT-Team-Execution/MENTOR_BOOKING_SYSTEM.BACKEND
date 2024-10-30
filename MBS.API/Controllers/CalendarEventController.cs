@@ -45,7 +45,7 @@ public class CalendarEventController : ControllerBase
         
     }
     [HttpGet("busy-event")]
-    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
+    //[CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<GetBusyEventResponse, GetBusyEventRequest>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
