@@ -5,6 +5,7 @@ namespace MBS.DataAccess.Repositories.Interfaces;
 
 public interface IRequestRepository : IBaseRepository<Request>
 {
+    Task<Pagination<Request>> GetRequestByUserIdPaginationAsync(string userId,int page, int size, string sortOrder, string? requestStatus);
     Task<Pagination<Request>> GetRequestPaginationAsync(int page, int size, string sortOrder);
     Task<Request?> GetRequestById(Guid id);
 
