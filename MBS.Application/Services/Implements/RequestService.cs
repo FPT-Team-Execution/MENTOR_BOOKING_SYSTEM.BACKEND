@@ -44,6 +44,41 @@ public class RequestService : BaseService2<RequestService>, IRequestService
         this._studentRepository = studentRepository;
     }
 
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByProjectId(GetRequestByProjectIdPaginationRequest request)
+    {
+        try
+        {
+            //TODO: check project
+            var projectCheck = await _projectRepository.GetByIdAsync(request.ProjectId, "Id");
+            if (projectCheck == null)
+            {
+                return new BaseModel<Pagination<RequestResponseDto>>
+                {
+                    Message = MessageResponseHelper.ProjectNotFound(request.ProjectId.ToString()),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+            var requests = await _requestRepository.GetRequestByProjectdPaginationAsync(request.ProjectId, request.Page, request.Size, request.SortOrder, request.RequestStatus);
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("requests"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
     public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByUserId(GetRequestByUserIdPaginationRequest request)
     {
         try
