@@ -1,6 +1,5 @@
 using AutoMapper;
 using MBS.Application.Helpers;
-using MBS.Application.Models.CalendarEvent;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Request;
 using MBS.Application.Services.Interfaces;
@@ -8,7 +7,6 @@ using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
-using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using MBS.Shared.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -44,6 +42,30 @@ public class RequestService : BaseService2<RequestService>, IRequestService
         _groupRepository = groupRepository;
         _requestRepository = requestRepository;
         this._studentRepository = studentRepository;
+    }
+
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByUserId(GetRequestByUserIdPaginationRequest request)
+    {
+        try
+        {
+            var requests = await _requestRepository.GetRequestByUserIdPaginationAsync(request.UserId, request.Page, request.Size, request.SortOrder, request.Status);
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("events"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
     }
 
     public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequests(GetRequestsPaginationRequest request)
