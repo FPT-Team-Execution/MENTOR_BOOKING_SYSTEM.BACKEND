@@ -11,6 +11,7 @@ using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Common.Email;
+using MBS.Shared.Services.Interfaces;
 using MBS.Shared.Templates;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -23,12 +24,16 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 {
 	private readonly UserManager<ApplicationUser> _userManager;
 	private readonly IStudentRepository _studentRepository;
+	private readonly IEmailService _emailService;
+	private readonly ITemplateService _templateService;
 
 	public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository,
-		UserManager<ApplicationUser> userManager) : base(logger, mapper)
+		UserManager<ApplicationUser> userManager, IEmailService emailService, ITemplateService templateService) : base(logger, mapper)
 	{
 		_studentRepository = studentRepository;
 		_userManager = userManager;
+		_emailService = emailService;
+		_templateService = templateService;
 	}
 
 	public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size, string? sortOrder)
@@ -264,6 +269,10 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 				throw new DatabaseInsertException("student");
 			}
 
+			var emailTemplate = await _templateService.GetTemplateAsync(TemplateConstants.InvitationEmail);
+
+			await _emailService.SendEmailAsync(EmailMessage.Create(newUser.Email!, emailTemplate, "[MBS]Invite you to the System"));
+			
 			return new BaseModel<CreateStudentResponseModel, CreateStudentRequestModel>()
 			{
 				Message = MessageResponseHelper.Register("student"),
