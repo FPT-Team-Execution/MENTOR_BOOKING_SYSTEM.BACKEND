@@ -20,8 +20,7 @@ namespace MBS.Application.DependencyInjections
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+                    options.DefaultScheme =  JwtBearerDefaults.AuthenticationScheme;
                 })
                 .AddJwtBearer(options =>
                 {
@@ -34,7 +33,9 @@ namespace MBS.Application.DependencyInjections
                         ValidIssuer = configuration["JWT:ValidIssuer"],
                         ValidAudience = configuration["JWT:ValidAudience"],
                         IssuerSigningKey =
-                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!))
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Secret"]!)),
+                        RequireExpirationTime = true,
+                        ValidateLifetime = true,
                     };
                 })
                 .AddCookie(options =>
