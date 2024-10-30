@@ -15,6 +15,18 @@ public class RequestController : ControllerBase
     {
        _requestService = requestService;   
     }
+    
+    [HttpGet("project/{projectId}")]
+    [ProducesResponseType(typeof(BaseModel<RequestResponseModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRequestByProjectId([FromQuery]GetRequestByProjectIdPaginationRequest request)
+    {
+        var result = await _requestService.GetRequestsByProjectId(request);
+        return StatusCode(result.StatusCode, result);
+        
+    }
+    
     [HttpGet("user/{userId}")]
     [ProducesResponseType(typeof(BaseModel<RequestResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
