@@ -16,6 +16,4 @@ public class GetRequestByProjectIdModel
     public required string SortOrder { get; set; } = "asc";
     [EnumValidation(typeof(RequestStatusEnum))]
     public string? RequestStatus { get; set; }
-    [EnumValidation(typeof(ProjectStatusEnum))]
-    public string? ProjectStatus { get; set; }
 }
