@@ -48,7 +48,7 @@ namespace MBS.API.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin, UserRoleEnum.Student))]
         public async Task<IActionResult> GetMentor([FromRoute] string id)
         {
             var response = await _mentorService.GetMentor(new GetMentorRequestModel()
