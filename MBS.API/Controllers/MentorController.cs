@@ -1,5 +1,6 @@
 using MBS.Application.Models.Groups;
 using MBS.Application.Models.Mentor;
+using MBS.Application.ValidationAttributes;
 using MBS.Core.Common.Pagination;
 
 
@@ -48,7 +49,7 @@ namespace MBS.API.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        [Authorize(Roles = nameof(UserRoleEnum.Admin, UserRoleEnum.Student))]
+        [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Student)]
         public async Task<IActionResult> GetMentor([FromRoute] string id)
         {
             var response = await _mentorService.GetMentor(new GetMentorRequestModel()
