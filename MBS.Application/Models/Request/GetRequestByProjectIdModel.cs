@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MBS.Application.Models.Request;
 
-public class GetRequestByProjectIdModel
+public class GetRequestByProjectIdPaginationRequest
 {
     [FromRoute(Name = "projectId")]
     public required string ProjectId { get; set; }
