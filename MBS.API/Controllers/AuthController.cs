@@ -150,6 +150,15 @@ namespace MBS.API.Controllers
             var response = await _authService.ConfirmEmailAsync(request);
             return StatusCode(response.StatusCode, response);
         }
+        
+        [HttpPost]
+        [Route("avatar")]
+        [Authorize]
+        public async Task<ActionResult<BaseModel<UploadAvatarResponseModel, UploadAvatarRequestModel>>>
+            UploadOwnDegree(UploadOwnDegreeRequestModel request)
+        {
+            return Ok();
+        }
     }
 
 }
