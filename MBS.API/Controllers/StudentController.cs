@@ -54,5 +54,13 @@ namespace MBS.API.Controllers
             var response = await _studentService.UpdateOwnProfile(User, request);
             return StatusCode(response.StatusCode, response);
         }
-    }
+
+        [HttpPost]
+        [Route("")]
+		[Authorize(Roles = nameof(UserRoleEnum.Admin))]
+		public async Task<IActionResult> CreateStudent()
+		{
+            return Ok();
+		}
+	}
 }
