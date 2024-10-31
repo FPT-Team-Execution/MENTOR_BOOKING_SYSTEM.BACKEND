@@ -9,7 +9,7 @@ namespace MBS.Application.Models.User;
 public class UploadOwnDegreeRequestModel
 {
 	[MaxFileSize(5)]
-	[AllowedExtensions(["jpg", "png", "jpeg"])]
+	[AllowedExtensions([".jpg", ".png", ".jpeg"])]
 	public required IFormFile File { get; set; }
 
 	public string Name { get; set; } = default;
