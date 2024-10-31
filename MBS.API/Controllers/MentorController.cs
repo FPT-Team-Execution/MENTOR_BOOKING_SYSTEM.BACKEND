@@ -80,10 +80,11 @@ namespace MBS.API.Controllers
 		}
 
 		[HttpPut]
+		[CustomAuthorize(UserRoleEnum.Admin)]
 		[Route("profile")]
 		public async Task<IActionResult> UpdateMentor(UpdateMentorRequestModel request)
 		{
-			var response = await _mentorService.UpdateOwnProfile(User, request);
+			var response = await _mentorService.UpdateMentorProfile(request);
 			return StatusCode(response.StatusCode, response);
 		}
 

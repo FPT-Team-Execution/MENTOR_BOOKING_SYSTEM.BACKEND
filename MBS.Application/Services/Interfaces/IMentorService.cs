@@ -11,6 +11,7 @@ public interface IMentorService
 {
 	Task<BaseModel<GetMentorResponseModel>> GetOwnProfile(ClaimsPrincipal claimsPrincipal);
 	Task<BaseModel<UpdateMentorResponseModel>> UpdateOwnProfile(ClaimsPrincipal User, UpdateMentorRequestModel request);
+	Task<BaseModel<UpdateMentorResponseModel>> UpdateMentorProfile(UpdateMentorRequestModel request);
 
 	Task<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>> UploadOwnDegree(
 		UploadOwnDegreeRequestModel request, ClaimsPrincipal claimsPrincipal);

@@ -1,4 +1,5 @@
 using MBS.Application.Models.Student;
+using MBS.Application.ValidationAttributes;
 using MBS.Core.Common.Pagination;
 
 namespace MBS.API.Controllers
@@ -48,10 +49,10 @@ namespace MBS.API.Controllers
 
         [HttpPut]
         [Route("profile")]
-        [Authorize]
+        [CustomAuthorize(UserRoleEnum.Admin)]
         public async Task<IActionResult> UpdateStudent(UpdateStudentRequestModel request)
         {
-            var response = await _studentService.UpdateOwnProfile(User, request);
+            var response = await _studentService.UpdateStudentProfile(request);
             return StatusCode(response.StatusCode, response);
         }
 
