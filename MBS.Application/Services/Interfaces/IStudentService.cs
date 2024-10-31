@@ -8,10 +8,14 @@ namespace MBS.Application.Services.Interfaces;
 
 public interface IStudentService
 {
-    Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size, string? sortOrder);
+	Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size, string? sortOrder);
+	Task<BaseModel<UpdateStudentResponseModel>> UpdateOwnProfile(ClaimsPrincipal User, UpdateStudentRequestModel request);
+	Task<BaseModel<UpdateStudentResponseModel>> UpdateStudentProfile(UpdateStudentRequestModel request);
 
-    Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetOwnProfile(
-        ClaimsPrincipal claimsPrincipal);
+	Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetOwnProfile(
+		ClaimsPrincipal claimsPrincipal);
 
-    Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetStudent(GetStudentRequestModel request);
+	Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetStudent(GetStudentRequestModel request);
+
+	Task<BaseModel<CreateStudentResponseModel, CreateStudentRequestModel>> CreateStudent(CreateStudentRequestModel request);
 }

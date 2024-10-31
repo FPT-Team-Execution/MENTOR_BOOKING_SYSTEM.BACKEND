@@ -76,6 +76,53 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
         }
     }
 
+    public async Task<BaseModel<GetMeetingByProjectIdResponse, GetMeetingByProjectIdRequest>> GetMeetingsByProjectId(GetMeetingByProjectIdRequest request)
+    {
+        try
+        {
+            //get project to check
+            var project = await _projectRepository.GetByIdAsync(request.ProjectId, "Id");
+            if(project == null)
+                return new BaseModel<GetMeetingByProjectIdResponse, GetMeetingByProjectIdRequest>
+                {
+                    Message = MessageResponseHelper.ProjectNotFound(request.ProjectId.ToString()),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            //get request id list based projectId
+            var requestsByProjectId = await _requestRepository.GetRequestByProjectIdAsync(request.ProjectId);
+            var requestIdList = requestsByProjectId.Select(x => x.Id).ToList();
+            
+            //get meeting based on request id list
+            var meetings = await _meetingRepository.GetMeetingsByRequests(requestIdList);
+            if (!string.IsNullOrEmpty(request.MeetingStatus))
+            {
+                meetings = meetings.Where(x => x.Status == Enum.Parse<MeetingStatusEnum>(request.MeetingStatus));
+            }
+            return new BaseModel<GetMeetingByProjectIdResponse, GetMeetingByProjectIdRequest>()
+            {
+                Message = MessageResponseHelper.GetSuccessfully("meetings"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                RequestModel = request,
+                ResponseModel = new GetMeetingByProjectIdResponse
+                {
+                    Meetings = _mapper.Map<IEnumerable<MeetingResponseDto>>(meetings)
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetMeetingByProjectIdResponse, GetMeetingByProjectIdRequest>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+        
+    }
+
     public async Task<BaseModel<Pagination<MeetingResponseDto>>> GetMeetings(int page, int size)
     {
         try
@@ -151,9 +198,10 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                         var transactionResult = await _pointTransactionService.ModifyStudentPoint(
                             new ModifyStudentPointRequestModel()
                             {
-                                Amout = 100,
+                                Amount = 100,
                                 StudentId = requestCheck.CreaterId,
-                                TransactionType = TransactionTypeEnum.Debit
+                                Kind = nameof(TransactionKindEnum.Personal),
+                                TransactionType = TransactionTypeEnum.Debit.ToString()
                             });
                         break;
                     }
@@ -167,9 +215,10 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                             var transactionResult = await _pointTransactionService.ModifyStudentPoint(
                                 new ModifyStudentPointRequestModel()
                                 {
-                                    Amout = 100,
+                                    Amount = 100,
                                     StudentId = group.StudentId,
-                                    TransactionType = TransactionTypeEnum.Debit
+                                    Kind = nameof(TransactionKindEnum.Project),
+                                    TransactionType = TransactionTypeEnum.Debit.ToString()
                                 });
                         }
 

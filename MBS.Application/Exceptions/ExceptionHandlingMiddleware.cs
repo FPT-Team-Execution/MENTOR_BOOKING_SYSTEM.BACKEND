@@ -38,13 +38,7 @@ namespace MBS.Application.Exceptions
 
             switch (ex)
             {
-                case InvalidOperationException:
-                {
-                    response.StatusCode = (int)HttpStatusCode.BadRequest;
-                    errorResponse.StatusCode = (int)HttpStatusCode.BadRequest;
-                    _logger.LogInformation(ex.ToString());
-                    break;
-                }
+                
                 case BadHttpRequestException:
                     response.StatusCode = (int)HttpStatusCode.BadRequest;
                     errorResponse.StatusCode = (int)HttpStatusCode.BadRequest;
@@ -100,6 +94,20 @@ namespace MBS.Application.Exceptions
                     errorResponse.Error = "Invalid token audience.";
                     _logger.LogInformation(ex.ToString());
                     break;
+                case SecurityTokenValidationException:
+                {
+                    response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    errorResponse.StatusCode = (int)HttpStatusCode.Unauthorized;
+                    _logger.LogInformation(ex.ToString());
+                    break;
+                }
+                case InvalidOperationException:
+                {
+                    response.StatusCode = (int)HttpStatusCode.BadRequest;
+                    errorResponse.StatusCode = (int)HttpStatusCode.BadRequest;
+                    _logger.LogInformation(ex.ToString());
+                    break;
+                }
 
                 default:
                     response.StatusCode = (int)HttpStatusCode.InternalServerError;

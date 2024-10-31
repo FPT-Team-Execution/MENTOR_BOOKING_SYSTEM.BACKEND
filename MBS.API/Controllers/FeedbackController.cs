@@ -46,7 +46,7 @@ public class FeedbackController : ControllerBase
     [ProducesResponseType(typeof(BaseModel<Pagination<FeedbackResponseDto>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetFeedbacksByMeetingId(GetFeedbacksByMeetingIdRequest request)
+    public async Task<IActionResult> GetFeedbacksByMeetingId( GetFeedbacksByMeetingIdRequest request)
     {
         var result = await _feedbackService.GetFeedbacksByMeetingId(request);
         return StatusCode(result.StatusCode, result);

@@ -1,11 +1,5 @@
-using MBS.Application.Models.Feedback;
 using MBS.Application.Models.Meeting;
-using MBS.Application.Models.MeetingMember;
 using MBS.Application.ValidationAttributes;
-using MBS.DataAccess.Repositories.Interfaces;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Build.Framework;
-
 namespace MBS.API.Controllers;
 
 [ApiController]
@@ -28,6 +22,16 @@ public class MeetingController : ControllerBase
     public async Task<IActionResult> GetMeetings(int page, int size)
     {
         var result = await _meetingService.GetMeetings(page, size);
+        return StatusCode(result.StatusCode, result);
+        
+    }
+    [HttpGet("project/{projectId}")]
+    [ProducesResponseType(typeof(BaseModel<MeetingResponseModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetMeetingsByProjectId(GetMeetingByProjectIdRequest request)
+    {
+        var result = await _meetingService.GetMeetingsByProjectId(request);
         return StatusCode(result.StatusCode, result);
         
     }

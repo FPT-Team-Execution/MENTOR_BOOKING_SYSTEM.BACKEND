@@ -29,7 +29,7 @@ namespace MBS.Application.Services.Implements
         {
             try
             {
-                var student = await _studentRepository.GetByIdAsync(request.StudentId, "Id");
+                var student = await _studentRepository.GetByIdAsync(request.StudentId, "UserId");
                 if (student == null)
                 {
                     return new BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>
@@ -44,25 +44,29 @@ namespace MBS.Application.Services.Implements
 
                 var pointTransaction = new PointTransaction
                 {
-                    Amount = request.Amout,
+                    Amount = request.Amount,
                     UserId = request.StudentId,
                     Kind = TransactionKindEnum.Personal
                 };
 
-                switch (request.TransactionType.ToString().ToUpper())
+                switch (request.TransactionType.ToUpper())
                 {
                     case var type when type == nameof(TransactionTypeEnum.Credit).ToUpper():
                         {
-                            student.WalletPoint += request.Amout;
+                            student.WalletPoint += request.Amount;
                             pointTransaction.TransactionType = TransactionTypeEnum.Credit;
                             pointTransaction.RemainBalance = student.WalletPoint;
+                            pointTransaction.Status = TransactionStatusEnum.Success;
+                            pointTransaction.Kind = Enum.Parse<TransactionKindEnum>(request.Kind);
                             break;
                         }
                     case var type when type == nameof(TransactionTypeEnum.Debit).ToUpper():
                         {
-                            student.WalletPoint -= request.Amout;
+                            student.WalletPoint -= request.Amount;
                             pointTransaction.TransactionType = TransactionTypeEnum.Debit;
                             pointTransaction.RemainBalance = student.WalletPoint;
+                            pointTransaction.Status = TransactionStatusEnum.Success;
+                            pointTransaction.Kind = Enum.Parse<TransactionKindEnum>(request.Kind);
                             break;
                         }
                 }

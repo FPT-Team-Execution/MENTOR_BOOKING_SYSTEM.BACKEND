@@ -7,6 +7,7 @@ namespace MBS.Application.Services.Interfaces;
 
 public interface IProjectService
 {
+    Task<BaseModel<Pagination<ProjectResponseDto>>> GetProjectsByUserId(GetProjectsByUserIdRequest request);
     Task<BaseModel<Pagination<ProjectResponseDto>>> GetProjectsByStudentId(GetProjectsByStudentIdRequest request);
     Task<BaseModel<ProjectResponseModel>> GetProjectById(Guid projectId);
     Task<BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>> CreateProject(CreateProjectRequestModel request);

@@ -19,4 +19,6 @@ public interface IAuthService
 
     Task<BaseModel<ExternalSignInResponseModel>> LoginOrSignUpExternal(
         ExternalSignInRequestModel request);
+    Task<BaseModel<UploadAvatarResponseModel, UploadAvatarRequestModel>> UploadAvatar(
+        UploadAvatarRequestModel request, ClaimsPrincipal claimsPrincipal);
 }

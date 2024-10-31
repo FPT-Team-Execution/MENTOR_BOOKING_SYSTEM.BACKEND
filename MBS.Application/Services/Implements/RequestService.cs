@@ -1,6 +1,5 @@
 using AutoMapper;
 using MBS.Application.Helpers;
-using MBS.Application.Models.CalendarEvent;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Request;
 using MBS.Application.Services.Interfaces;
@@ -8,7 +7,6 @@ using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
-using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using MBS.Shared.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -46,6 +44,76 @@ public class RequestService : BaseService2<RequestService>, IRequestService
         this._studentRepository = studentRepository;
     }
 
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByProjectId(GetRequestByProjectIdPaginationRequest request)
+    {
+        try
+        {
+            //TODO: check project
+            var projectCheck = await _projectRepository.GetByIdAsync(request.ProjectId, "Id");
+            if (projectCheck == null)
+            {
+                return new BaseModel<Pagination<RequestResponseDto>>
+                {
+                    Message = MessageResponseHelper.ProjectNotFound(request.ProjectId.ToString()),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+            var requests = await _requestRepository.GetRequestByProjectIdPaginationAsync(request.ProjectId, request.Page, request.Size, request.SortOrder, request.RequestStatus);
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("requests"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByUserId(GetRequestByUserIdPaginationRequest request)
+    {
+        try
+        {
+            //TODO: check user
+            var studentCheck = await _studentRepository.GetByIdAsync(request.UserId, "UserId");
+            if (studentCheck == null)
+            {
+                return new BaseModel<Pagination<RequestResponseDto>>
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+            var requests = await _requestRepository.GetRequestByUserIdPaginationAsync(request.UserId, request.Page, request.Size, request.SortOrder, request.Status);
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("requests"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
     public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequests(GetRequestsPaginationRequest request)
     {
         try
@@ -54,7 +122,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                 await _requestRepository.GetRequestPaginationAsync(request.Page, request.Size, request.SortOrder);
             return new BaseModel<Pagination<RequestResponseDto>>
             {
-                Message = MessageResponseHelper.GetSuccessfully("events"),
+                Message = MessageResponseHelper.GetSuccessfully("request"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
@@ -85,7 +153,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                 };
             return new BaseModel<RequestResponseModel>
             {
-                Message = MessageResponseHelper.GetSuccessfully("event"),
+                Message = MessageResponseHelper.GetSuccessfully("request"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = new RequestResponseModel

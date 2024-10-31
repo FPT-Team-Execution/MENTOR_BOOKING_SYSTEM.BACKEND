@@ -6,11 +6,9 @@ using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
-using MBS.DataAccess.DAO;
-using MBS.DataAccess.Repositories;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
@@ -19,12 +17,14 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 {
     private readonly IProjectRepository _projectRepository;
     private readonly IGroupRepository _groupRepository;
-
+    private readonly UserManager<ApplicationUser> _userManager;
     public ProjectService(
+        UserManager<ApplicationUser> userManager,
         IGroupRepository groupRepository,
         IProjectRepository projectRepository,
         ILogger<ProjectService> logger, IMapper mapper) : base(logger, mapper)
     {
+        _userManager = userManager;
         _groupRepository = groupRepository;
         _projectRepository = projectRepository;
     }
@@ -80,6 +80,99 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
         }
     }
 
+    public async Task<BaseModel<Pagination<ProjectResponseDto>>> GetProjectsByUserId(GetProjectsByUserIdRequest request)
+    {
+        try
+        {
+            //check user
+            var user = await _userManager.FindByIdAsync(request.UserId);
+            if (user == null)
+            {
+                return new BaseModel<Pagination<ProjectResponseDto>>
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+            // Initialize an empty list of projects
+            List<Project> enrolledProjects = new List<Project>();
+            //Check user role
+            switch (request.UserRole)
+            {
+                case nameof(UserRoleEnum.Mentor):
+                    var enrolledProjectsPagination =
+                        await _projectRepository.GetProjectsByMentorId(request.UserId, request.Page, request.Size,
+                            request.SortOrder);
+                    enrolledProjects = enrolledProjectsPagination.Items.ToList();
+                    if (!string.IsNullOrEmpty(request.ProjectStatus))
+                    {
+                        enrolledProjects = enrolledProjects
+                            .Where(p => p.Status == Enum.Parse<ProjectStatusEnum>(request.ProjectStatus, true)).ToList();
+                    }
+                    break;
+                case nameof(UserRoleEnum.Student):
+                    // Fetch groups that the student is enrolled in, along with pagination
+                    var enrolledProjectGroups = await _groupRepository.GetGroupsByStudentId(
+                        request.UserId,
+                        request.Page,
+                        request.Size,
+                        request.SortOrder
+                    );
+
+                    // Check if no groups were found
+                    if (!enrolledProjectGroups.Items.Any())
+                    {
+                        return new BaseModel<Pagination<ProjectResponseDto>>
+                        {
+                            Message = MessageResponseHelper.GetSuccessfully("projects"),
+                            IsSuccess = true,
+                            StatusCode = StatusCodes.Status204NoContent,
+                            ResponseRequestModel = new Pagination<ProjectResponseDto>
+                            {
+                                Items = new List<ProjectResponseDto>(),
+                                PageIndex = request.Page,
+                                PageSize = request.Size,
+                                TotalPages = 0
+                            }
+                        };
+                    }
+                    enrolledProjects = string.IsNullOrEmpty(request.ProjectStatus)
+                        ? enrolledProjectGroups.Items.Select(g => g.Project).ToList() // Get all projects
+                        : enrolledProjectGroups.Items.Select(g => g.Project)
+                            .Where(p => p.Status == Enum.Parse<ProjectStatusEnum>(request.ProjectStatus, true))
+                            .ToList(); // Get projects by status
+                    break;
+            }
+
+
+            // Prepare the response DTO for the projects
+            var projectDtos = _mapper.Map<IEnumerable<ProjectResponseDto>>(enrolledProjects).ToList();
+            return new BaseModel<Pagination<ProjectResponseDto>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("projects"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = new Pagination<ProjectResponseDto>
+                {
+                    Items = projectDtos,
+                    PageIndex = request.Page,
+                    PageSize = request.Size,
+                    TotalPages = projectDtos.Any() ? (int)Math.Ceiling((double)request.Page / projectDtos.Count()) : 0,
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<ProjectResponseDto>>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
     public async Task<BaseModel<Pagination<ProjectResponseDto>>> GetProjectsByStudentId(
         GetProjectsByStudentIdRequest request)
     {
@@ -115,7 +208,8 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
             }
 
             // Filter projects based on the presence of ProjectStatus
-            if (!Enum.TryParse<ProjectStatusEnum>(request.ProjectStatus, true, out var projectEnum) && !string.IsNullOrEmpty(request.ProjectStatus))
+            if (!Enum.TryParse<ProjectStatusEnum>(request.ProjectStatus, true, out var projectEnum) &&
+                !string.IsNullOrEmpty(request.ProjectStatus))
             {
                 return new BaseModel<Pagination<ProjectResponseDto>>
                 {
@@ -124,6 +218,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
             }
+
             enrolledProjects = string.IsNullOrEmpty(request.ProjectStatus)
                 ? enrolledProjectGroups.Items.Select(g => g.Project).ToList() // Get all projects
                 : enrolledProjectGroups.Items.Select(g => g.Project)
@@ -142,7 +237,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                     Items = projectDtos,
                     PageIndex = request.Page,
                     PageSize = request.Size,
-                    TotalPages = projectDtos.Any()?(int)Math.Ceiling((double)request.Page/ projectDtos.Count()) : 0,
+                    TotalPages = projectDtos.Any() ? (int)Math.Ceiling((double)request.Page / projectDtos.Count()) : 0,
                 }
             };
         }

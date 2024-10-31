@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace MBS.DataAccess.Repositories.Implements
 {
-    public class MajorRepository : BaseRepository<Major>, IMajorRepository
+	public class MajorRepository : BaseRepository<Major>, IMajorRepository
     {
         public MajorRepository(IBaseDAO<Major> dao) : base(dao)
         {
@@ -26,7 +26,7 @@ namespace MBS.DataAccess.Repositories.Implements
         {
             throw new NotImplementedException();
         }
-    }
+	}
 }
 
 

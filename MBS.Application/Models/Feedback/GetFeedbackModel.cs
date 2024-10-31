@@ -1,3 +1,5 @@
+using System.ComponentModel;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MBS.Application.Models.Feedback;
@@ -8,9 +10,9 @@ namespace MBS.Application.Models.Feedback;
 // }
 public class GetMeetingFeedbacksByUserIdRequest
 {
-    [FromRoute]
+    [FromRoute(Name = "meetingId")]
     public Guid MeetingId { get; set; }
-    [FromRoute]
+    [FromRoute(Name = "userId")]
     public required string UserId { get; set; }
     [FromQuery]
     public int Page { get; set; } = 1;
@@ -22,7 +24,8 @@ public class GetMeetingFeedbacksByUserIdRequest
 
 public class GetFeedbacksByMeetingIdRequest
 {
-    [FromRoute]
+    [FromRoute(Name = "meetingId")]
+    // [JsonPropertyName("meeting_id")]
     public Guid MeetingId { get; set; }
     [FromQuery]
     public int Page { get; set; } = 1;
