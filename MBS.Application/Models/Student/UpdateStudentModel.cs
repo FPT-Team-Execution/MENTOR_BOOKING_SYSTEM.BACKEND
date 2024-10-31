@@ -21,10 +21,6 @@ public class UpdateStudentRequestModel
     public bool EmailConfirmed { get; set; }
     public DateTime? LockoutEnd { get; set; }
     public bool LockoutEnabled { get; set; }
-    public string? CreatedBy { get; set; }
-    public DateTime? CreatedOn { get; set; }
-    public string? UpdatedBy { get; set; }
-    public DateTime? UpdatedOn { get; set; }
 }
 
 public class UpdateStudentResponseModel
