@@ -26,16 +26,18 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 	private readonly IConfiguration _configuration;
 	private readonly IMentorRepository _mentorRepository;
 	private readonly IDegreeRepository _degreeRepository;
+	private readonly IClaimService _claimService;
 
 	public MentorService(ILogger<MentorService> logger, IMapper mapper, IMentorRepository mentorRepository,
 		UserManager<ApplicationUser> userManager, ISupabaseService supabaseService, IConfiguration configuration,
-		IDegreeRepository degreeRepository) : base(logger, mapper)
+		IDegreeRepository degreeRepository, IClaimService claimService) : base(logger, mapper)
 	{
 		_mentorRepository = mentorRepository;
 		_userManager = userManager;
 		_supabaseService = supabaseService;
 		_configuration = configuration;
 		_degreeRepository = degreeRepository;
+		_claimService = claimService;
 	}
 
 	public async Task<BaseModel<GetMentorResponseModel>> GetOwnProfile(ClaimsPrincipal claimsPrincipal)
@@ -390,7 +392,7 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 			user.PhoneNumber = request.PhoneNumber;
 			user.LockoutEnd = request.LockoutEnd;
 			user.LockoutEnabled = request.LockoutEnabled;
-			user.UpdatedBy = "Admin";
+			user.UpdatedBy = _claimService.GetUserId();
 			user.UpdatedOn = DateTime.UtcNow;
 
 			_mentorRepository.Update(mentor);
