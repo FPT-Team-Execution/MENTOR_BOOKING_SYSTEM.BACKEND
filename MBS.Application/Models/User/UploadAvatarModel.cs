@@ -6,7 +6,7 @@ namespace MBS.Application.Models.User;
 
 public class UploadAvatarRequestModel
 {
-    [MaxFileSize(5)]
+    [MaxFileSize(1)]
     [AllowedExtensions([".jpg", ".png", ".jpeg"])]
     public required IFormFile File { get; set; }
 }
