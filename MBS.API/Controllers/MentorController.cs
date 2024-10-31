@@ -60,7 +60,7 @@ namespace MBS.API.Controllers
 		}
 
 		[HttpGet]
-		[CustomAuthorize(UserRoleEnum.Mentor)]
+		[CustomAuthorize(UserRoleEnum.Mentor, UserRoleEnum.Admin)]
 		[ProducesResponseType(typeof(BaseModel<Pagination<GetMentorResponseModel>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> GetMentors(int page, int size)
@@ -80,7 +80,7 @@ namespace MBS.API.Controllers
 		}
 
 		[HttpPut]
-		[Authorize]
+		[CustomAuthorize(UserRoleEnum.Mentor, UserRoleEnum.Admin)]
 		[Route("profile")]
 		public async Task<IActionResult> UpdateMentor(UpdateMentorRequestModel request)
 		{
@@ -89,6 +89,7 @@ namespace MBS.API.Controllers
 		}
 
 		[HttpGet]
+		[CustomAuthorize(UserRoleEnum.Mentor, UserRoleEnum.Admin)]
 		[Route("{id}/degrees")]
 		public async Task<IActionResult> GetMentorDegrees(GetMentorDegreesRequestModel request)
 		{
