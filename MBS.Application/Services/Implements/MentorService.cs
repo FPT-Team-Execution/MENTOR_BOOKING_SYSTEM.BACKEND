@@ -365,4 +365,56 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 			};
 		}
 	}
+
+	public async Task<BaseModel<UpdateMentorResponseModel>> UpdateMentorProfile(UpdateMentorRequestModel request)
+	{
+		try
+		{
+			var mentor = await _mentorRepository.GetMentorByIdAsync(request.Id);
+			if (mentor is null)
+			{
+				return new BaseModel<UpdateMentorResponseModel>()
+				{
+					Message = MessageResponseHelper.UserNotFound(),
+					IsSuccess = true,
+					StatusCode = StatusCodes.Status200OK
+				};
+			}
+			mentor.Industry = request.Industry;
+			mentor.ConsumePoint = request.ConsumePoint;
+
+			var user = mentor.User;
+			user.FullName = request.FullName;
+			user.Birthday = request.Birthday;
+			user.Gender = request.Gender;
+			user.PhoneNumber = request.PhoneNumber;
+			user.LockoutEnd = request.LockoutEnd;
+			user.LockoutEnabled = request.LockoutEnabled;
+			user.UpdatedBy = "Admin";
+			user.UpdatedOn = DateTime.UtcNow;
+
+			_mentorRepository.Update(mentor);
+			_userManager.UpdateAsync(user);
+
+			return new BaseModel<UpdateMentorResponseModel>()
+			{
+				Message = MessageResponseHelper.Successfully("Update mentor"),
+				IsSuccess = true,
+				StatusCode = StatusCodes.Status200OK
+			};
+		}
+		catch (Exception e)
+		{
+			return new BaseModel<UpdateMentorResponseModel>()
+			{
+				Message = e.Message,
+				IsSuccess = false,
+				StatusCode = StatusCodes.Status500InternalServerError,
+				ResponseRequestModel = new UpdateMentorResponseModel()
+				{
+					Succeed = false
+				}
+			};
+		}
+	}
 }
