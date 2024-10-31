@@ -330,14 +330,14 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 		}
 	}
 
-	public async Task<BaseModel<GetMentorDegreesResponseModel>> GetMentorDegrees(GetMentorDegreesRequestModel request)
+	public async Task<BaseModel<Pagination<GetMentorDegreeResponseModel>>> GetMentorDegrees(GetMentorDegreesRequestModel request)
 	{
 		try
 		{
 			var user = await _mentorRepository.GetMentorByIdAsync(request.MentorId);
 			if (user == null)
 			{
-				return new BaseModel<GetMentorDegreesResponseModel>()
+				return new BaseModel<Pagination<GetMentorDegreeResponseModel>>()
 				{
 					IsSuccess = false,
 					Message = MessageResponseHelper.UserNotFound(),
@@ -347,20 +347,17 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 			}
 			var degrees = await _degreeRepository.GetDegreesByMentorId(request.MentorId, request.Page, request.Size);
 
-			return new BaseModel<GetMentorDegreesResponseModel>()
+			return new BaseModel<Pagination<GetMentorDegreeResponseModel>>()
 			{
 				Message = MessageResponseHelper.GetSuccessfully("degrees"),
 				IsSuccess = true,
 				StatusCode = StatusCodes.Status200OK,
-				ResponseRequestModel = new GetMentorDegreesResponseModel()
-				{
-					Degrees = _mapper.Map<Pagination<GetMentorDegreeResponseModel>>(degrees)
-				}
+				ResponseRequestModel = _mapper.Map<Pagination<GetMentorDegreeResponseModel>>(degrees)
 			};
 		}
 		catch (Exception e)
 		{
-			return new BaseModel<GetMentorDegreesResponseModel>()
+			return new BaseModel<Pagination<GetMentorDegreeResponseModel>>()
 			{
 				Message = e.Message,
 				IsSuccess = false,

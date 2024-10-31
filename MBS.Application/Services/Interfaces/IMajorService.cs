@@ -27,7 +27,7 @@ namespace MBS.Application.Services.Interfaces
 
 
 		Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size);
-		Task<BaseModel<GetMentorMajorsResponse, GetMentorMajorsRequest>> GetMentorMajors(GetMentorMajorsRequest request);
+		Task<BaseModel<Pagination<MajorResponseDTO>>> GetMentorMajors(GetMentorMajorsRequest request);
 
 	}
 }
