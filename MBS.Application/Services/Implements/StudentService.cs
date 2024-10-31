@@ -27,15 +27,17 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 	private readonly IStudentRepository _studentRepository;
 	private readonly IEmailService _emailService;
 	private readonly ITemplateService _templateService;
+	private readonly IClaimService _claimService;
 
 	public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository,
 		UserManager<ApplicationUser> userManager, IEmailService emailService,
-		ITemplateService templateService) : base(logger, mapper)
+		ITemplateService templateService, IClaimService claimService) : base(logger, mapper)
 	{
 		_studentRepository = studentRepository;
 		_userManager = userManager;
 		_emailService = emailService;
 		_templateService = templateService;
+		_claimService = claimService;
 	}
 
 	public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size, string? sortOrder)
@@ -326,11 +328,11 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 			user.PhoneNumber = request.PhoneNumber;
 			user.LockoutEnd = request.LockoutEnd;
 			user.LockoutEnabled = request.LockoutEnabled;
-			user.UpdatedBy = "Admin";
+			user.UpdatedBy = _claimService.GetUserId();
 			user.UpdatedOn = DateTime.UtcNow;
 
 			_studentRepository.Update(student);
-			_userManager.UpdateAsync(user);
+			await _userManager.UpdateAsync(user);
 
 			return new BaseModel<UpdateStudentResponseModel>()
 			{
