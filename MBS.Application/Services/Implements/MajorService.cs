@@ -174,13 +174,13 @@ namespace MBS.Application.Services.Implements
 
 		}
 
-		public async Task<BaseModel<GetMentorMajorsResponse, GetMentorMajorsRequest>> GetMentorMajors(GetMentorMajorsRequest request)
+		public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMentorMajors(GetMentorMajorsRequest request)
 		{
 			var mentorMajors = await _mentorMajorRepository.GetMentorMajorsAsync(request.MentorId, request.Page, request.Size);
 
 			if (mentorMajors == null)
 			{
-				return new BaseModel<GetMentorMajorsResponse, GetMentorMajorsRequest>()
+				return new BaseModel<Pagination<MajorResponseDTO>>()
 				{
 					IsSuccess = false,
 					Message = MessageResponseHelper.Empty("Major")
@@ -202,15 +202,16 @@ namespace MBS.Application.Services.Implements
 				TotalPages = majors.Count,
 			};
 
-			return new BaseModel<GetMentorMajorsResponse, GetMentorMajorsRequest>()
+			return new BaseModel<Pagination<MajorResponseDTO>>()
 			{
 				Message = MessageResponseHelper.Successfully("Get all " + nameof(Major)),
 				StatusCode = StatusCodes.Status200OK,
 				IsSuccess = true,
-				ResponseModel = _mapper.Map<GetMentorMajorsResponse>(paginationMajors),
-				RequestModel = request
+				ResponseRequestModel = _mapper.Map<Pagination<MajorResponseDTO>>(paginationMajors),
 			};
 		}
+
 	}
+
 }
 

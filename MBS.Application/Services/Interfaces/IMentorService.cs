@@ -23,5 +23,5 @@ public interface IMentorService
 	Task<BaseModel<GetMentorResponseModel, GetMentorRequestModel>> GetMentor(GetMentorRequestModel request);
 	Task<BaseModel<Pagination<GetMentorResponseModel>>> GetMentors(int page, int size);
 
-	Task<BaseModel<GetMentorDegreesResponseModel>> GetMentorDegrees(GetMentorDegreesRequestModel request);
+	Task<BaseModel<Pagination<GetMentorDegreeResponseModel>>> GetMentorDegrees(GetMentorDegreesRequestModel request);
 }
