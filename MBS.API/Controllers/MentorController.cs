@@ -19,7 +19,7 @@ namespace MBS.API.Controllers
 
 		[HttpGet]
 		[Route("profile")]
-		[Authorize(Roles = nameof(UserRoleEnum.Mentor))]
+		[CustomAuthorize(UserRoleEnum.Mentor)]
 		public async Task<ActionResult<BaseModel<GetMentorResponseModel>>>
 			GetOwnProfile()
 		{
@@ -29,7 +29,7 @@ namespace MBS.API.Controllers
 
 		[HttpPost]
 		[Route("degree")]
-		[Authorize(Roles = nameof(UserRoleEnum.Mentor))]
+		[CustomAuthorize(UserRoleEnum.Mentor)]
 		public async Task<ActionResult<BaseModel<UploadOwnDegreeResponseModel, UploadOwnDegreeRequestModel>>>
 			UploadOwnDegree(UploadOwnDegreeRequestModel request)
 		{
@@ -39,7 +39,7 @@ namespace MBS.API.Controllers
 
 		[HttpGet]
 		[Route("degree")]
-		[Authorize(Roles = nameof(UserRoleEnum.Mentor))]
+		[CustomAuthorize(UserRoleEnum.Mentor)]
 		public async Task<ActionResult<BaseModel<GetOwnDegreesResponseModel>>>
 			GetOwnDegrees(int page, int size)
 		{
@@ -60,7 +60,7 @@ namespace MBS.API.Controllers
 		}
 
 		[HttpGet]
-		[Authorize(Roles = nameof(UserRoleEnum.Admin))]
+		[CustomAuthorize(UserRoleEnum.Mentor)]
 		[ProducesResponseType(typeof(BaseModel<Pagination<GetMentorResponseModel>>), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> GetMentors(int page, int size)
