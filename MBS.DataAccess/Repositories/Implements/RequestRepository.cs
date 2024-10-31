@@ -12,15 +12,32 @@ public class RequestRepository(IBaseDAO<Request> dao) : BaseRepository<Request>(
 {
     public async Task<IEnumerable<Request>> GetRequestByProjectIdAsync(Guid projectId, string? status)
     {
-        Expression<Func<Request, bool>> filter = x => x.ProjectId == projectId 
-                                                      && (!string.IsNullOrEmpty(status) && x.Status == Enum.Parse<RequestStatusEnum>(status, true)); ;
+        
+        RequestStatusEnum? statusEnum = null;
+        if (!string.IsNullOrEmpty(status))
+        {
+            statusEnum = Enum.Parse<RequestStatusEnum>(status);
+        }
+
+        Expression<Func<Request, bool>> filter = x => x.ProjectId == projectId && 
+                                                      (statusEnum == null || x.Status == statusEnum);
+
         return await _dao.GetListAsync(
-            predicate:  filter);
+            predicate:  filter,
+            include: q => q.Include(x => x.Project));
     }
-    public async Task<Pagination<Request>> GetRequestByProjectIdPaginationAsync(Guid projectId, int page, int size, string sortOrder, string? requestStatus)
+    public async Task<Pagination<Request>> GetRequestByProjectIdPaginationAsync(Guid projectId, int page, int size, string sortOrder, string? requestStatus = null)
     {
-        Expression<Func<Request, bool>> filter = x => x.ProjectId == projectId 
-                                                      && (!string.IsNullOrEmpty(requestStatus) && x.Status == Enum.Parse<RequestStatusEnum>(requestStatus, true)); ;
+        RequestStatusEnum? statusEnum = null;
+        if (!string.IsNullOrEmpty(requestStatus))
+        {
+            statusEnum = Enum.Parse<RequestStatusEnum>(requestStatus, true);
+        }
+
+        Expression<Func<Request, bool>> filter = x =>
+            x.ProjectId == projectId &&
+            (statusEnum == null || x.Status == statusEnum);
+
         return await _dao.GetPagingListAsync(
             predicate: filter,
             orderBy: o => (sortOrder.ToLower() == "asc") ? o.OrderBy(x => x.CreatedOn) : o.OrderByDescending(x => x.CreatedOn),
