@@ -6,9 +6,9 @@ namespace MBS.Application.ValidationAttributes;
 
 public class CustomAuthorizeAttribute : AuthorizeAttribute
 {
-    public CustomAuthorizeAttribute(params UserRoleEnum[] roleEnums)
-    {
-        var allowedRolesAsString = roleEnums.Select(x => x.ToString());
-        Roles = string.Join(",", allowedRolesAsString);
-    }
+	public CustomAuthorizeAttribute(params UserRoleEnum[] roleEnums)
+	{
+		var allowedRolesAsString = roleEnums.Select(x => x.ToString());
+		Roles = string.Join(",", allowedRolesAsString);
+	}
 }

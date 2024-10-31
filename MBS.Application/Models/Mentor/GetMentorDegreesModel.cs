@@ -1,5 +1,6 @@
 ﻿using MBS.Application.Models.User;
 using MBS.Core.Common.Pagination;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,8 +11,11 @@ namespace MBS.Application.Models.Mentor
 {
 	public class GetMentorDegreesRequestModel
 	{
+		[FromRoute(Name = "id")]
 		public required string MentorId { get; set; }
+		[FromQuery]
 		public required int Page { get; set; }
+		[FromQuery]
 		public required int Size { get; set; }
 	}
 

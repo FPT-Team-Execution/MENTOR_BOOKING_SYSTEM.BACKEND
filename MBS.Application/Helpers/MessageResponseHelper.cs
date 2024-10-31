@@ -357,5 +357,24 @@ public static class MessageResponseHelper
         return stringBuilder.ToString();
     }
 
-    #endregion
+	#endregion
+
+
+	public static string NotFound(string objectName)
+	{
+		var stringBuilder = new StringBuilder();
+		//stringBuilder.Append("Get ");
+		stringBuilder.Append(objectName);
+		stringBuilder.Append(" was not found.");
+		return stringBuilder.ToString();
+	}
+
+	public static string Empty(string objectName)
+	{
+		var stringBuilder = new StringBuilder();
+		//stringBuilder.Append("Get ");
+		stringBuilder.Append(objectName);
+		stringBuilder.Append(" was empty.");
+		return stringBuilder.ToString();
+	}
 }

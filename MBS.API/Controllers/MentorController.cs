@@ -88,8 +88,8 @@ namespace MBS.API.Controllers
 		}
 
 		[HttpGet]
-		[Route("degree-display")]
-		public async Task<IActionResult> GetMentorDegrees([FromQuery] GetMentorDegreesRequestModel request)
+		[Route("{id}/degrees")]
+		public async Task<IActionResult> GetMentorDegrees(GetMentorDegreesRequestModel request)
 		{
 			var response = await _mentorService.GetMentorDegrees(request);
 			return StatusCode(response.StatusCode, response);

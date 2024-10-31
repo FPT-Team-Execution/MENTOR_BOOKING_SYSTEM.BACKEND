@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace MBS.DataAccess.Repositories.Interfaces
 {
-    public interface IMajorRepository : IBaseRepository<Major>
-    {
-        Task<Major> GetMajorByIdAsync(Guid majorId);
+	public interface IMentorMajorRepository : IBaseRepository<MentorMajor>
+	{
+		Task<Pagination<MentorMajor>> GetMentorMajorsAsync(string mentorId, int page, int size);
 	}
 }
