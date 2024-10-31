@@ -15,6 +15,4 @@ namespace MBS.DataAccess.Repositories.Interfaces
 
     }
 
-	}
-
 }
