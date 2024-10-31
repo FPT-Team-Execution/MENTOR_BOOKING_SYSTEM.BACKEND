@@ -37,7 +37,7 @@ public class StudentMapper : Profile
                 opt => opt.MapFrom(src => src.User.EmailConfirmed)
             )
             .ForMember(des => des.LockoutEnd,
-                opt => opt.MapFrom(src => src.User.LockoutEnd)
+                opt => opt.MapFrom(src => src.User.LockoutEnd.Value.DateTime)
             )
             .ForMember(des => des.LockoutEnabled,
                 opt => opt.MapFrom(src => src.User.LockoutEnabled)
@@ -85,7 +85,7 @@ public class StudentMapper : Profile
                 opt => opt.MapFrom(src => src.User.EmailConfirmed)
             )
             .ForMember(des => des.LockoutEnd,
-                opt => opt.MapFrom(src => src.User.LockoutEnd)
+                opt => opt.MapFrom(src => src.User.LockoutEnd.Value.DateTime)
             )
             .ForMember(des => des.LockoutEnabled,
                 opt => opt.MapFrom(src => src.User.LockoutEnabled)
