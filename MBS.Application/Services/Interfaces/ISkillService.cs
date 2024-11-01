@@ -10,7 +10,7 @@ public interface ISkillService
     Task<BaseModel<SkillResponseModel, CreateSkillRequestModel>> CreateSkill(CreateSkillRequestModel request);
     Task<BaseModel<Pagination<Skill>>> GetSkillsByMentorId(string mentorId, int page, int size);
 
-    Task<BaseModel<Pagination<Skill>>> Getskills(int page, int size);
+    Task<BaseModel<Pagination<SkillSummaryResponseDTO>>> Getskills(int page, int size);
     Task<BaseModel<SkillResponseModel>> GetSkillById(Guid skillId);
     Task<BaseModel<SkillResponseModel>> UpdateSkill(Guid skillId,  UpdateSkillRequestModel request);
     Task<BaseModel> DeleteSkill(Guid skillId);

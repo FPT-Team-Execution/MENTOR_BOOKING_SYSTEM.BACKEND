@@ -3,6 +3,7 @@ using MBS.Core.Entities;
 using MBS.DataAccess.DAO;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace MBS.DataAccess.Repositories.Implements;
 
@@ -20,5 +21,14 @@ public class SkillRepository(IBaseDAO<Skill> dao) : BaseRepository<Skill>(dao), 
             page:page,
             size:size
         );
+    }
+
+    public async Task<Skill> GetSkillByIdAsync(Guid id)
+    {
+        return await _dao.SingleOrDefaultAsync(
+            m => m.Id == id,
+            include: x => x.Include(y => y.Mentor)
+
+            );
     }
 }

@@ -21,6 +21,75 @@ namespace MBS.Application.Services.Implements
 		private readonly IMajorRepository _majorRepository;
 		private readonly IMentorMajorRepository _mentorMajorRepository;
 
+        //OK
+        public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size)
+        {
+            var result = await _majorRepository.GetPagedListAsync(page: page, size: size);
+            var MajorDTOList = new List<MajorResponseDTO>();
+            foreach (var item in result.Items) 
+            {
+                var majorFound = await _majorRepository.GetMajorByIdAsync(item.Id);
+                var majorDTO = new MajorResponseDTO
+                {
+                    Id = majorFound.Id,
+                    Name = majorFound.Name,
+                    ParentName = majorFound.ParentMajor?.Name,
+                    CreatedOn = majorFound.CreatedOn,
+                    UpdatedOn = majorFound.UpdatedOn
+                };
+                MajorDTOList.Add(majorDTO);
+
+                
+            }
+
+            var paginatedMajor = new Pagination<MajorResponseDTO>()
+            {
+                Items = MajorDTOList,
+                PageSize = size,
+                PageIndex = page
+            };
+            if (result == null)
+            {
+                return new BaseModel<Pagination<MajorResponseDTO>>()
+                {
+                    Message = MessageResponseHelper.Fail("Get all " + nameof(Major)),
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    IsSuccess = false
+                };
+            }
+
+            return new BaseModel<Pagination<MajorResponseDTO>>()
+            {
+                Message = MessageResponseHelper.Successfully("Get all " + nameof(Major)),
+                StatusCode = StatusCodes.Status200OK,
+                IsSuccess = true,
+                ResponseRequestModel =paginatedMajor
+            };
+        }
+        //OK
+        public async Task<BaseModel<MajorModel>> GetMajorId(Guid requestId)
+        {
+            var resultSet = await _majorRepository.GetByIdAsync(requestId, "Id");
+            if (resultSet == null)
+            {
+                return new BaseModel<MajorModel>()
+                {
+                    Message = MessageResponseHelper.Fail("Get " + nameof(Major)),
+                    StatusCode = StatusCodes.Status404NotFound,
+                    IsSuccess = false,
+                };
+            }
+            return new BaseModel<MajorModel>()
+            {
+                Message = MessageResponseHelper.Successfully("Get " + nameof(Major)),
+                StatusCode = StatusCodes.Status202Accepted,
+                IsSuccess = true,
+                ResponseRequestModel = new MajorModel()
+                {
+                    MajorResponse = _mapper.Map<MajorResponseDTO>(resultSet)
+                }
+            };
+        }
 		public MajorService(
 			IMajorRepository majorRepository,
 			IMentorMajorRepository mentorMajorRepository,
@@ -31,51 +100,51 @@ namespace MBS.Application.Services.Implements
 		}
 
 		//OK
-		public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size)
-		{
-			var result = await _majorRepository.GetPagedListAsync(page: page, size: size);
-			if (result == null)
-			{
-				return new BaseModel<Pagination<MajorResponseDTO>>()
-				{
-					Message = MessageResponseHelper.Fail("Get all " + nameof(Major)),
-					StatusCode = StatusCodes.Status400BadRequest,
-					IsSuccess = false
-				};
-			}
+		//public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size)
+		//{
+		//	var result = await _majorRepository.GetPagedListAsync(page: page, size: size);
+		//	if (result == null)
+		//	{
+		//		return new BaseModel<Pagination<MajorResponseDTO>>()
+		//		{
+		//			Message = MessageResponseHelper.Fail("Get all " + nameof(Major)),
+		//			StatusCode = StatusCodes.Status400BadRequest,
+		//			IsSuccess = false
+		//		};
+		//	}
 
-			return new BaseModel<Pagination<MajorResponseDTO>>()
-			{
-				Message = MessageResponseHelper.Successfully("Get all " + nameof(Major)),
-				StatusCode = StatusCodes.Status200OK,
-				IsSuccess = true,
-				ResponseRequestModel = _mapper.Map<Pagination<MajorResponseDTO>>(result)
-			};
-		}
-		//OK
-		public async Task<BaseModel<MajorModel>> GetMajorId(Guid requestId)
-		{
-			var resultSet = await _majorRepository.GetByIdAsync(requestId, "Id");
-			if (resultSet == null)
-			{
-				return new BaseModel<MajorModel>()
-				{
-					Message = MessageResponseHelper.Fail("Get " + nameof(Major)),
-					StatusCode = StatusCodes.Status404NotFound,
-					IsSuccess = false,
-				};
-			}
-			return new BaseModel<MajorModel>()
-			{
-				Message = MessageResponseHelper.Successfully("Get " + nameof(Major)),
-				StatusCode = StatusCodes.Status202Accepted,
-				IsSuccess = true,
-				ResponseRequestModel = new MajorModel()
-				{
-					MajorResponse = _mapper.Map<MajorResponseDTO>(resultSet)
-				}
-			};
-		}
+		//	return new BaseModel<Pagination<MajorResponseDTO>>()
+		//	{
+		//		Message = MessageResponseHelper.Successfully("Get all " + nameof(Major)),
+		//		StatusCode = StatusCodes.Status200OK,
+		//		IsSuccess = true,
+		//		ResponseRequestModel = _mapper.Map<Pagination<MajorResponseDTO>>(result)
+		//	};
+		//}
+		////OK
+		//public async Task<BaseModel<MajorModel>> GetMajorId(Guid requestId)
+		//{
+		//	var resultSet = await _majorRepository.GetByIdAsync(requestId, "Id");
+		//	if (resultSet == null)
+		//	{
+		//		return new BaseModel<MajorModel>()
+		//		{
+		//			Message = MessageResponseHelper.Fail("Get " + nameof(Major)),
+		//			StatusCode = StatusCodes.Status404NotFound,
+		//			IsSuccess = false,
+		//		};
+		//	}
+		//	return new BaseModel<MajorModel>()
+		//	{
+		//		Message = MessageResponseHelper.Successfully("Get " + nameof(Major)),
+		//		StatusCode = StatusCodes.Status202Accepted,
+		//		IsSuccess = true,
+		//		ResponseRequestModel = new MajorModel()
+		//		{
+		//			MajorResponse = _mapper.Map<MajorResponseDTO>(resultSet)
+		//		}
+		//	};
+		//}
 
 		public async Task<BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>> CreateNewMajorAsync(CreateMajorRequestModel request)
 		{
@@ -98,11 +167,7 @@ namespace MBS.Application.Services.Implements
 
 
 			await _majorRepository.CreateAsync(major);
-			//return new BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>()
 
-
-			//await _unitOfWork.GetRepository<Major>().InsertAsync(major);
-			//await _unitOfWork.CommitAsync();
 			return new BaseModel<CreateMajorResponseModel, CreateMajorRequestModel>()
 			{
 				Message = MessageResponseHelper.Successfully("Created" + nameof(Major)),
