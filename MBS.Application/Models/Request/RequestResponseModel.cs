@@ -6,6 +6,9 @@ public class RequestResponseDto
 {
     public Guid Id { get; set; }
     public string Title { get; set; }
+    public DateTime Start { get; set; }
+    public DateTime End { get; set; }
+    public string MentorId { get; set; }
     public string CalendarEventId { get; set; }
     public Guid? ProjectId { get; set; }
     public string CreaterId { get; set; }
