@@ -498,6 +498,19 @@ public class AuthService : BaseService2<AuthService>, IAuthService
             }
         }
 
+        //if fail to create - check they are student or not ?
+        var studentCheck = await _userManager.FindByEmailAsync(userCreate.Email);
+        if (studentCheck != null)
+        {
+            return new BaseModel<ExternalSignInResponseModel>
+            {
+                Message = MessageResponseHelper.AuthorizeFail("Student not allow to sign in by Google"),
+                StatusCode = StatusCodes.Status401Unauthorized,
+                IsSuccess = false,
+                ResponseRequestModel = null,
+            };
+        }
+
         return new BaseModel<ExternalSignInResponseModel>
         {
             Message = "",
