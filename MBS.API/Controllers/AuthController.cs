@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Net;
+using System.Security.Claims;
 using MBS.Application.Helpers;
 using MBS.Core.Entities;
 using MBS.DataAccess.Repositories.Interfaces;
@@ -17,18 +18,23 @@ namespace MBS.API.Controllers
     {
         private readonly IMentorRepository _mentorRepository;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IAuthService _authService;
         private readonly IClaimService _claimService;
         private readonly IGoogleService _googleService;
         private readonly IConfiguration _configuration;
 
         public AuthController(
+            RoleManager<IdentityRole> roleManager,
+            UserManager<ApplicationUser> userManager,
             IMentorRepository mentorRepository,
             IGoogleService googleService,
             IClaimService claimService,
             IAuthService authService,
             IConfiguration configuration)
         {
+            _roleManager = roleManager;
+            _userManager = userManager;
             _mentorRepository = mentorRepository;
             _googleService = googleService;
             _claimService = claimService;
@@ -75,10 +81,9 @@ namespace MBS.API.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-
-            //get profile
+            var gtokenResponse = (GoogleTokenResponse)tokenResponse;
             var profileResponse =
-                await _googleService.GetProfileGoogleUserAsync(((GoogleTokenResponse)tokenResponse).access_token);
+                await _googleService.GetProfileGoogleUserAsync(gtokenResponse.access_token);
             if (!profileResponse.IsSuccess)
             {
                 return StatusCode(StatusCodes.Status401Unauthorized, new BaseModel
@@ -88,15 +93,13 @@ namespace MBS.API.Controllers
                     StatusCode = StatusCodes.Status401Unauthorized
                 });
             }
-
+            
             //SignUp Or Sign In 
             var request = new ExternalSignInRequestModel
             {
                 token = (GoogleTokenResponse)tokenResponse,
                 profile = (GoogleUserInfoResponse)profileResponse,
             };
-
-
             var response = await _authService.LoginOrSignUpExternal(request);
 
 
