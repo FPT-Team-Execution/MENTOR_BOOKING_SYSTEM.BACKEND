@@ -186,8 +186,17 @@ namespace MBS.DataAccess.Persistents.Configurations.SeedData
                 }
 
             };
+            //Seed User Roles
+            var roleId = "06b905a4-d0e8-4b19-b0e0-09208504bdbb";
+            var userRoles = users.Select(user => new IdentityUserRole<string>
+            {
+                UserId = user.Id,
+                RoleId = roleId
+            }).ToList();
 
+            
             _dbInitializer.Initialize(users);
+            _dbInitializer.Initialize(userRoles);
 
         }
 
