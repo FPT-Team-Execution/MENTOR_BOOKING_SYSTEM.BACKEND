@@ -315,8 +315,8 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 			var user = await _mentorRepository.GetMentorsAsync(page, size);
 			return new BaseModel<Pagination<GetMentorResponseModel>>()
 			{
-				Message = MessageResponseHelper.GetSuccessfully("students"),
-				IsSuccess = false,
+				Message = MessageResponseHelper.GetSuccessfully("mentors"),
+				IsSuccess = true,
 				StatusCode = StatusCodes.Status200OK,
 				ResponseRequestModel = _mapper.Map<Pagination<GetMentorResponseModel>>(user)
 			};

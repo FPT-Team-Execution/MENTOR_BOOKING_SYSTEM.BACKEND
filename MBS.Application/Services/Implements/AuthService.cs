@@ -444,7 +444,7 @@ public class AuthService : BaseService2<AuthService>, IAuthService
             UserName = profile.email,
             FullName = profile.name,
             AvatarUrl = profile.picture,
-            EmailConfirmed = profile.email_verified
+            EmailConfirmed = profile.email_verified,
             //TODO: get more info from email
         };
         //create user, add role,add external login 
@@ -455,7 +455,8 @@ public class AuthService : BaseService2<AuthService>, IAuthService
             //create mentor
             var mentorCreate = new Mentor()
             {
-                UserId = userCreate.Id
+                UserId = userCreate.Id,
+                
             };
             var addMentorResult = await _mentorRepository.CreateAsync(mentorCreate);
             if (!addMentorResult)
@@ -500,7 +501,8 @@ public class AuthService : BaseService2<AuthService>, IAuthService
 
         //if fail to create - check they are student or not ?
         var studentCheck = await _userManager.FindByEmailAsync(userCreate.Email);
-        if (studentCheck != null)
+        var studentRole = await _userManager.GetRolesAsync(studentCheck!);
+        if (studentCheck != null && studentRole.Contains(UserRoleEnum.Student.ToString()))
         {
             return new BaseModel<ExternalSignInResponseModel>
             {

@@ -11,7 +11,7 @@ namespace MBS.Core.Entities
         public string UserId { get; set; }
         [ForeignKey("UserId")]
         public ApplicationUser User { get; set; }
-        public string? Industry { get; set; } = default;
+        public string? Industry { get; set; } = string.Empty;
         public int ConsumePoint { get; set; } = default;
     }
 }
