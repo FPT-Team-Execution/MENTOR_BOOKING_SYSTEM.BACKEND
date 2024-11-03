@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Transactions;
 using AutoMapper;
 using MBS.Application.Exceptions;
 using MBS.Application.Helpers;
@@ -396,129 +397,155 @@ public class AuthService : BaseService2<AuthService>, IAuthService
     public async Task<BaseModel<ExternalSignInResponseModel>> LoginOrSignUpExternal(
         ExternalSignInRequestModel request)
     {
-        // var provider = request.authenticationResult;
-        var profile = request.profile;
-        var token = request.token;
-        //Try Sign in by external information
-        var tryExternalLogin =
-            await _signInManager.ExternalLoginSignInAsync("Google", profile.sub, true);
-        //if success, get info user and return result
-        if (tryExternalLogin.Succeeded)
+
+        try
         {
-            var user = await _userManager.FindByLoginAsync("Google", profile.sub);
-            if (user == null)
-            {
+           
+                // var provider = request.authenticationResult;
+                var profile = request.profile;
+                var token = request.token;
+                //Try Sign in by external information
+                var tryExternalLogin =
+                    await _signInManager.ExternalLoginSignInAsync("Google", profile.sub, true);
+                //if success, get info user and return result
+                if (tryExternalLogin.Succeeded)
+                {
+                    var user = await _userManager.FindByLoginAsync("Google", profile.sub);
+                    if (user == null)
+                    {
+                        return new BaseModel<ExternalSignInResponseModel>
+                        {
+                            Message = MessageResponseHelper.UserNotFound(),
+                            StatusCode = StatusCodes.Status404NotFound,
+                            IsSuccess = false,
+                        };
+                    }
+
+                    //return response
+                    var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(user, _userManager, _configuration);
+                    var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(user, _configuration);
+                    return new BaseModel<ExternalSignInResponseModel>
+                    {
+                        Message = MessageResponseHelper.GetSuccessfully("athorization"),
+                        StatusCode = StatusCodes.Status200OK,
+                        IsSuccess = true,
+                        ResponseRequestModel = new ExternalSignInResponseModel
+                        {
+                            JwtModel = new JwtModel
+                            {
+                                AccessToken = accessToken,
+                                RefreshToken = refreshToken,
+                            },
+                            //TODO: return refresh token
+                            GoogleToken = token
+                        }
+                    };
+                }
+
+                //if user is new -> create new account
+                var userCreate = new ApplicationUser
+                {
+                    Email = profile.email,
+                    UserName = profile.email,
+                    FullName = profile.name,
+                    AvatarUrl = profile.picture,
+                    EmailConfirmed = profile.email_verified,
+                    //TODO: get more info from email
+                };
+                //create user, add role,add external login 
+                //* create user
+                var createResult = await _userManager.CreateAsync(userCreate);
+                if (createResult.Succeeded)
+                {
+                    //create mentor
+                    var mentorCreate = new Mentor()
+                    {
+                        UserId = userCreate.Id,
+
+                    };
+                    using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+                    {
+                        var addMentorResult = await _mentorRepository.CreateAsync(mentorCreate);
+                    if (!addMentorResult)
+                    {
+                        return new BaseModel<ExternalSignInResponseModel>
+                        {
+                            Message = MessageResponseHelper.CreateFailed("mentor"),
+                            StatusCode = StatusCodes.Status500InternalServerError,
+                            IsSuccess = false
+                        };
+                    }
+
+                    //*add role
+                    var user = await _userManager.FindByEmailAsync(userCreate.Email);
+                    await _userManager.AddToRoleAsync(user, UserRoleEnum.Mentor.ToString());
+                    //*Add external login
+                    var userLoginInfo =
+                        new UserLoginInfo(providerKey: profile.sub, loginProvider: "Google", displayName: "Google");
+                    var addResult = await _userManager.AddLoginAsync(userCreate, userLoginInfo);
+                    if (addResult.Succeeded)
+                    {
+                        transactionScope.Complete();
+                        var accessToken =
+                            JwtHelper.GenerateJwtAccessTokenAsync(userCreate, _userManager, _configuration);
+                        var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(userCreate, _configuration);
+                        return new BaseModel<ExternalSignInResponseModel>
+                        {
+                            Message = MessageResponseHelper.GetSuccessfully("authentication"),
+                            StatusCode = StatusCodes.Status200OK,
+                            IsSuccess = true,
+                            ResponseRequestModel = new ExternalSignInResponseModel
+                            {
+                                JwtModel = new JwtModel
+                                {
+                                    AccessToken = accessToken,
+                                    RefreshToken = refreshToken,
+                                },
+                                //TODO: return refresh token
+                                GoogleToken = token
+                            }
+                        };
+                    }
+                        
+                    }
+
+                    
+                }
+
+                //if fail to create - check they are student or not ?
+                var studentCheck = await _userManager.FindByEmailAsync(userCreate.Email);
+                var studentRole = await _userManager.GetRolesAsync(studentCheck!);
+                if (studentCheck != null && studentRole.Contains(UserRoleEnum.Student.ToString()))
+                {
+                    return new BaseModel<ExternalSignInResponseModel>
+                    {
+                        Message = MessageResponseHelper.AuthorizeFail("Student not allow to sign in by Google"),
+                        StatusCode = StatusCodes.Status401Unauthorized,
+                        IsSuccess = false,
+                        ResponseRequestModel = null,
+                    };
+                }
+
+              
                 return new BaseModel<ExternalSignInResponseModel>
                 {
-                    Message = MessageResponseHelper.UserNotFound(),
-                    StatusCode = StatusCodes.Status404NotFound,
+                    Message = "Unexpected Exception",
+                    StatusCode = StatusCodes.Status500InternalServerError,
                     IsSuccess = false,
                 };
-            }
-
-            //return response
-            var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(user, _userManager, _configuration);
-            var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(user, _configuration);
-            return new BaseModel<ExternalSignInResponseModel>
-            {
-                Message = MessageResponseHelper.GetSuccessfully("athorization"),
-                StatusCode = StatusCodes.Status200OK,
-                IsSuccess = true,
-                ResponseRequestModel = new ExternalSignInResponseModel
-                {
-                    JwtModel = new JwtModel
-                    {
-                        AccessToken = accessToken,
-                        RefreshToken = refreshToken,
-                    },
-                    //TODO: return refresh token
-                    GoogleToken = token
-                }
-            };
+            
         }
-
-        //if user is new -> create new account
-        var userCreate = new ApplicationUser
-        {
-            Email = profile.email,
-            UserName = profile.email,
-            FullName = profile.name,
-            AvatarUrl = profile.picture,
-            EmailConfirmed = profile.email_verified,
-            //TODO: get more info from email
-        };
-        //create user, add role,add external login 
-        //* create user
-        var createResult = await _userManager.CreateAsync(userCreate);
-        if (createResult.Succeeded)
-        {
-            //create mentor
-            var mentorCreate = new Mentor()
-            {
-                UserId = userCreate.Id,
-                
-            };
-            var addMentorResult = await _mentorRepository.CreateAsync(mentorCreate);
-            if (!addMentorResult)
-            {
-                return new BaseModel<ExternalSignInResponseModel>
-                {
-                    Message = MessageResponseHelper.CreateFailed("mentor"),
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                    IsSuccess = false
-                };
-            }
-
-            //*add role
-            var user = await _userManager.FindByEmailAsync(userCreate.Email);
-            await _userManager.AddToRoleAsync(user, UserRoleEnum.Mentor.ToString());
-            //*Add external login
-            var userLoginInfo =
-                new UserLoginInfo(providerKey: profile.sub, loginProvider: "Google", displayName: "Google");
-            var addResult = await _userManager.AddLoginAsync(userCreate, userLoginInfo);
-            if (addResult.Succeeded)
-            {
-                var accessToken = JwtHelper.GenerateJwtAccessTokenAsync(userCreate, _userManager, _configuration);
-                var refreshToken = JwtHelper.GenerateJwtRefreshTokenAsync(userCreate, _configuration);
-                return new BaseModel<ExternalSignInResponseModel>
-                {
-                    Message = MessageResponseHelper.GetSuccessfully("authentication"),
-                    StatusCode = StatusCodes.Status200OK,
-                    IsSuccess = true,
-                    ResponseRequestModel = new ExternalSignInResponseModel
-                    {
-                        JwtModel = new JwtModel
-                        {
-                            AccessToken = accessToken,
-                            RefreshToken = refreshToken,
-                        },
-                        //TODO: return refresh token
-                        GoogleToken = token
-                    }
-                };
-            }
-        }
-
-        //if fail to create - check they are student or not ?
-        var studentCheck = await _userManager.FindByEmailAsync(userCreate.Email);
-        var studentRole = await _userManager.GetRolesAsync(studentCheck!);
-        if (studentCheck != null && studentRole.Contains(UserRoleEnum.Student.ToString()))
+        catch (Exception e)
         {
             return new BaseModel<ExternalSignInResponseModel>
             {
-                Message = MessageResponseHelper.AuthorizeFail("Student not allow to sign in by Google"),
-                StatusCode = StatusCodes.Status401Unauthorized,
+                Message = e.Message,
+                StatusCode = StatusCodes.Status500InternalServerError,
                 IsSuccess = false,
-                ResponseRequestModel = null,
             };
         }
 
-        return new BaseModel<ExternalSignInResponseModel>
-        {
-            Message = "",
-            StatusCode = StatusCodes.Status500InternalServerError,
-            IsSuccess = false,
-        };
+       
     }
 
     public async Task<BaseModel<UploadAvatarResponseModel, UploadAvatarRequestModel>> UploadAvatar(
