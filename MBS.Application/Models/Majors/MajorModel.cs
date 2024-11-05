@@ -23,7 +23,7 @@ namespace MBS.Application.Models.Majors
         public DateTime? CreatedOn { get; set; }
         public DateTime? UpdatedOn { get; set; }
 
-        public StatusEnum Status { get; set; }
+        public string Status { get; set; }
     }
 
 }

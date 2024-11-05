@@ -37,14 +37,15 @@ namespace MBS.Application.Services.Implements
             foreach (var item in result.Items) 
             {
                 var majorFound = await _majorRepository.GetMajorByIdAsync(item.Id);
-                var majorDTO = new MajorResponseDTO
-                {
-                    Id = majorFound.Id,
-                    Name = majorFound.Name,
-                    ParentName = majorFound.ParentMajor?.Name,
-                    CreatedOn = majorFound.CreatedOn,
-                    UpdatedOn = majorFound.UpdatedOn
-                };
+				var majorDTO = new MajorResponseDTO
+				{
+					Id = majorFound.Id,
+					Name = majorFound.Name,
+					ParentName = majorFound.ParentMajor?.Name,
+					CreatedOn = majorFound.CreatedOn,
+					UpdatedOn = majorFound.UpdatedOn,
+					Status = majorFound.Status.ToString()
+				};
                 MajorDTOList.Add(majorDTO);
 
                 
@@ -95,7 +96,7 @@ namespace MBS.Application.Services.Implements
 				ParentName = parentMajor.Name,
 				CreatedOn = resultSet.CreatedOn,
 				UpdatedOn = resultSet.UpdatedOn,
-				Status = resultSet.Status,
+				Status = resultSet.Status.ToString(),
 			};
             return new BaseModel<MajorModel>()
             {
