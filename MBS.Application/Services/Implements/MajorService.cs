@@ -93,7 +93,7 @@ namespace MBS.Application.Services.Implements
 			{
 				Id = resultSet.Id,
 				Name = resultSet.Name,
-				ParentName = parentMajor.Name,
+				ParentName = parentMajor?.Name ?? null,
 				CreatedOn = resultSet.CreatedOn,
 				UpdatedOn = resultSet.UpdatedOn,
 				Status = resultSet.Status.ToString(),
