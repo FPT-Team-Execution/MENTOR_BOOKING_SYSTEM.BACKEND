@@ -187,7 +187,7 @@ public class SkillService : BaseService2<SkillService>, ISkillService
             {
                 return new BaseModel()
                 {
-                    Message = MessageResponseHelper.DeleteFailed("major"),
+                    Message = MessageResponseHelper.DeleteFailed("skill"),
                     StatusCode = StatusCodes.Status404NotFound,
                     IsSuccess = false,
                 };
