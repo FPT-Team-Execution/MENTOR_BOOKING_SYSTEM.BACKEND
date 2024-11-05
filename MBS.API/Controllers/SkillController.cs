@@ -58,13 +58,15 @@ public class SkillController : ControllerBase
    
     }
     
-    [HttpPut("{skillId}")]
-    [ProducesResponseType(typeof(BaseModel<SkillResponseModel>),StatusCodes.Status200OK)]
+    
+    [HttpDelete("{skillId}")]
+    [CustomAuthorize(UserRoleEnum.Admin,UserRoleEnum.Mentor)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdateSkill([FromRoute] Guid skillId, UpdateSkillRequestModel requestModel)
+    public async Task<IActionResult> DeleteSkill([FromRoute] Guid skillId)
     {
-        var result = await _skillService.UpdateSkill(skillId, requestModel);
+        var result = await _skillService.DeleteSkill(skillId);
         return StatusCode(result.StatusCode, result);
         
     }
