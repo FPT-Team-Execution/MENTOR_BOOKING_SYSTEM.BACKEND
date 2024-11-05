@@ -22,6 +22,8 @@ namespace MBS.Application.Models.Majors
         public string? ParentName { get; set; }
         public DateTime? CreatedOn { get; set; }
         public DateTime? UpdatedOn { get; set; }
+
+        public StatusEnum Status { get; set; }
     }
 
 }

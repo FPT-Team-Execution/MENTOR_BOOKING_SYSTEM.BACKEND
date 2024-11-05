@@ -21,6 +21,14 @@ namespace MBS.Application.Services.Implements
 		private readonly IMajorRepository _majorRepository;
 		private readonly IMentorMajorRepository _mentorMajorRepository;
 
+		public MajorService(
+			IMajorRepository majorRepository,
+			IMentorMajorRepository mentorMajorRepository,
+			ILogger<MajorService> logger, IMapper mapper) : base(logger, mapper)
+		{
+			_majorRepository = majorRepository;
+			_mentorMajorRepository = mentorMajorRepository;
+		}
         //OK
         public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size)
         {
@@ -71,7 +79,7 @@ namespace MBS.Application.Services.Implements
         {
             var resultSet = await _majorRepository.GetByIdAsync(requestId, "Id");
             if (resultSet == null)
-            {
+            {	
                 return new BaseModel<MajorModel>()
                 {
                     Message = MessageResponseHelper.Fail("Get " + nameof(Major)),
@@ -79,6 +87,16 @@ namespace MBS.Application.Services.Implements
                     IsSuccess = false,
                 };
             }
+			var parentMajor = await _majorRepository.GetByIdAsync(resultSet.ParentId, "Id");
+			var majorDTO = new MajorResponseDTO
+			{
+				Id = resultSet.Id,
+				Name = resultSet.Name,
+				ParentName = parentMajor.Name,
+				CreatedOn = resultSet.CreatedOn,
+				UpdatedOn = resultSet.UpdatedOn,
+				Status = resultSet.Status,
+			};
             return new BaseModel<MajorModel>()
             {
                 Message = MessageResponseHelper.Successfully("Get " + nameof(Major)),
@@ -86,18 +104,10 @@ namespace MBS.Application.Services.Implements
                 IsSuccess = true,
                 ResponseRequestModel = new MajorModel()
                 {
-                    MajorResponse = _mapper.Map<MajorResponseDTO>(resultSet)
+                    MajorResponse = majorDTO
                 }
             };
         }
-		public MajorService(
-			IMajorRepository majorRepository,
-			IMentorMajorRepository mentorMajorRepository,
-			ILogger<MajorService> logger, IMapper mapper) : base(logger, mapper)
-		{
-			_majorRepository = majorRepository;
-			_mentorMajorRepository = mentorMajorRepository;
-		}
 
 		//OK
 		//public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size)
