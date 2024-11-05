@@ -232,6 +232,7 @@ public class SkillService : BaseService2<SkillService>, ISkillService
                 var mentorBySkill = await _mentorRepository.GetMentorByIdAsync(skillFound.MentorId);
                 var skillDTO = new SkillSummaryResponseDTO
                 {
+                    Id = skillFound.Id,
                     Name = skillFound.Name,
                     MentorName = mentorBySkill.User.FullName,
                     MentorEmail = mentorBySkill.User.Email

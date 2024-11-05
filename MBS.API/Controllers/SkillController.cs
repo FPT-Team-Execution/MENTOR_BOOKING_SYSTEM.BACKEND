@@ -17,7 +17,7 @@ public class SkillController : ControllerBase
         _skillService = skillService;
     }
     [HttpGet]
-    [ProducesResponseType(typeof(BaseModel<Pagination<SkillResponseModel>>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel<Pagination<SkillSummaryResponseDTO>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetSkills(int page, int size)
     {

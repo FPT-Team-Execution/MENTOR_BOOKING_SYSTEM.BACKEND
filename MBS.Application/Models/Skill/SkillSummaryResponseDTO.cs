@@ -8,6 +8,7 @@ namespace MBS.Application.Models.Skill
 {
     public class SkillSummaryResponseDTO
     {
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string MentorName { get; set; }
         public string MentorEmail { get; set; }
