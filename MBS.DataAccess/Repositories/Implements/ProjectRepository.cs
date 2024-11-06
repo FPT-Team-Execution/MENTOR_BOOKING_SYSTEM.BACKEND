@@ -7,6 +7,14 @@ namespace MBS.DataAccess.Repositories.Implements;
 
 public class ProjectRepository(IBaseDAO<Project> dao) : BaseRepository<Project>(dao), IProjectRepository
 {
+    public async Task<Pagination<Project>> GetAllProjects(int page, int size)
+    {
+        return await _dao.GetPagingListAsync(
+            page: page,
+            size: size
+            );
+    }
+
     public async Task<Pagination<Project>> GetProjectsByMentorId(string mentorId, int page, int size, string sortOrder)
     {
         return await _dao.GetPagingListAsync( 

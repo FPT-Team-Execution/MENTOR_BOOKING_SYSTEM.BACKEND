@@ -85,13 +85,13 @@ public class FeedbackController : ControllerBase
         
     }
 
-    [HttpPut]
+    [HttpGet("/Feedbacks")]
     [ProducesResponseType(typeof(BaseModel<FeedbackModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAllFeedbacks([FromQuery] int page, [FromQuery] int size)
     {
-        var result = await _feedbackService.GetAllFeedbacks(page, size);
+        var result = await _feedbackService.GetAllFeedbacks(page,size);
         return StatusCode(result.StatusCode, result);
 
     }
