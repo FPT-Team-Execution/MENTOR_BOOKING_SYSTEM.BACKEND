@@ -1,6 +1,8 @@
-﻿using MBS.Core.Entities;
+﻿using MBS.Core.Common.Pagination;
+using MBS.Core.Entities;
 using MBS.DataAccess.DAO.Interfaces;
 using MBS.DataAccess.Repositories.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +17,14 @@ namespace MBS.DataAccess.Repositories.Implements
         {
         }
 
-        public  Task<PointTransaction> GetTransactionByStudentId(string studentId)
+        Task<Pagination<PointTransaction>> IPointTransactionRepository.GetTransactionByStudentIdPageList(string studentId, int page, int size)
         {
-            return _dao.SingleOrDefaultAsync(x => x.UserId == studentId);
+            return _dao.GetPagingListAsync(
+                predicate: x => x.UserId == studentId,
+                include: f => f.Include(f => f.User),
+                page: page,
+                size: size
+         );
         }
     }
 }
