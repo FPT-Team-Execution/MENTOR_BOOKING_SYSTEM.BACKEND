@@ -129,28 +129,23 @@ namespace MBS.Application.Services.Implements
         {
             var result = await _pointTransactionRepository.GetAllAsync();
             var ListToShow = new List<PointTransactionDTO>();
-
-            foreach (var transaction in result)
-            {
-                var userFound = await _studentRepository.GetByUserIdAsync(transaction.UserId, include: m => m.Include(m => m.User));
-
+            foreach (var transaction in result) {
+                var userFound = await  _studentRepository.GetByUserIdAsync(transaction.UserId, include: m => m.Include(m => m.User));
+                
                 var newTrans = new PointTransactionDTO
                 {
                     UserId = transaction.UserId,
                     Username = userFound.User.FullName,
                     Amount = transaction.Amount,
-                    RemainBalance = transaction.RemainBalance,
-                    CreatedOn = transaction.CreatedOn,
-
                     TransactionType = transaction.TransactionType == 0 ? TransactionTypeEnum.Credit : TransactionTypeEnum.Debit,
+                    CreatedOn = transaction.CreatedOn,
                     Currency = PointCurrencyEnum.FPoint,
                     Kind = transaction.Kind == 0 ? TransactionKindEnum.Personal : TransactionKindEnum.Project,
-                    Status = transaction.Status == 0 ? TransactionStatusEnum.Success : TransactionStatusEnum.Fail
+                    RemainBalance = transaction.RemainBalance,
+                    Status = transaction.Status == 0 ? TransactionStatusEnum.Success : TransactionStatusEnum.Fail,
                 };
-
                 ListToShow.Add(newTrans);
             }
-
             var response = ListToShow.OrderByDescending(i => i.CreatedOn).ToList();
 
             var pagingPoint = new Pagination<PointTransactionDTO>
@@ -158,8 +153,8 @@ namespace MBS.Application.Services.Implements
                 Items = response,
                 PageSize = size,
                 PageIndex = page
-            };
 
+            };
             return new BaseModel<Pagination<PointTransactionDTO>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("point transaction"),
@@ -169,12 +164,10 @@ namespace MBS.Application.Services.Implements
             };
         }
 
-
         public async Task<BaseModel<Pagination<PointTransactionDTO>>> GetPointTransactionByStudentId(string studentId, int page, int size)
         {
             var result = await _pointTransactionRepository.GetTransactionByStudentIdPageList(studentId, page, size);
 
-            // Map each transaction to PointTransactionDTO
             var transactionDtoList = result.Items.Select(transaction => new PointTransactionDTO
             {
                 UserId = transaction.UserId,
@@ -188,7 +181,6 @@ namespace MBS.Application.Services.Implements
                 CreatedOn = transaction.CreatedOn
             }).ToList();
 
-            // Wrap DTO list in a pagination model
             var paginatedDtoList = new Pagination<PointTransactionDTO>
             {
                 Items = transactionDtoList,
@@ -196,7 +188,6 @@ namespace MBS.Application.Services.Implements
                 PageSize = size
             };
 
-            // Return the result in a BaseModel
             return new BaseModel<Pagination<PointTransactionDTO>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("point transactions"),
