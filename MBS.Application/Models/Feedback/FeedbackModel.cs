@@ -4,14 +4,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MBS.Application.Models.Feedback;
 
-public class FeedbackResponseModel
+public class FeedbackModel
 {
-    public FeedbackResponseDto Feedback { get; set; }
+    public FeedbackResponseDTO Feedback { get; set; }
 }
 
-public class FeedbackResponseDto
+public class FeedbackResponseDTO
 {
     public Guid Id { get; set; }
+	public string userId { get; set; }
+	public string name { get; set; }
     public Guid MeetingId { get; set; }
 	public string? Message { get; set; }
 	public string? CreatedBy { get; set; }

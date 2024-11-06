@@ -10,13 +10,13 @@ namespace MBS.Application.Services.Interfaces;
 public interface IFeedbackService
 {
     // Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacks(int page, int size, DateTime? startDate, DateTime? endDate);
-    Task<BaseModel<Pagination<FeedbackResponseDto>>> GetMeetingFeedbacksByUserId(GetMeetingFeedbacksByUserIdRequest request);
-    Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacksByMeetingId(GetFeedbacksByMeetingIdRequest request);
-    Task<BaseModel<FeedbackResponseModel>> GetFeedbackById(Guid feedbackId);
+    Task<BaseModel<Pagination<FeedbackResponseDTO>>> GetMeetingFeedbacksByUserId(GetMeetingFeedbacksByUserIdRequest request);
+    Task<BaseModel<Pagination<FeedbackResponseDTO>>> GetFeedbacksByMeetingId(GetFeedbacksByMeetingIdRequest request);
+    Task<BaseModel<FeedbackModel>> GetFeedbackById(Guid feedbackId);
     Task<BaseModel<CreateFeedbackResponseModel, CreateFeedbackRequestModel>> CreateFeedback(CreateFeedbackRequestModel request);
-    Task<BaseModel<FeedbackResponseModel>> UpdateFeedback(Guid feedbackId, string message);
+    Task<BaseModel<FeedbackModel>> UpdateFeedback(Guid feedbackId, string message);
     Task<BaseModel<Pagination<FeedbackByMentorDTO>>> GetFeedbackByMentorId(string mentorId, int page, int size);
-    Task<BaseModel<Pagination<GetAllFeedbackByMentorIdModel>>> GetAllFeedbacks(int page, int size);
+    Task<BaseModel<Pagination<FeedbackResponseDTO>>> GetAllFeedbacks(int page, int size);
 
 
 
