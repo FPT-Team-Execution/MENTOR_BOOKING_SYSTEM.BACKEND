@@ -20,7 +20,7 @@ public class SupabaseService : ISupabaseService
         _supabaseClient = supabaseClient;
     }
 
-    public async Task<string> UploadFile(byte[] fileByte, string filePath, string bucketName)
+    public async Task<string> UploadFile(byte[] fileByte, string filePath, string bucketName, bool replace)
     {
         return await _supabaseClient.Storage.From(bucketName)
             .Upload
@@ -29,7 +29,7 @@ public class SupabaseService : ISupabaseService
                 filePath,
                 new FileOptions()
                 {
-                    Upsert = false,
+                    Upsert = replace,
                     CacheControl = "3600",
                     ContentType = "image",
                 }

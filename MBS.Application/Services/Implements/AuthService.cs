@@ -573,7 +573,7 @@ public class AuthService : BaseService2<AuthService>, IAuthService
             var fileName = request.File.FileName;
             var filePath = $"Users/{userId}/Avatar/{fileName}";
 
-            await _supabaseService.UploadFile(fileByte, filePath, bucketName);
+            await _supabaseService.UploadFile(fileByte, filePath, bucketName, true);
 
             var avatarUrl = _supabaseService.RetrievePublicUrl(bucketName, filePath);
 

@@ -33,56 +33,7 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
         _userManager = userManager;
     }
 
-    // public async Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacks(int page, int size, DateTime? startDate, DateTime? endDate)
-    // {
-    //     try
-    //     {
-    //         if (endDate != null && startDate != null && endDate < startDate)
-    //         {
-    //             return new BaseModel<Pagination<FeedbackResponseDto>>
-    //             {
-    //                 Message = MessageResponseHelper.InvalidInputParameterDetail("start and end time"),
-    //                 IsSuccess = false,
-    //                 StatusCode = StatusCodes.Status400BadRequest,
-    //             };
-    //         }
-    //         //get all
-    //         Expression<Func<Feedback, bool>> feedBackExpression = null; 
-    //         Expression<Func<Feedback, bool>> startExpression = f => f.CreatedOn >= startDate;
-    //         Expression<Func<Feedback, bool>> endExpression = f => f.CreatedOn < endDate;
-    //
-    //         if (startDate != null && endDate != null)
-    //             feedBackExpression = Expression.Lambda<Func<Feedback, bool>>(Expression.AndAlso(startExpression.Body, endExpression.Body));
-    //         else if (endDate != null)
-    //             feedBackExpression = endExpression;
-    //         else if (startDate != null)
-    //             feedBackExpression = startExpression;
-    //
-    //         var feedbacks =
-    //             await _unitOfWork.GetRepository<Feedback>().GetPagingListAsync(
-    //                 predicate: feedBackExpression,
-    //                 page: page, 
-    //                 size: size
-    //             );
-    //         
-    //         return new BaseModel<Pagination<FeedbackResponseDto>>
-    //         {
-    //             Message = MessageResponseHelper.GetSuccessfully("feedbacks"),
-    //             IsSuccess = true,
-    //             StatusCode = StatusCodes.Status200OK,
-    //             ResponseRequestModel = _mapper.Map<Pagination<FeedbackResponseDto>>(feedbacks)
-    //         };
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         return new BaseModel<Pagination<FeedbackResponseDto>>
-    //         {
-    //             Message = e.Message,
-    //             IsSuccess = false,
-    //             StatusCode = StatusCodes.Status500InternalServerError,
-    //         };
-    //     }
-    // }
+    
 
     public async Task<BaseModel<Pagination<FeedbackResponseDto>>> GetMeetingFeedbacksByUserId(GetMeetingFeedbacksByUserIdRequest request)
     {
@@ -277,5 +228,47 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
                 StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
+    }
+
+    public async Task<BaseModel<Pagination<FeedbackByMentorDTO>>> GetFeedbackByMentorId(string mentorId, int page, int size)
+    {
+        var result = await _feedbackRepository.GetFeedBacksByMentorId(mentorId, page, size);
+
+        var feedbackDtoList = new List<FeedbackByMentorDTO>();
+        foreach (var item in result.Items)
+        {
+            var feedbackDTO = new FeedbackByMentorDTO
+            {
+                Username = item.User.UserName,
+                Message = item.Message,
+                UpdatedBy = item.UpdatedBy,
+                CreatedBy = item.CreatedBy,
+                CreatedOn = item.CreatedOn,
+                UpdatedOn = item.UpdatedOn
+            };
+            feedbackDtoList.Add(feedbackDTO);
+        }
+
+        var paginatedDtoList = new Pagination<FeedbackByMentorDTO>
+        {
+            Items = feedbackDtoList,
+            PageIndex = page,
+            PageSize = size
+        };
+
+        return new BaseModel<Pagination<FeedbackByMentorDTO>>
+        {
+            Message = MessageResponseHelper.GetSuccessfully("feedback"),
+            IsSuccess = true,
+            StatusCode = StatusCodes.Status200OK,
+            ResponseRequestModel = paginatedDtoList
+        };
+    }
+
+
+
+    public Task<BaseModel<Pagination<GetAllFeedbackByMentorIdModel>>> GetAllFeedbacks(int page, int size)
+    {
+        throw new NotImplementedException();
     }
 }
