@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace MBS.Application.Models.PointTransaction
 {
-    public class GetPointTransactionModel
+    public class PointTransactionModel
     {
-        public PointTransactionDTO pointTransactionDTOs { get; set; }
+        public List<PointTransactionDTO> pointTransactionDTOs { get; set; }
     }
 
     public class PointTransactionDTO
