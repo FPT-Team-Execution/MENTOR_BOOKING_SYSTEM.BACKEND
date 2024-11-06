@@ -10,6 +10,7 @@ public interface IGroupRepository : IBaseRepository<Group>
         Task<Pagination<Group>> GetGroupsByStudentId(string studentId, int page, int size, string sortOrder);
 
     Task<Pagination<Group>> GetPagedListBaseAsync(int page, int size);
+    Task<Group> GetGroupByProjectAndStudentIdAsync(Guid projectId, string studentId);
 
 }
 
