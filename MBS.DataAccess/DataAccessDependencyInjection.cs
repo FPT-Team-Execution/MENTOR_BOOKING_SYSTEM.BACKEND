@@ -50,6 +50,8 @@ namespace MBS.DataAccess
 			services.AddScoped<IMeetingRepository, MeetingRepository>();
 			services.AddScoped<IMentorRepository, MentorRepository>();
 			services.AddScoped<IDegreeRepository, DegreeRepository>();
+			services.AddScoped<IProgressRepository, ProgressRepository>();
+
 			//SeedData
 			services.AddScoped<DbInitializer>();
 			services.AddScoped<SeedMajors>();
