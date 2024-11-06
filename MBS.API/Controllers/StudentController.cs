@@ -10,6 +10,7 @@ namespace MBS.API.Controllers
 	{
 		private readonly IStudentService _studentService;
 
+
 		public StudentController(IStudentService studentService)
 		{
 			_studentService = studentService;
@@ -64,5 +65,16 @@ namespace MBS.API.Controllers
 			var response = await _studentService.CreateStudent(request);
 			return StatusCode(response.StatusCode, response);
 		}
-	}
+
+        [HttpGet("feedbacks/{studentId}")]
+        //[Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        //[Authorize(Roles = nameof(UserRoleEnum.Student))]
+
+
+		public async Task<IActionResult> GetAllPointTransaction([FromRoute] string studentId, [FromQuery] int page, [FromQuery] int size)
+        {
+            var response = await _studentService.GetPointTransactionByStudentId(studentId, page, size);
+            return StatusCode(response.StatusCode, response);
+        }
+    }
 }

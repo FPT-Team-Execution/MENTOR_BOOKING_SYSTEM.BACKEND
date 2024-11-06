@@ -137,12 +137,12 @@ namespace MBS.Application.Services.Implements
                     UserId = transaction.UserId,
                     Username = userFound.User.FullName,
                     Amount = transaction.Amount,
-                    TransactionType = transaction.TransactionType == 0 ? TransactionTypeEnum.Credit : TransactionTypeEnum.Debit,
+                    TransactionType = transaction.TransactionType == 0 ? TransactionTypeEnum.Credit.ToString() : TransactionTypeEnum.Debit.ToString(),
                     CreatedOn = transaction.CreatedOn,
-                    Currency = PointCurrencyEnum.FPoint,
-                    Kind = transaction.Kind == 0 ? TransactionKindEnum.Personal : TransactionKindEnum.Project,
+                    Currency = PointCurrencyEnum.FPoint.ToString(),
+                    Kind = transaction.Kind == 0 ? TransactionKindEnum.Personal.ToString() : TransactionKindEnum.Project.ToString(),
                     RemainBalance = transaction.RemainBalance,
-                    Status = transaction.Status == 0 ? TransactionStatusEnum.Success : TransactionStatusEnum.Fail,
+                    Status = transaction.Status == 0 ? TransactionStatusEnum.Success.ToString() : TransactionStatusEnum.Fail.ToString(),
                 };
                 ListToShow.Add(newTrans);
             }
@@ -164,38 +164,7 @@ namespace MBS.Application.Services.Implements
             };
         }
 
-        public async Task<BaseModel<Pagination<PointTransactionDTO>>> GetPointTransactionByStudentId(string studentId, int page, int size)
-        {
-            var result = await _pointTransactionRepository.GetTransactionByStudentIdPageList(studentId, page, size);
-
-            var transactionDtoList = result.Items.Select(transaction => new PointTransactionDTO
-            {
-                UserId = transaction.UserId,
-                Username = transaction.User.FullName,
-                Amount = transaction.Amount,
-                RemainBalance = transaction.RemainBalance,
-                Currency = transaction.Currency,
-                TransactionType = transaction.TransactionType,
-                Status = transaction.Status,
-                Kind = transaction.Kind,
-                CreatedOn = transaction.CreatedOn
-            }).ToList();
-
-            var paginatedDtoList = new Pagination<PointTransactionDTO>
-            {
-                Items = transactionDtoList,
-                PageIndex = page,
-                PageSize = size
-            };
-
-            return new BaseModel<Pagination<PointTransactionDTO>>
-            {
-                Message = MessageResponseHelper.GetSuccessfully("point transactions"),
-                IsSuccess = true,
-                StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = paginatedDtoList
-            };
-        }
+        
 
     }
 }
