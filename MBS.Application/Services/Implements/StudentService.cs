@@ -3,12 +3,14 @@ using AutoMapper;
 using MBS.Application.Exceptions;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
+using MBS.Application.Models.PointTransaction;
 using MBS.Application.Models.Student;
 using MBS.Application.Models.User;
 using MBS.Application.Services.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
+using MBS.DataAccess.Repositories.Implements;
 using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Shared.Common.Email;
 using MBS.Shared.Services.Interfaces;
@@ -28,9 +30,11 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 	private readonly IEmailService _emailService;
 	private readonly ITemplateService _templateService;
 	private readonly IClaimService _claimService;
+    private readonly IPointTransactionRepository _pointTransactionRepository;
 
-	public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository,
-		UserManager<ApplicationUser> userManager, IEmailService emailService,
+    public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository, IPointTransactionRepository pointTransactionRepository,
+
+        UserManager<ApplicationUser> userManager, IEmailService emailService,
 		ITemplateService templateService, IClaimService claimService) : base(logger, mapper)
 	{
 		_studentRepository = studentRepository;
@@ -38,6 +42,7 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 		_emailService = emailService;
 		_templateService = templateService;
 		_claimService = claimService;
+		_pointTransactionRepository = pointTransactionRepository;
 	}
 
 	public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size, string? sortOrder)
@@ -119,7 +124,43 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 		}
 	}
 
-	public async Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetOwnProfile(
+    public async Task<BaseModel<Pagination<PointTransactionDTO>>> GetPointTransactionByStudentId(string studentId, int page, int size)
+    {
+        var result = await _pointTransactionRepository.GetTransactionByStudentIdPageList(studentId, page, size);
+
+        var transactionDtoList = result.Items.Select(transaction => new PointTransactionDTO
+        {
+            UserId = transaction.UserId,
+            Username = transaction.User.FullName,
+            Amount = transaction.Amount,
+            RemainBalance = transaction.RemainBalance,
+            Currency = PointCurrencyEnum.FPoint.ToString(),
+            TransactionType = transaction.TransactionType == 0 ? TransactionTypeEnum.Credit.ToString() : TransactionTypeEnum.Debit.ToString(),
+
+            Status = transaction.Status == 0 ? TransactionStatusEnum.Success.ToString() : TransactionStatusEnum.Fail.ToString(),
+
+            Kind = transaction.Kind == 0 ? TransactionKindEnum.Personal.ToString() : TransactionKindEnum.Project.ToString(),
+
+            CreatedOn = transaction.CreatedOn
+        }).ToList();
+
+        var paginatedDtoList = new Pagination<PointTransactionDTO>
+        {
+            Items = transactionDtoList,
+            PageIndex = page,
+            PageSize = size
+        };
+
+        return new BaseModel<Pagination<PointTransactionDTO>>
+        {
+            Message = MessageResponseHelper.GetSuccessfully("point transactions"),
+            IsSuccess = true,
+            StatusCode = StatusCodes.Status200OK,
+            ResponseRequestModel = paginatedDtoList
+        };
+    }
+
+    public async Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetOwnProfile(
 		ClaimsPrincipal claimsPrincipal)
 	{
 		try

@@ -21,10 +21,10 @@ namespace MBS.Application.Models.PointTransaction
         public string Username { get; set; }
         public int Amount { get; set; }
         public int RemainBalance { get; set; }
-        public PointCurrencyEnum Currency { get; set; }
-        public TransactionTypeEnum TransactionType { get; set; }
-        public TransactionStatusEnum Status { get; set; }
-        public TransactionKindEnum Kind { get; set; }
+        public string Currency { get; set; }
+        public string TransactionType { get; set; }
+        public string Status { get; set; }
+        public string Kind { get; set; }
         public DateTime CreatedOn { get; set; }
     }
 }

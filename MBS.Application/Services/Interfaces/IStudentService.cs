@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using MBS.Application.Models.General;
+using MBS.Application.Models.PointTransaction;
 using MBS.Application.Models.Student;
 using MBS.Application.Models.User;
 using MBS.Core.Common.Pagination;
@@ -18,4 +19,5 @@ public interface IStudentService
 	Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetStudent(GetStudentRequestModel request);
 
 	Task<BaseModel<CreateStudentResponseModel, CreateStudentRequestModel>> CreateStudent(CreateStudentRequestModel request);
+	Task<BaseModel<Pagination<PointTransactionDTO>>> GetPointTransactionByStudentId(string studentId, int page, int size);
 }
