@@ -221,6 +221,7 @@ namespace MBS.Application.Services.Implements
         public async Task<BaseModel<GroupStudentsResponseDTO>> GetStudentsInGroupByProjectId(Guid projectId)
         {
             var groupFound = await _groupRepository.GetGroupByProjectIdAsync(projectId);
+            var response = new GroupStudentsResponseDTO;
             if (groupFound != null && groupFound.Any())
             {
                 List<StudentInGroupDTO> studentDTOs = new List<StudentInGroupDTO>();
@@ -243,7 +244,7 @@ namespace MBS.Application.Services.Implements
                     }
                 }
 
-                var response = new GroupStudentsResponseDTO
+                response = new GroupStudentsResponseDTO
                 {
                     Project = await _projectRepository.GetByIdAsync(projectId, "Id"),
                     Students = studentDTOs
@@ -263,7 +264,7 @@ namespace MBS.Application.Services.Implements
                 Message = MessageResponseHelper.GetFailed("groups"),
                 IsSuccess = false,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = null
+                ResponseRequestModel = response
             };
         }
 
