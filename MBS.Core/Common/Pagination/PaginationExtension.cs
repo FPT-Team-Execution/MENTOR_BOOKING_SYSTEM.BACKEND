@@ -18,8 +18,8 @@ public class PaginationExtension<T> where T : class
         pagination.PageIndex = page;
         pagination.PageSize = size;
         var totalPage = Math.Ceiling((double)totalItemCount / pagination.PageSize);
+        pagination.TotalItems = 
         pagination.TotalPages = (int)totalPage;
-
         if (page > totalPage && totalItemCount > 0)
         {
             throw new ArgumentException($"Page number ({page}) exceeds the total pages ({pagination.TotalPages}).");
@@ -28,10 +28,12 @@ public class PaginationExtension<T> where T : class
         if (source is IQueryable<T> query)
         {
             pagination.Items = query.Skip((page - firstPage) * size).Take(size).ToList();
+            pagination.TotalItems = query.Count();
         }
         else
         {
             pagination.Items = source.Skip((page - firstPage) * size).Take(size).ToList();
+            pagination.TotalItems = source.Count();
         }
 
         return pagination;
