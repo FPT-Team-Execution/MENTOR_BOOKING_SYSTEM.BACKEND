@@ -18,7 +18,7 @@ namespace MBS.Application.Models.PointTransaction
     public class PointTransactionDTO
     {
         public string UserId { get; set; }
-        public ApplicationUser User { get; set; }
+        public string Username { get; set; }
         public int Amount { get; set; }
         public int RemainBalance { get; set; }
         public PointCurrencyEnum Currency { get; set; }
