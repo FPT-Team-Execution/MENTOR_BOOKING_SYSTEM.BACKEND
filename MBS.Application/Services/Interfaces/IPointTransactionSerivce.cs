@@ -15,7 +15,7 @@ namespace MBS.Application.Services.Interfaces
         public Task<BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>> ModifyStudentPoint(ModifyStudentPointRequestModel request);
 
         public Task<BaseModel<Pagination<PointTransactionDTO>>> GetAllPointTransaction(int page, int size);
-        public Task<BaseModel<PointTransactionModel>> GetPointTransactionByStudentId(string studentId);
+        public Task<BaseModel<Pagination<PointTransactionDTO>>> GetPointTransactionByStudentId(string studentId, int page, int size);
 
     }
 }

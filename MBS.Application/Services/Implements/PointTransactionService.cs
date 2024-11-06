@@ -28,49 +28,7 @@ namespace MBS.Application.Services.Implements
             _pointTransactionRepository = pointTransactionRepository;
         }
 
-        public async Task<BaseModel<Pagination<PointTransactionDTO>>> GetAllPointTransaction(int page, int size)
-        {
-            var result = await _pointTransactionRepository.GetAllAsync();
-            var ListToShow = new List<PointTransactionDTO>();
-            foreach (var transaction in result) {
-                var userFound = await  _studentRepository.GetByUserIdAsync(transaction.UserId, include: m => m.Include(m => m.User));
-                
-                var newTrans = new PointTransactionDTO
-                {
-                    UserId = transaction.UserId,
-                    Username = userFound.User.FullName,
-                    Amount = transaction.Amount,
-                    TransactionType = (TransactionTypeEnum)transaction.TransactionType,
-                    CreatedOn = transaction.CreatedOn,
-                    Currency = (PointCurrencyEnum)transaction.Currency,
-                    Kind = (TransactionKindEnum)transaction.Kind,
-                    RemainBalance = transaction.RemainBalance,
-                    Status = (TransactionStatusEnum)transaction.Status,
-                };
-                ListToShow.Add(newTrans);
-            }
-            var response = ListToShow.OrderByDescending(i => i.CreatedOn).ToList();
 
-            var pagingPoint = new Pagination<PointTransactionDTO>
-            {
-                Items = response,
-                PageSize = size,
-                PageIndex = page
-
-            };
-            return new BaseModel<Pagination<PointTransactionDTO>>
-            {
-                Message = MessageResponseHelper.GetSuccessfully("point transaction"),
-                IsSuccess = true,
-                StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = pagingPoint
-            };
-        }
-
-        public Task<BaseModel<PointTransactionModel>> GetPointTransactionByStudentId(string studentId)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>> ModifyStudentPoint(ModifyStudentPointRequestModel request)
         {
@@ -166,6 +124,86 @@ namespace MBS.Application.Services.Implements
                     StatusCode = StatusCodes.Status500InternalServerError
                 };
             }
+        }
+        public async Task<BaseModel<Pagination<PointTransactionDTO>>> GetAllPointTransaction(int page, int size)
+        {
+            var result = await _pointTransactionRepository.GetAllAsync();
+            var ListToShow = new List<PointTransactionDTO>();
+
+            foreach (var transaction in result)
+            {
+                var userFound = await _studentRepository.GetByUserIdAsync(transaction.UserId, include: m => m.Include(m => m.User));
+
+                var newTrans = new PointTransactionDTO
+                {
+                    UserId = transaction.UserId,
+                    Username = userFound.User.FullName,
+                    Amount = transaction.Amount,
+                    RemainBalance = transaction.RemainBalance,
+                    CreatedOn = transaction.CreatedOn,
+
+                    TransactionType = transaction.TransactionType == 0 ? TransactionTypeEnum.Credit : TransactionTypeEnum.Debit,
+                    Currency = PointCurrencyEnum.FPoint,
+                    Kind = transaction.Kind == 0 ? TransactionKindEnum.Personal : TransactionKindEnum.Project,
+                    Status = transaction.Status == 0 ? TransactionStatusEnum.Success : TransactionStatusEnum.Fail
+                };
+
+                ListToShow.Add(newTrans);
+            }
+
+            var response = ListToShow.OrderByDescending(i => i.CreatedOn).ToList();
+
+            var pagingPoint = new Pagination<PointTransactionDTO>
+            {
+                Items = response,
+                PageSize = size,
+                PageIndex = page
+            };
+
+            return new BaseModel<Pagination<PointTransactionDTO>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("point transaction"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = pagingPoint
+            };
+        }
+
+
+        public async Task<BaseModel<Pagination<PointTransactionDTO>>> GetPointTransactionByStudentId(string studentId, int page, int size)
+        {
+            var result = await _pointTransactionRepository.GetTransactionByStudentIdPageList(studentId, page, size);
+
+            // Map each transaction to PointTransactionDTO
+            var transactionDtoList = result.Items.Select(transaction => new PointTransactionDTO
+            {
+                UserId = transaction.UserId,
+                Username = transaction.User.FullName,
+                Amount = transaction.Amount,
+                RemainBalance = transaction.RemainBalance,
+                Currency = transaction.Currency,
+                TransactionType = transaction.TransactionType,
+                Status = transaction.Status,
+                Kind = transaction.Kind,
+                CreatedOn = transaction.CreatedOn
+            }).ToList();
+
+            // Wrap DTO list in a pagination model
+            var paginatedDtoList = new Pagination<PointTransactionDTO>
+            {
+                Items = transactionDtoList,
+                PageIndex = page,
+                PageSize = size
+            };
+
+            // Return the result in a BaseModel
+            return new BaseModel<Pagination<PointTransactionDTO>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("point transactions"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = paginatedDtoList
+            };
         }
 
     }
