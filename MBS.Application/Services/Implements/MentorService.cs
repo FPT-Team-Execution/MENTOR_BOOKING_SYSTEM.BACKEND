@@ -234,15 +234,17 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 	{
 		var searching = searchItem.ToLower();
 		var mentorSearch = await _mentorRepository.GetMentorsAsync();
-		List<MentorSearchDTO> mentorSearchDTOs = new List<MentorSearchDTO>();
+		string searchByName = "Typing";
+		string searchByEmail = "Typing";
+        List <MentorSearchDTO> mentorSearchDTOs = new List<MentorSearchDTO>();
 		if (mentorSearch != null && mentorSearch.Any())
 		{
 			foreach (var item in mentorSearch)
 			{
 				var searchMentor = await _mentorRepository.GetByUserIdAsync(item.UserId, m => m.Include(x => x.User));
 
-				string searchByName = searchMentor.User.FullName.ToLower();
-				string searchByEmail = searchMentor.User.Email.ToLower();
+				searchByName = searchMentor.User.FullName.ToLower();
+				searchByEmail = searchMentor.User.Email.ToLower();
 				if (searchByName.Contains(searchItem) || searchByEmail.Contains(searchItem))
 				{
 					mentorSearchDTOs.Add(new MentorSearchDTO
@@ -256,6 +258,9 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 		}
 
 		var response = mentorSearchDTOs;
+		if (response == null) {
+			
+		}
 		return new BaseModel<List<MentorSearchDTO>>()
 		{
 			Message = MessageResponseHelper.GetSuccessfully("mentors"),

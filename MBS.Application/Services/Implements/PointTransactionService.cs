@@ -9,6 +9,8 @@ using MBS.Core.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using MBS.DataAccess.Repositories.Interfaces;
+using MBS.Core.Common.Pagination;
+using MBS.Application.Models.Groups;
 
 namespace MBS.Application.Services.Implements
 {
@@ -23,6 +25,46 @@ namespace MBS.Application.Services.Implements
         {
             _studentRepository = studentRepository;
             _pointTransactionRepository = pointTransactionRepository;
+        }
+
+        public async Task<BaseModel<Pagination<PointTransactionDTO>>> GetAllPointTransaction(int page, int size)
+        {
+            var result = await _pointTransactionRepository.GetAllAsync();
+            var ListToShow = new List<PointTransactionDTO>();
+            foreach (var transaction in result) {
+                var newTrans = new PointTransactionDTO
+                {
+                    User = transaction.User,
+                    Amount = transaction.Amount,
+                    TransactionType = transaction.TransactionType,
+                    CreatedOn = transaction.CreatedOn,
+                    Currency = transaction.Currency,
+                    Kind = transaction.Kind,
+                    RemainBalance = transaction.RemainBalance,
+                    Status = transaction.Status,
+                };
+                ListToShow.Add(newTrans);
+                
+            }
+            var pagingPoint = new Pagination<PointTransactionDTO>
+            {
+                Items = ListToShow,
+                PageSize = size,
+                PageIndex = page
+
+            };
+            return new BaseModel<Pagination<PointTransactionDTO>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("groups"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = pagingPoint
+            };
+        }
+
+        public Task<BaseModel<PointTransactionModel>> GetPointTransactionByStudentId(string studentId)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<BaseModel<ModifyStudentPointResponseModel, ModifyStudentPointRequestModel>> ModifyStudentPoint(ModifyStudentPointRequestModel request)

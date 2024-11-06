@@ -23,5 +23,12 @@ namespace MBS.API.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
+        [HttpGet]
+        [Authorize(Roles = nameof(UserRoleEnum.Admin))]
+        public async Task<IActionResult> GetAllPointTransaction([FromQuery] int page, [FromQuery] int size)
+        {
+            var response = await _pointTransactionSerivce.GetAllPointTransaction(page, size);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
