@@ -18,7 +18,6 @@ public class PaginationExtension<T> where T : class
         pagination.PageIndex = page;
         pagination.PageSize = size;
         var totalPage = Math.Ceiling((double)totalItemCount / pagination.PageSize);
-        pagination.TotalItems = 
         pagination.TotalPages = (int)totalPage;
         if (page > totalPage && totalItemCount > 0)
         {
