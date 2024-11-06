@@ -13,6 +13,13 @@ public class GroupRepository(IBaseDAO<Group> dao) : BaseRepository<Group>(dao), 
         return _dao.SingleOrDefaultAsync(x => x.Id == id);
     }
 
+    public Task<Group> GetGroupByProjectAndStudentIdAsync(Guid projectId, string studentId)
+    {
+        
+            return _dao.SingleOrDefaultAsync(x => x.StudentId == studentId && x.ProjectId == projectId);
+        
+    }
+
     public async Task<IEnumerable<Group>> GetGroupByProjectIdAsync(Guid project)
     {
         return await _dao.GetListAsync(a => a.ProjectId == project);
