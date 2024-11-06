@@ -7,9 +7,7 @@ public class UpdateProgressRequest
 {
     public required Guid ProgressId { get; set; }
     [MaxLength(100)]
-    [FromBody]
     public required  string Name  { get; set; }
-    [FromBody]
     public required bool IsComplete { get; set; }
 }
 public class UpdateProgressResponse

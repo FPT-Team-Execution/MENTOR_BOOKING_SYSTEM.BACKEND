@@ -46,7 +46,7 @@ public class ProgressController : ControllerBase
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdateProgress(UpdateProgressRequest request)
+    public async Task<IActionResult> UpdateProgress([FromBody]UpdateProgressRequest request)
     {
         var result = await _progressService.UpdateProgress(request);
         return StatusCode(result.StatusCode, result);
