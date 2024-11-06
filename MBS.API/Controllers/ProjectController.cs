@@ -86,7 +86,7 @@ namespace MBS.API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        [HttpGet("/Projects")]
+        [HttpGet("")]
         public async Task<IActionResult> GetAllProjects([FromQuery] int page, [FromQuery] int size)
         {
             var result = await _projectService.GetAllProjects(page, size);
