@@ -38,6 +38,9 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
     {
         try
         {
+            var startDatetime = DateTime.Parse(request.Start);
+            var endDatetime = DateTime.Parse(request.End);
+
             //check mentorId
             var mentor = await _mentorRepository.GetMentorByIdAsync(request.MentorId);
             if (mentor == null)
@@ -55,10 +58,10 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             {
                 Email = mentor.User.Email,
                 AccessToken = request.AccessToken,
-                Day = request.Start
+                Day = startDatetime,
             };
             var freeBusyResponse = await _googleService.GetFreeBusyPeriod(freeBusyRequest);
-            var isOverlayed = IsOverlapping(request.Start, request.End, ((FreeBusyResponse)freeBusyResponse).Calendars[mentor.User.Email].Busy);
+            var isOverlayed = IsOverlapping(startDatetime, endDatetime, ((FreeBusyResponse)freeBusyResponse).Calendars[mentor.User.Email].Busy);
             
             if (isOverlayed)
             {
@@ -72,8 +75,8 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             //create event on google calendar
             var createGEventRequest = new CreateGoogleCalendarEventRequest()
             {
-                Start = request.Start,
-                End = request.End,
+                Start = startDatetime,
+                End = endDatetime,
                 TimeZone = "Asia/Ho_Chi_Minh"
             };
             var googleEventResponse = await _googleService.InsertEvent(mentor.User.Email,request.AccessToken ,createGEventRequest);
@@ -154,8 +157,11 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
     {
         try
         {
+            var startDatetime = DateTime.Parse(parameters.StartTime);
+            var endDatetime = DateTime.Parse(parameters.EndTime);
+
             //check time
-            if (parameters.StartTime >= parameters.EndTime)
+            if (startDatetime >= endDatetime)
             {
                 return new BaseModel<Pagination<CalendarEvent>>
                 {
@@ -177,14 +183,14 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             }
             //find events by mentor
             var events = await _calendarEventRepository.GetCalendarEventsByMentorIdPaginationAsync(
-                mentorId, parameters.StartTime, parameters.EndTime, parameters.SortBy!, parameters.Page, parameters.Size);
+                mentorId, startDatetime, endDatetime, parameters.SortBy!, parameters.Page, parameters.Size);
             //get events from google calendar
             var gRequest = new GetGoogleCalendarEventsRequest
             {   
                 Email = mentor.User.Email!,
                 AccessToken = googleAccessToken,
-                TimeMin = parameters.StartTime,
-                TimeMax = parameters.EndTime,
+                TimeMin = startDatetime,
+                TimeMax = endDatetime,
             };
             var googleResponse = await _googleService.ListEvents(gRequest);
             if(!googleResponse.IsSuccess){
@@ -210,7 +216,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 }
             }
             var asyncEvents = await _calendarEventRepository.GetCalendarEventsByMentorIdPaginationAsync(
-                mentorId, parameters.StartTime, parameters.EndTime, parameters.SortBy, parameters.Page, parameters.Size);
+                mentorId, startDatetime, endDatetime, parameters.SortBy, parameters.Page, parameters.Size);
             return new BaseModel<Pagination<CalendarEvent>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("events"),
