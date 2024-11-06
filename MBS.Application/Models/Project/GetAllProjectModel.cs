@@ -10,7 +10,7 @@ namespace MBS.Application.Models.Project
 {
 	public class GetAllProjectResponseModel
 	{
-        public IEnumerable<ProjectResponseDto> Projects { get; set; }
+        public IEnumerable<ProjectResponseDTO> Projects { get; set; }
     }
 	
 	public class GetProjectsByStudentIdRequest

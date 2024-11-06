@@ -80,7 +80,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
         }
     }
 
-    public async Task<BaseModel<Pagination<ProjectResponseDto>>> GetProjectsByUserId(GetProjectsByUserIdRequest request)
+    public async Task<BaseModel<Pagination<ProjectResponseDTO>>> GetProjectsByUserId(GetProjectsByUserIdRequest request)
     {
         try
         {
@@ -88,7 +88,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
             var user = await _userManager.FindByIdAsync(request.UserId);
             if (user == null)
             {
-                return new BaseModel<Pagination<ProjectResponseDto>>
+                return new BaseModel<Pagination<ProjectResponseDTO>>
                 {
                     Message = MessageResponseHelper.UserNotFound(),
                     IsSuccess = false,
@@ -123,14 +123,14 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                     // Check if no groups were found
                     if (!enrolledProjectGroups.Items.Any())
                     {
-                        return new BaseModel<Pagination<ProjectResponseDto>>
+                        return new BaseModel<Pagination<ProjectResponseDTO>>
                         {
                             Message = MessageResponseHelper.GetSuccessfully("projects"),
                             IsSuccess = true,
                             StatusCode = StatusCodes.Status204NoContent,
-                            ResponseRequestModel = new Pagination<ProjectResponseDto>
+                            ResponseRequestModel = new Pagination<ProjectResponseDTO>
                             {
-                                Items = new List<ProjectResponseDto>(),
+                                Items = new List<ProjectResponseDTO>(),
                                 PageIndex = request.Page,
                                 PageSize = request.Size,
                                 TotalPages = 0
@@ -147,13 +147,13 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
 
 
             // Prepare the response DTO for the projects
-            var projectDtos = _mapper.Map<IEnumerable<ProjectResponseDto>>(enrolledProjects).ToList();
-            return new BaseModel<Pagination<ProjectResponseDto>>
+            var projectDtos = _mapper.Map<IEnumerable<ProjectResponseDTO>>(enrolledProjects).ToList();
+            return new BaseModel<Pagination<ProjectResponseDTO>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("projects"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new Pagination<ProjectResponseDto>
+                ResponseRequestModel = new Pagination<ProjectResponseDTO>
                 {
                     Items = projectDtos,
                     PageIndex = request.Page,
@@ -164,7 +164,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
         }
         catch (Exception e)
         {
-            return new BaseModel<Pagination<ProjectResponseDto>>
+            return new BaseModel<Pagination<ProjectResponseDTO>>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -173,7 +173,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
         }
     }
 
-    public async Task<BaseModel<Pagination<ProjectResponseDto>>> GetProjectsByStudentId(
+    public async Task<BaseModel<Pagination<ProjectResponseDTO>>> GetProjectsByStudentId(
         GetProjectsByStudentIdRequest request)
     {
         try
@@ -192,14 +192,14 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
             // Check if no groups were found
             if (!enrolledProjectGroups.Items.Any())
             {
-                return new BaseModel<Pagination<ProjectResponseDto>>
+                return new BaseModel<Pagination<ProjectResponseDTO>>
                 {
                     Message = MessageResponseHelper.GetSuccessfully("projects"),
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status204NoContent,
-                    ResponseRequestModel = new Pagination<ProjectResponseDto>
+                    ResponseRequestModel = new Pagination<ProjectResponseDTO>
                     {
-                        Items = new List<ProjectResponseDto>(),
+                        Items = new List<ProjectResponseDTO>(),
                         PageIndex = request.Page,
                         PageSize = request.Size,
                         TotalPages = 0
@@ -211,7 +211,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
             if (!Enum.TryParse<ProjectStatusEnum>(request.ProjectStatus, true, out var projectEnum) &&
                 !string.IsNullOrEmpty(request.ProjectStatus))
             {
-                return new BaseModel<Pagination<ProjectResponseDto>>
+                return new BaseModel<Pagination<ProjectResponseDTO>>
                 {
                     Message = MessageResponseHelper.InvalidInputParameterDetail("projectStatus"),
                     IsSuccess = false,
@@ -226,13 +226,13 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                     .ToList(); // Get projects by status
 
             // Prepare the response DTO for the projects
-            var projectDtos = _mapper.Map<IEnumerable<ProjectResponseDto>>(enrolledProjects).ToList();
-            return new BaseModel<Pagination<ProjectResponseDto>>
+            var projectDtos = _mapper.Map<IEnumerable<ProjectResponseDTO>>(enrolledProjects).ToList();
+            return new BaseModel<Pagination<ProjectResponseDTO>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("projects"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new Pagination<ProjectResponseDto>
+                ResponseRequestModel = new Pagination<ProjectResponseDTO>
                 {
                     Items = projectDtos,
                     PageIndex = request.Page,
@@ -243,7 +243,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
         }
         catch (Exception e)
         {
-            return new BaseModel<Pagination<ProjectResponseDto>>
+            return new BaseModel<Pagination<ProjectResponseDTO>>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -287,7 +287,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                     StatusCode = StatusCodes.Status200OK,
                     ResponseRequestModel = new ProjectResponseModel
                     {
-                        Project = _mapper.Map<ProjectResponseDto>(projectUpdate),
+                        Project = _mapper.Map<ProjectResponseDTO>(projectUpdate),
                     }
                 };
 
@@ -377,7 +377,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = new ProjectResponseModel
                 {
-                    Project = _mapper.Map<ProjectResponseDto>(project)
+                    Project = _mapper.Map<ProjectResponseDTO>(project)
                 }
             };
         }
@@ -427,7 +427,7 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                     StatusCode = StatusCodes.Status200OK,
                     ResponseRequestModel = new AssignMentorResponseModel
                     {
-                        Project = _mapper.Map<ProjectResponseDto>(project),
+                        Project = _mapper.Map<ProjectResponseDTO>(project),
                     }
                 };
             return new BaseModel<AssignMentorResponseModel>
@@ -447,4 +447,37 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
             };
         }
     }
+
+    public async Task<BaseModel<Pagination<ProjectResponseDTO>>> GetAllProjects(int page, int size)
+    {
+        var getAll = await _projectRepository.GetPagedListAsync(page, size);
+
+        var projectDtoList = getAll.Items.Select(project => new ProjectResponseDTO
+        {
+            Id = project.Id,
+            Title = project.Title,
+            Description = project.Description,
+            DueDate = project.DueDate,
+            Semester = project.Semester,
+            CreatedBy = project.CreatedBy,
+            MentorId = project.MentorId,
+            Status = project.Status.ToString()
+        }).ToList();
+
+        var paginatedDtoList = new Pagination<ProjectResponseDTO>
+        {
+            Items = projectDtoList,
+            PageIndex = page,
+            PageSize = size
+        };
+
+        return new BaseModel<Pagination<ProjectResponseDTO>>
+        {
+            Message = MessageResponseHelper.GetSuccessfully("projects"),
+            IsSuccess = true,
+            StatusCode = StatusCodes.Status200OK,
+            ResponseRequestModel = paginatedDtoList
+        };
+    }
+
 }
