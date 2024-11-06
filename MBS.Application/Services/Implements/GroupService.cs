@@ -258,6 +258,7 @@ namespace MBS.Application.Services.Implements
                     ResponseRequestModel = response
                 };
             }
+            response.Project = await _projectRepository.GetByIdAsync(projectId, "Id");
 
             return new BaseModel<GroupStudentsResponseDTO>
             {
