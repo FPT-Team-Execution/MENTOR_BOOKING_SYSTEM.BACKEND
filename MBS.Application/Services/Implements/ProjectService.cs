@@ -52,17 +52,13 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
             using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
             {
                 var createResult = await _projectRepository.CreateAsync(projectCreate);
-                if (createResult)
+                if (!createResult)
                     return new BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>
                     {
-                        Message = MessageResponseHelper.CreateSuccessfully("project"),
-                        IsSuccess = true,
-                        StatusCode = StatusCodes.Status200OK,
+                        Message = MessageResponseHelper.CreateFailed("project"),
+                        IsSuccess = false,
+                        StatusCode = StatusCodes.Status500InternalServerError,
                         RequestModel = request,
-                        ResponseModel = new CreateProjectResponseModel
-                        {
-                            ProjectId = projectCreate.Id
-                        }
                     };
                 //*: create default progress for project
                 await _progressRepository.CreateProgressesAsync(projectCreate.Id, SD.defaultProgresses);
