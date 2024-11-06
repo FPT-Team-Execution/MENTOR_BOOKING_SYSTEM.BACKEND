@@ -48,7 +48,7 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 			return new BaseModel<Pagination<StudentResponseDto>>()
 			{
 				Message = MessageResponseHelper.GetSuccessfully("students"),
-				IsSuccess = false,
+				IsSuccess = true,
 				StatusCode = StatusCodes.Status200OK,
 				ResponseRequestModel = _mapper.Map<Pagination<StudentResponseDto>>(user)
 			};
