@@ -28,7 +28,9 @@ public class MentorRepository(IBaseDAO<Mentor> dao) : BaseRepository<Mentor>(dao
     public async Task<Pagination<Mentor>> GetMentorsAsync(int page, int size)
     {
         return await _dao.GetPagingListAsync(
-            include: source => source.Include(m => m.User)
+            include: source => source.Include(m => m.User),
+            page: page,
+            size: size
         );
     }
     

@@ -21,8 +21,8 @@ public interface IMentorService
 
 	Task<BaseModel<GetOwnDegreesResponseModel>> GetOwnDegrees(ClaimsPrincipal claimsPrincipal, int page, int size);
 
-	Task<BaseModel<GetMentorResponseModel, GetMentorRequestModel>> GetMentor(GetMentorRequestModel request);
-	Task<BaseModel<Pagination<GetMentorResponseModel>>> GetMentors(int page, int size);
+	Task<BaseModel<GetMentorResponseModel, GetMentorRequestModel>> GetMentorById(GetMentorRequestModel request);
+	Task<BaseModel<Pagination<GetMentorResponseModel>>> GetMentorsPageListAsync(int page, int size);
 
 	Task<BaseModel<Pagination<GetMentorDegreeResponseModel>>> GetMentorDegrees(GetMentorDegreesRequestModel request);
 }

@@ -24,7 +24,7 @@ namespace MBS.API.Controllers
 		[EndpointSummary("Get all available groups")]
 		public async Task<IActionResult> GetAllGroups(int page, int size)
 		{
-			var response = await _groupService.GetGroups(page, size);
+			var response = await _groupService.GetGroupsPageListAsync(page, size);
 			return StatusCode((int)response.StatusCode, response);
 		}
 		//Tested

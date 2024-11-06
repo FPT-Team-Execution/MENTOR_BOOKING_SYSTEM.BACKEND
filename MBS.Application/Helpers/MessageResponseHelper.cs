@@ -265,7 +265,7 @@ public static class MessageResponseHelper
     public static string OverlayCalendar()
     {
         var stringBuilder = new StringBuilder();
-        stringBuilder.Append("Event was overlayed by another");
+        stringBuilder.Append("Calendar was not overlayed by another");
         return stringBuilder.ToString();
     }
     public static string NotFoundCalendar(string objectName)

@@ -21,7 +21,7 @@ public class MeetingController : ControllerBase
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetMeetings(int page, int size)
     {
-        var result = await _meetingService.GetMeetings(page, size);
+        var result = await _meetingService.GetMeetingsPageListAsync(page, size);
         return StatusCode(result.StatusCode, result);
         
     }

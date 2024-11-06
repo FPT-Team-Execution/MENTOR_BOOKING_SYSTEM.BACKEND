@@ -68,7 +68,7 @@ public class RequestRepository(IBaseDAO<Request> dao) : BaseRepository<Request>(
     {
         return await _dao.SingleOrDefaultAsync(
             predicate: r => r.Id == id,
-            include: q => q.Include(r => r.Creater).Include(r => r.Mentor).Include(r=> r.Project)
+            include: q => q.Include(r => r.Creater).Include(r => r.Mentor)
             );
     }
 }

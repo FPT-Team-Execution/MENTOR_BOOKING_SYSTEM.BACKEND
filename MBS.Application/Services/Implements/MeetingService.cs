@@ -123,7 +123,7 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
         
     }
 
-    public async Task<BaseModel<Pagination<MeetingResponseDto>>> GetMeetings(int page, int size)
+    public async Task<BaseModel<Pagination<MeetingResponseDto>>> GetMeetingsPageListAsync(int page, int size)
     {
         try
         {

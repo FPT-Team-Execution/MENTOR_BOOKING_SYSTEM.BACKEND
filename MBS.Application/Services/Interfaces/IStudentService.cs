@@ -19,5 +19,4 @@ public interface IStudentService
 	Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetStudent(GetStudentRequestModel request);
 
 	Task<BaseModel<CreateStudentResponseModel, CreateStudentRequestModel>> CreateStudent(CreateStudentRequestModel request);
-	Task<BaseModel<Pagination<PointTransactionDTO>>> GetPointTransactionByStudentId(string studentId, int page, int size);
 }
