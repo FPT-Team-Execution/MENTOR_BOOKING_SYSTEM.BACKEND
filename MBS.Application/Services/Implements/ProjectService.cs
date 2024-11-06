@@ -1,8 +1,10 @@
+using System.Transactions;
 using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
 using MBS.Application.Models.Project;
 using MBS.Application.Services.Interfaces;
+using MBS.Core.Common;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
@@ -15,15 +17,18 @@ namespace MBS.Application.Services.Implements;
 
 public class ProjectService : BaseService2<ProjectService>, IProjectService
 {
+    private readonly IProgressRepository _progressRepository;
     private readonly IProjectRepository _projectRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly UserManager<ApplicationUser> _userManager;
     public ProjectService(
+        IProgressRepository progressRepository,
         UserManager<ApplicationUser> userManager,
         IGroupRepository groupRepository,
         IProjectRepository projectRepository,
         ILogger<ProjectService> logger, IMapper mapper) : base(logger, mapper)
     {
+        _progressRepository = progressRepository;
         _userManager = userManager;
         _groupRepository = groupRepository;
         _projectRepository = projectRepository;
@@ -44,12 +49,28 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
         };
         try
         {
-            var createResult = await _projectRepository.CreateAsync(projectCreate);
-            if (createResult)
+            using (var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled))
+            {
+                var createResult = await _projectRepository.CreateAsync(projectCreate);
+                if (createResult)
+                    return new BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>
+                    {
+                        Message = MessageResponseHelper.CreateSuccessfully("project"),
+                        IsSuccess = true,
+                        StatusCode = StatusCodes.Status200OK,
+                        RequestModel = request,
+                        ResponseModel = new CreateProjectResponseModel
+                        {
+                            ProjectId = projectCreate.Id
+                        }
+                    };
+                //*: create default progress for project
+                await _progressRepository.CreateProgressesAsync(projectCreate.Id, SD.defaultProgresses);
+                transactionScope.Complete();
                 return new BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>
                 {
-                    Message = MessageResponseHelper.CreateSuccessfully("project"),
-                    IsSuccess = true,
+                    Message = MessageResponseHelper.CreateFailed("project"),
+                    IsSuccess = false,
                     StatusCode = StatusCodes.Status200OK,
                     RequestModel = request,
                     ResponseModel = new CreateProjectResponseModel
@@ -57,17 +78,9 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                         ProjectId = projectCreate.Id
                     }
                 };
-            return new BaseModel<CreateProjectResponseModel, CreateProjectRequestModel>
-            {
-                Message = MessageResponseHelper.CreateFailed("project"),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status200OK,
-                RequestModel = request,
-                ResponseModel = new CreateProjectResponseModel
-                {
-                    ProjectId = projectCreate.Id
-                }
-            };
+            }
+
+            
         }
         catch (Exception e)
         {
@@ -448,6 +461,10 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
         }
     }
 
+
+
+
+
     public async Task<BaseModel<Pagination<ProjectResponseDTO>>> GetAllProjects(int page, int size)
     {
         var getAll = await _projectRepository.GetPagedListAsync(page, size);
@@ -481,3 +498,4 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
     }
 
 }
+
