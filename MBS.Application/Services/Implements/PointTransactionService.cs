@@ -32,9 +32,10 @@ namespace MBS.Application.Services.Implements
             var result = await _pointTransactionRepository.GetAllAsync();
             var ListToShow = new List<PointTransactionDTO>();
             foreach (var transaction in result) {
+                var userFound =await  _studentRepository.GetByIdAsync(transaction.UserId, "Id");
                 var newTrans = new PointTransactionDTO
                 {
-                    User = transaction.User,
+                    Username = userFound.User.UserName,
                     Amount = transaction.Amount,
                     TransactionType = transaction.TransactionType,
                     CreatedOn = transaction.CreatedOn,
@@ -55,7 +56,7 @@ namespace MBS.Application.Services.Implements
             };
             return new BaseModel<Pagination<PointTransactionDTO>>
             {
-                Message = MessageResponseHelper.GetSuccessfully("groups"),
+                Message = MessageResponseHelper.GetSuccessfully("point transaction"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = pagingPoint
