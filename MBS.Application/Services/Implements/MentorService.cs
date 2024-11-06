@@ -234,15 +234,14 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 	{
 		var searching = searchItem.ToLower();
 		var mentorSearch = await _mentorRepository.GetMentorsAsync();
-		string searchByName = "Typing";
-		string searchByEmail = "Typing";
         List <MentorSearchDTO> mentorSearchDTOs = new List<MentorSearchDTO>();
 		if (mentorSearch != null && mentorSearch.Any())
 		{
 			foreach (var item in mentorSearch)
 			{
+				string searchByName = "Typing";
+				string searchByEmail = "Typing";
 				var searchMentor = await _mentorRepository.GetByUserIdAsync(item.UserId, m => m.Include(x => x.User));
-
 				searchByName = searchMentor.User.FullName.ToLower();
 				searchByEmail = searchMentor.User.Email.ToLower();
 				if (searchByName.Contains(searchItem) || searchByEmail.Contains(searchItem))
