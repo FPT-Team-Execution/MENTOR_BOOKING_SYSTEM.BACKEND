@@ -57,8 +57,20 @@ public class SkillController : ControllerBase
         return StatusCode(result.StatusCode, result);
    
     }
-    
-    
+
+    [HttpPut("{skillId}")]
+    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> UpdateSkill(Guid skillId, UpdateSkillRequestModel request)
+    {
+        var result = await _skillService.UpdateSkill(skillId, request);
+        return StatusCode(result.StatusCode, result);
+
+    }
+
+
     [HttpDelete("{skillId}")]
     [CustomAuthorize(UserRoleEnum.Admin,UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status200OK)]
