@@ -35,50 +35,52 @@ namespace MBS.Application.Services.Implements
             _projectRepository = projectRepository;
         }
 
-        public async Task<BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>> CreateNewGroupAsync(
-            CreateNewGroupRequestModel request)
+        public async Task<BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>> CreateNewGroupAsync(CreateNewGroupRequestModel request)
         {
-            try
+            var groupExist = await _groupRepository.GetGroupByProjectAndStudentIdAsync(request.ProjectId, request.StudentId);
+            if (groupExist != null)
             {
-                var newGroup = new Group
-                {
-                    Id = Guid.NewGuid(),
-                    ProjectId = request.ProjectId,
-                    StudentId = request.StudentId,
-                    PositionId = request.PositionId
-                };
-
-                var addResult = await _groupRepository.CreateAsync(newGroup);
-                if (!addResult)
-                    return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
-                    {
-                        Message = MessageResponseHelper.CreateFailed("group"),
-                        IsSuccess = false,
-                        StatusCode = StatusCodes.Status500InternalServerError,
-                        RequestModel = request,
-                    };
                 return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
                 {
-                    Message = MessageResponseHelper.CreateSuccessfully("group"),
-                    IsSuccess = true,
+                    Message = MessageResponseHelper.CreateFailed("group"),
+                    IsSuccess = false,
                     StatusCode = StatusCodes.Status200OK,
                     RequestModel = request,
-                    ResponseModel = new CreateNewGroupResponseModel
-                    {
-                        Id = newGroup.Id,
-                    }
+                    ResponseModel = null
                 };
             }
-            catch (Exception e)
+            var newGroup = new Group
             {
-                return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
+                Id = Guid.NewGuid(),
+                ProjectId = request.ProjectId,
+                StudentId = request.StudentId,
+                PositionId = request.PositionId
+            };
+
+            //if(newGroup.StudentId.Any().Equals(request.StudentId))
+            //{
+            //    return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
+            //    {
+            //        Message = MessageResponseHelper.CreateFailed("group"),
+            //        IsSuccess = false,
+            //        StatusCode = StatusCodes.Status200OK,
+            //        RequestModel = request,
+            //        ResponseModel = null
+            //    };
+            //}
+            await _groupRepository.CreateAsync(newGroup);
+
+            return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
+            {
+                Message = MessageResponseHelper.CreateSuccessfully("group"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                RequestModel = request,
+                ResponseModel = new CreateNewGroupResponseModel
                 {
-                    Message = e.Message,
-                    IsSuccess = false,
-                    StatusCode = StatusCodes.Status500InternalServerError,
-                    RequestModel = request,
-                };
-            }
+                    Id = newGroup.Id,
+                }
+            };
         }
 
         public async Task<BaseModel<GroupModel>> GetGroupId(Guid requestId)
@@ -221,7 +223,7 @@ namespace MBS.Application.Services.Implements
         public async Task<BaseModel<GroupStudentsResponseDTO>> GetStudentsInGroupByProjectId(Guid projectId)
         {
             var groupFound = await _groupRepository.GetGroupByProjectIdAsync(projectId);
-            var response = new GroupStudentsResponseDTO;
+            var response = new GroupStudentsResponseDTO();
             if (groupFound != null && groupFound.Any())
             {
                 List<StudentInGroupDTO> studentDTOs = new List<StudentInGroupDTO>();
