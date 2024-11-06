@@ -124,7 +124,7 @@ public class ProgressService : BaseService2<ProgressService>, IProgressService
             };
         }
     }
-
+    
     public async Task<BaseModel<UpdateProgressResponse>> UpdateProgress(UpdateProgressRequest request)
     {
         try

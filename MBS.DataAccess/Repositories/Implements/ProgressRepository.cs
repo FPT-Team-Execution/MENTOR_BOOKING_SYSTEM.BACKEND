@@ -1,3 +1,4 @@
+using System.Transactions;
 using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.DataAccess.DAO.Interfaces;
@@ -23,5 +24,18 @@ public class ProgressRepository(IBaseDAO<Progress> dao) : BaseRepository<Progres
     public async Task<Progress?> GetProgressByIdAsync(Guid id)
     {
         return await _dao.SingleOrDefaultAsync(predicate: p => p.Id == id);
+    }
+
+    public async Task<bool> CreateProgressesAsync(Guid projectId, IEnumerable<string> progressTitleList)
+    {
+        var progresses = progressTitleList.Select(p => new Progress
+        {
+            Id =  Guid.NewGuid(),
+            Name = p,
+            ProjectId = projectId,
+            IsComplete = false
+        }).ToList();
+        var addResult = await _dao.InsertRangeAsync(progresses);
+        return addResult > 0;
     }
 }

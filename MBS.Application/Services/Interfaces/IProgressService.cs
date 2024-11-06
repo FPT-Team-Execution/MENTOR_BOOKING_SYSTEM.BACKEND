@@ -9,6 +9,8 @@ public interface IProgressService
 {
     Task<BaseModel<GetProgressByProjectIddResponse>> GetProgressesByProjectId(GetProgressByProjectIddRequest request);
     Task<BaseModel<CreateProgressResponse>> CreateProgress(CreateProgressRequest request);
+    // Task<BaseModel<CreateProgressesResponse>> CreateProgresses(CreateProgressesRequest request);
+
     Task<BaseModel<UpdateProgressResponse>> UpdateProgress(UpdateProgressRequest request);
     Task<BaseModel> DeleteProgress(DeleteProgressRequest request);
     

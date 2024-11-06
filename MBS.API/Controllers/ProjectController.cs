@@ -1,5 +1,3 @@
-
-
 using MBS.Application.Models.Project;
 using MBS.Application.ValidationAttributes;
 using MBS.Core.Common.Pagination;
