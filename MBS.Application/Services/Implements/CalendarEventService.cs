@@ -362,7 +362,6 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 
                     };
         
-        //update calendar event
         var calendarEvent = await _calendarEventRepository.GetEventByIdAsync(calendarEventId);
         if(calendarEvent == null)
             return new BaseModel<UpdateCalendarEventResponseModel>
@@ -372,8 +371,6 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 StatusCode = StatusCodes.Status404NotFound,
                 
             };
-        //TODO: call google calendar api to recheck event props
-        //~
             var updateGEventRequets = new UpdateGoogleCalendarEventRequest()
             {
                 Start = request.Start.Value,
@@ -395,16 +392,11 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                 StatusCode = ((GoogleErrorResponse)googleUpdateResponse).Error.Code
             };
         GoogleCalendarEvent googleCalendarEventUpdated = (GoogleCalendarEvent)googleUpdateResponse;
-        //update local events
         calendarEvent.HtmlLink = googleCalendarEventUpdated.HtmlLink;
         calendarEvent.Description = request.Description;
         calendarEvent.Summary = googleCalendarEventUpdated.Summary;
         calendarEvent.ICalUID = googleCalendarEventUpdated.ICalUID;
         calendarEvent.Updated = googleCalendarEventUpdated.Updated;
-        // if (request.Start != null)
-        //     calendarEvent.Start = request.Start.Value;
-        // if (request.End != null)
-        //     calendarEvent.End = request.End.Value;
         calendarEvent.Start = googleCalendarEventUpdated.Start.DateTime;
         calendarEvent.End = googleCalendarEventUpdated.End.DateTime;
         calendarEvent.MeetingId = request.MeetingId;
@@ -452,15 +444,7 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
-            // if (calendarEvent.Meeting!.Status != MeetingStatusEnum.Canceled)
-            //     return new BaseModel<DeleteCalendarEventResponseModel>
-            //     {
-            //         Message = MessageResponseHelper.InvalidMeetingSatus(calendarEvent.MeetingId.ToString()),
-            //         IsSuccess = false,
-            //         StatusCode = StatusCodes.Status400BadRequest,
-            //     };
-            
-            //update calendarEvent to cancled (deleted)
+
             calendarEvent.Status = EventStatus.Cancleled;
             var updateResult = _calendarEventRepository.Update(calendarEvent);
             if(updateResult)
@@ -487,44 +471,4 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             };
         }
     }
-
-    // public async Task<BaseModel<Pagination<CalendarEvent>>> GetCalendarEventsByMentorIdPagination(string mentorId, int page, int size)
-    // {
-    //     try
-    //     {
-    //         var mentor = await _mentorRepository.GetByIdAsync(mentorId, "UserId");
-    //         if (mentor == null)
-    //         {
-    //             return new BaseModel<Pagination<CalendarEvent>>
-    //             {
-    //                 Message = MessageResponseHelper.UserNotFound(),
-    //                 IsSuccess = false,
-    //                 StatusCode = StatusCodes.Status404NotFound,
-    //             };
-    //         }
-    //         //find events by mentor
-    //         var events = await _unitOfWork.GetRepository<CalendarEvent>().GetPagingListAsync(
-    //             predicate: e => e.MentorId == mentor.UserId,
-    //             page: page,
-    //             size: size
-    //             );
-    //
-    //         return new BaseModel<Pagination<CalendarEvent>>
-    //         {
-    //             Message = MessageResponseHelper.GetSuccessfully("events"),
-    //             IsSuccess = true,
-    //             StatusCode = StatusCodes.Status200OK,
-    //             ResponseRequestModel = events
-    //         };
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         return new BaseModel<Pagination<CalendarEvent>>
-    //         {
-    //             Message = e.Message,
-    //             IsSuccess = false,
-    //             StatusCode = StatusCodes.Status500InternalServerError,
-    //         };
-    //     }
-    // }
 }

@@ -32,7 +32,7 @@ namespace MBS.Application.Services.Implements
         //OK
         public async Task<BaseModel<Pagination<MajorResponseDTO>>> GetMajors(int page, int size)
         {
-            var result = await _majorRepository.GetPagedListAsync(page: page, size: size);
+            var result = await _majorRepository.GetPagedListAsync(page, size);
             var MajorDTOList = new List<MajorResponseDTO>();
             foreach (var item in result.Items) 
             {

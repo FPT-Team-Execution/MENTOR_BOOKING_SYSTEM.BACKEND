@@ -52,7 +52,7 @@ namespace MBS.API.Controllers
 		[CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Student)]
 		public async Task<IActionResult> GetMentor([FromRoute] string id)
 		{
-			var response = await _mentorService.GetMentor(new GetMentorRequestModel()
+			var response = await _mentorService.GetMentorById(new GetMentorRequestModel()
 			{
 				Id = id
 			});
@@ -65,7 +65,7 @@ namespace MBS.API.Controllers
 		[ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> GetMentors(int page, int size)
 		{
-			var response = await _mentorService.GetMentors(page, size);
+			var response = await _mentorService.GetMentorsPageListAsync(page, size);
 			return StatusCode(response.StatusCode, response);
 		}
 

@@ -269,7 +269,7 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 		};
 	}
 
-	public async Task<BaseModel<GetMentorResponseModel, GetMentorRequestModel>> GetMentor(
+	public async Task<BaseModel<GetMentorResponseModel, GetMentorRequestModel>> GetMentorById(
 		GetMentorRequestModel request)
 	{
 		try
@@ -312,7 +312,7 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 		}
 	}
 
-	public async Task<BaseModel<Pagination<GetMentorResponseModel>>> GetMentors(int page, int size)
+	public async Task<BaseModel<Pagination<GetMentorResponseModel>>> GetMentorsPageListAsync(int page, int size)
 	{
 		try
 		{

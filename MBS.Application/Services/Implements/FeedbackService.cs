@@ -83,6 +83,8 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
         }
     }
 
+
+
     public async Task<BaseModel<Pagination<FeedbackResponseDTO>>> GetFeedbacksByMeetingId(GetFeedbacksByMeetingIdRequest request)
     {
         try {
@@ -275,17 +277,6 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
     public async Task<BaseModel<Pagination<FeedbackResponseDTO>>> GetAllFeedbacks(int page, int size)
     {
         var result = await _feedbackRepository.GetPagedListAsync(page, size);
-
-        //var feedbackDtoList = result.Items.Select(item => new FeedbackResponseDTO
-        //{
-        //    MeetingId = item.MeetingId,
-        //    name = item.User.FullName,
-        //    Message = item.Message,
-        //    UpdatedBy = item.UpdatedBy,
-        //    CreatedBy = item.CreatedBy,
-        //    CreatedOn = item.CreatedOn,
-        //    UpdatedOn = item.UpdatedOn
-        //}).ToList();
         var feedbackDtoList = new List<FeedbackResponseDTO>();
         foreach (var item in result.Items) {
             var mentor = await _mentorRepository.GetByUserIdAsync(item.UserId, include: m => m.Include(m => m.User));

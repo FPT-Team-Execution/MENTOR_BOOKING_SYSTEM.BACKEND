@@ -1,4 +1,6 @@
-﻿using MBS.Application.Models.PointTransaction;
+﻿using MBS.Application.Models.CalendarEvent;
+using MBS.Application.Models.PointTransaction;
+using MBS.Application.ValidationAttributes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,10 +29,20 @@ namespace MBS.API.Controllers
         [Authorize(Roles = nameof(UserRoleEnum.Admin))]
         public async Task<IActionResult> GetAllPointTransaction([FromQuery] int page, [FromQuery] int size)
         {
-            var response = await _pointTransactionSerivce.GetAllPointTransaction(page, size);
+            var response = await _pointTransactionSerivce.GetAllPointTransactionPageListAsync(page, size);
             return StatusCode(response.StatusCode, response);
         }
 
-        
+        [HttpGet("feedbacks/{studentId}")]
+        [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Student)]
+        [ProducesResponseType(typeof(BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseModel), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(BaseModel), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetAllPointTransaction([FromRoute] string studentId, [FromQuery] int page, [FromQuery] int size)
+        {
+            var response = await _pointTransactionSerivce.GetPointTransactionByStudentId(studentId, page, size);
+            return StatusCode(response.StatusCode, response);
+        }
     }
 }
