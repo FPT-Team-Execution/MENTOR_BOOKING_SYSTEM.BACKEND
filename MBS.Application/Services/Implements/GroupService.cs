@@ -262,7 +262,7 @@ namespace MBS.Application.Services.Implements
             {
                 Message = MessageResponseHelper.GetFailed("groups"),
                 IsSuccess = false,
-                StatusCode = StatusCodes.Status404NotFound,
+                StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = null
             };
         }
