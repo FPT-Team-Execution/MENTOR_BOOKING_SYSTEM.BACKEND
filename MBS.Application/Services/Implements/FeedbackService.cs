@@ -10,6 +10,7 @@ using MBS.Core.Entities;
 using MBS.DataAccess.Repositories.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace MBS.Application.Services.Implements;
@@ -20,10 +21,13 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMeetingRepository _meetingRepository;
     private readonly IFeedbackRepository _feedbackRepository;
+    private readonly IMentorRepository _mentorRepository;
+
 
     public FeedbackService(
         IFeedbackRepository feedbackRepository,
         IMeetingRepository meetingRepository,
+        IMentorRepository mentorRepository,
         UserManager<ApplicationUser> userManager,
         ILogger<FeedbackService> logger,
         IMapper mapper) : base(logger, mapper)
@@ -31,6 +35,7 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
         _feedbackRepository = feedbackRepository;
         _meetingRepository = meetingRepository;
         _userManager = userManager;
+        _mentorRepository = mentorRepository;
     }
 
     
@@ -271,16 +276,31 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
     {
         var result = await _feedbackRepository.GetPagedListAsync(page, size);
 
-        var feedbackDtoList = result.Items.Select(item => new FeedbackResponseDTO
-        {
-            MeetingId = item.MeetingId,
-            name = item.User.FullName,
-            Message = item.Message,
-            UpdatedBy = item.UpdatedBy,
-            CreatedBy = item.CreatedBy,
-            CreatedOn = item.CreatedOn,
-            UpdatedOn = item.UpdatedOn
-        }).ToList();
+        //var feedbackDtoList = result.Items.Select(item => new FeedbackResponseDTO
+        //{
+        //    MeetingId = item.MeetingId,
+        //    name = item.User.FullName,
+        //    Message = item.Message,
+        //    UpdatedBy = item.UpdatedBy,
+        //    CreatedBy = item.CreatedBy,
+        //    CreatedOn = item.CreatedOn,
+        //    UpdatedOn = item.UpdatedOn
+        //}).ToList();
+        var feedbackDtoList = new List<FeedbackResponseDTO>();
+        foreach (var item in result.Items) {
+            var mentor = await _mentorRepository.GetByUserIdAsync(item.UserId, include: m => m.Include(m => m.User));
+            var feedbackToList = new FeedbackResponseDTO
+            {
+                MeetingId = item.MeetingId,
+                name = mentor.User.FullName,
+                Message = item.Message,
+                UpdatedBy = item.UpdatedBy,
+                CreatedBy = item.CreatedBy,
+                CreatedOn = item.CreatedOn,
+                UpdatedOn = item.UpdatedOn
+            };
+            feedbackDtoList.Add(feedbackToList);
+        }
 
         var paginatedDtoList = new Pagination<FeedbackResponseDTO>
         {
