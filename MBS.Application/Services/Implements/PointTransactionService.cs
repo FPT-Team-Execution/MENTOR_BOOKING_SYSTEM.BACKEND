@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using MBS.DataAccess.Repositories.Interfaces;
 using MBS.Core.Common.Pagination;
 using MBS.Application.Models.Groups;
+using Microsoft.EntityFrameworkCore;
 
 namespace MBS.Application.Services.Implements
 {
@@ -32,7 +33,7 @@ namespace MBS.Application.Services.Implements
             var result = await _pointTransactionRepository.GetAllAsync();
             var ListToShow = new List<PointTransactionDTO>();
             foreach (var transaction in result) {
-                var userFound =await  _studentRepository.GetByIdAsync(transaction.UserId, "Id");
+                var userFound =await  _studentRepository.GetByUserIdAsync(transaction.UserId, include: m => m.Include(m => m.User));
                 var newTrans = new PointTransactionDTO
                 {
                     Username = userFound.User.UserName,
