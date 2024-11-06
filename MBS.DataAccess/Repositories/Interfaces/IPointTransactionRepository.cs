@@ -9,5 +9,6 @@ namespace MBS.DataAccess.Repositories.Interfaces
 {
     public interface IPointTransactionRepository : IBaseRepository<PointTransaction>
     {
+        Task<PointTransaction> GetTransactionByStudentId(string id);
     }
 }

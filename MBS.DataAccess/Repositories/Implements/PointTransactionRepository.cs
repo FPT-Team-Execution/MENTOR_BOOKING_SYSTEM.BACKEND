@@ -14,5 +14,10 @@ namespace MBS.DataAccess.Repositories.Implements
         public PointTransactionRepository(IBaseDAO<PointTransaction> dao) : base(dao)
         {
         }
+
+        public  Task<PointTransaction> GetTransactionByStudentId(string studentId)
+        {
+            return _dao.SingleOrDefaultAsync(x => x.UserId == studentId);
+        }
     }
 }

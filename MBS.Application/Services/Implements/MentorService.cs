@@ -256,6 +256,9 @@ public class MentorService : BaseService2<MentorService>, IMentorService
 		}
 
 		var response = mentorSearchDTOs;
+		if (response == null) {
+			
+		}
 		return new BaseModel<List<MentorSearchDTO>>()
 		{
 			Message = MessageResponseHelper.GetSuccessfully("mentors"),
