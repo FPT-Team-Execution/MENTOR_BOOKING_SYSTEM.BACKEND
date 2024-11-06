@@ -41,6 +41,10 @@ public class FeedBackRepository(IBaseDAO<Feedback> dao) : BaseRepository<Feedbac
 
     public Task<Pagination<Feedback>> GetAllFeedbacks(int page, int size)
     {
-        throw new NotImplementedException();
+        return _dao.GetPagingListAsync(
+            include: f => f.Include(f => f.User), 
+           page: page,
+           size: size
+           );
     }
 }

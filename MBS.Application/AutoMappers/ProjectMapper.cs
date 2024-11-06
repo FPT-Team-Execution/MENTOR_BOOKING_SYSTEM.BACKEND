@@ -13,7 +13,7 @@ namespace MBS.Application.AutoMappers
 	{
         public ProjectMapper()
         {
-            CreateMap<Project, ProjectResponseDto>()
+            CreateMap<Project, ProjectResponseDTO>()
                 .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
         }
     }

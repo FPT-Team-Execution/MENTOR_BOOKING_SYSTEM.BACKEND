@@ -24,7 +24,7 @@ namespace MBS.API.Controllers
         }
         // GET: api/projects/student/{studentId}?projectStatus=Active
         [HttpGet("user/{userId}")]
-        [ProducesResponseType(typeof(BaseModel<Pagination<ProjectResponseDto>>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseModel<Pagination<ProjectResponseDTO>>),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
@@ -36,7 +36,7 @@ namespace MBS.API.Controllers
 
         // GET: api/projects/student/{studentId}?projectStatus=Active
         [HttpGet("student/{studentId}")]
-        [ProducesResponseType(typeof(BaseModel<Pagination<ProjectResponseDto>>),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseModel<Pagination<ProjectResponseDTO>>),StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
@@ -60,21 +60,7 @@ namespace MBS.API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        // PUT: api/projects/{projectId}/status
-        // [HttpPut("{projectId}/status")]
-        // public async Task<IActionResult> UpdateProjectStatus([FromRoute] Guid projectId, [FromBody] ProjectStatusEnum newStatus)
-        // {
-        //     if (projectId == Guid.Empty)
-        //     {
-        //         return BadRequest("Invalid project ID.");
-        //     }
-        //
-        //     var result = await _projectService.UpdateProjectStatus(projectId, newStatus);
-        //
-        //     return StatusCode(result.StatusCode, result);
-        // }
 
-        // GET: api/projects/{projectId}
         [HttpGet("{projectId}")]
         public async Task<IActionResult> GetProjectById([FromRoute] Guid projectId)
         {
@@ -87,7 +73,6 @@ namespace MBS.API.Controllers
             return StatusCode(result.StatusCode, result);
         }
 
-        // PUT: api/projects/{projectId}/mentor/{mentorId}
         [HttpPut("{projectId}/mentor/{mentorId}")]
         [CustomAuthorize(UserRoleEnum.Admin)]
         public async Task<IActionResult> AssignMentor([FromRoute] Guid projectId, [FromRoute] string mentorId)
@@ -98,6 +83,13 @@ namespace MBS.API.Controllers
             }
 
             var result = await _projectService.AssignMentor(projectId, mentorId);
+            return StatusCode(result.StatusCode, result);
+        }
+
+        [HttpGet("/Projects")]
+        public async Task<IActionResult> GetAllProjects([FromQuery] int page, [FromQuery] int size)
+        {
+            var result = await _projectService.GetAllProjects(page, size);
             return StatusCode(result.StatusCode, result);
         }
     }

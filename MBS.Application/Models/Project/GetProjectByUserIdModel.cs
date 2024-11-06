@@ -24,7 +24,7 @@ public class GetProjectsByUserIdRequest
 
 public class GetProjectsByUserIdResponse
 {
-    public IEnumerable<ProjectResponseDto> Projects {
+    public IEnumerable<ProjectResponseDTO> Projects {
         get;
         set;
     }

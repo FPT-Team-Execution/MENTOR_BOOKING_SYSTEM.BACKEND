@@ -35,14 +35,14 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
 
     
 
-    public async Task<BaseModel<Pagination<FeedbackResponseDto>>> GetMeetingFeedbacksByUserId(GetMeetingFeedbacksByUserIdRequest request)
+    public async Task<BaseModel<Pagination<FeedbackResponseDTO>>> GetMeetingFeedbacksByUserId(GetMeetingFeedbacksByUserIdRequest request)
     {
         try
         {
             //check meeting
             var meeting = await _meetingRepository.GetByIdAsync(request.MeetingId, "Id");
             if (meeting == null)
-                return new BaseModel<Pagination<FeedbackResponseDto>>
+                return new BaseModel<Pagination<FeedbackResponseDTO>>
                 {
                     Message = MessageResponseHelper.DetailException("meeting", request.MeetingId.ToString(), "not found", "Id"),
                     IsSuccess = false,
@@ -50,7 +50,7 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
                 };
             var user = await _userManager.FindByIdAsync(request.UserId);
             if (user == null)
-                return new BaseModel<Pagination<FeedbackResponseDto>>
+                return new BaseModel<Pagination<FeedbackResponseDTO>>
                 {
                     Message = MessageResponseHelper.DetailException("student", request.UserId, "not found", "Id"),
                     IsSuccess = false,
@@ -59,17 +59,17 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
             //get all
             var feedbacks =
                 await _feedbackRepository.GetMeetingFeedBacksByUserId(request.MeetingId, request.UserId, request.Page, request.Size, request.SortOrder);
-            return new BaseModel<Pagination<FeedbackResponseDto>>
+            return new BaseModel<Pagination<FeedbackResponseDTO>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("feedbacks"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = _mapper.Map<Pagination<FeedbackResponseDto>>(feedbacks)
+                ResponseRequestModel = _mapper.Map<Pagination<FeedbackResponseDTO>>(feedbacks)
 			};
         }
         catch (Exception e)
         {
-            return new BaseModel<Pagination<FeedbackResponseDto>>
+            return new BaseModel<Pagination<FeedbackResponseDTO>>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -78,13 +78,13 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
         }
     }
 
-    public async Task<BaseModel<Pagination<FeedbackResponseDto>>> GetFeedbacksByMeetingId(GetFeedbacksByMeetingIdRequest request)
+    public async Task<BaseModel<Pagination<FeedbackResponseDTO>>> GetFeedbacksByMeetingId(GetFeedbacksByMeetingIdRequest request)
     {
         try {
             //check meeting
             var meeting = await _meetingRepository.GetByIdAsync(request.MeetingId, "Id");
             if (meeting == null)
-                return new BaseModel<Pagination<FeedbackResponseDto>>
+                return new BaseModel<Pagination<FeedbackResponseDTO>>
                 {
                     Message = MessageResponseHelper.DetailException("meeting", request.MeetingId.ToString(), "not found", "Id"),
                     IsSuccess = false,
@@ -93,17 +93,17 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
             //get all
             var feedbacks =
                 await _feedbackRepository.GetFeedBacksByMeetingId(request.MeetingId, request.Page, request.Size, request.SortOrder);
-            return new BaseModel<Pagination<FeedbackResponseDto>>
+            return new BaseModel<Pagination<FeedbackResponseDTO>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("feedbacks"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = _mapper.Map<Pagination<FeedbackResponseDto>>(feedbacks)
+                ResponseRequestModel = _mapper.Map<Pagination<FeedbackResponseDTO>>(feedbacks)
 			};
         }
         catch (Exception e)
         {
-            return new BaseModel<Pagination<FeedbackResponseDto>>
+            return new BaseModel<Pagination<FeedbackResponseDTO>>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -112,31 +112,31 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
         }
     }
 
-    public async Task<BaseModel<FeedbackResponseModel>> GetFeedbackById(Guid feedbackId)
+    public async Task<BaseModel<FeedbackModel>> GetFeedbackById(Guid feedbackId)
     {
         try {
             var feedback = await _feedbackRepository.GetByIdAsync(feedbackId, "Id");
             if (feedback == null)
-                return new BaseModel<FeedbackResponseModel>
+                return new BaseModel<FeedbackModel>
                 {
                     Message = MessageResponseHelper.DetailException("feedback", feedbackId.ToString(), "not found", "Id"),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
-            return new BaseModel<FeedbackResponseModel>
+            return new BaseModel<FeedbackModel>
             {
                 Message = MessageResponseHelper.GetSuccessfully("feedback"),
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
-                ResponseRequestModel = new FeedbackResponseModel
+                ResponseRequestModel = new FeedbackModel
                 {
-                    Feedback = _mapper.Map<FeedbackResponseDto>(feedback),
+                    Feedback = _mapper.Map<FeedbackResponseDTO>(feedback),
                 }
             };
         }
         catch (Exception e)
         {
-            return new BaseModel<FeedbackResponseModel>
+            return new BaseModel<FeedbackModel>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -187,13 +187,13 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
         }
     }
 
-    public async Task<BaseModel<FeedbackResponseModel>> UpdateFeedback(Guid feedbackId, string message)
+    public async Task<BaseModel<FeedbackModel>> UpdateFeedback(Guid feedbackId, string message)
     {
         try
         {
             var feedback = await _feedbackRepository.GetByIdAsync(feedbackId, "Id");
             if (feedback == null)
-                return new BaseModel<FeedbackResponseModel>
+                return new BaseModel<FeedbackModel>
                 {
                     Message = MessageResponseHelper.DetailException("feedback", feedbackId.ToString(), "not found", "Id"),
                     IsSuccess = false,
@@ -202,17 +202,17 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
             feedback.Message = message;
             var updateResult =_feedbackRepository.Update(feedback);
             if (updateResult)
-                return new BaseModel<FeedbackResponseModel>
+                return new BaseModel<FeedbackModel>
                 {
                     Message = MessageResponseHelper.UpdateSuccessfully("feedback"),
                     IsSuccess = true,
                     StatusCode = StatusCodes.Status200OK,
-                    ResponseRequestModel = new FeedbackResponseModel
+                    ResponseRequestModel = new FeedbackModel
                     {
-                        Feedback = _mapper.Map<FeedbackResponseDto>(feedback),
+                        Feedback = _mapper.Map<FeedbackResponseDTO>(feedback),
                     }
                 };
-            return new BaseModel<FeedbackResponseModel>
+            return new BaseModel<FeedbackModel>
             {
                 Message = MessageResponseHelper.UpdateFailed("feedback"),
                 IsSuccess = false,
@@ -221,7 +221,7 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
         }
         catch (Exception e)
         {
-            return new BaseModel<FeedbackResponseModel>
+            return new BaseModel<FeedbackModel>
             {
                 Message = e.Message,
                 IsSuccess = false,
@@ -267,8 +267,35 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
 
 
 
-    public Task<BaseModel<Pagination<GetAllFeedbackByMentorIdModel>>> GetAllFeedbacks(int page, int size)
+    public async Task<BaseModel<Pagination<FeedbackResponseDTO>>> GetAllFeedbacks(int page, int size)
     {
-        throw new NotImplementedException();
+        var result = await _feedbackRepository.GetPagedListAsync(page, size);
+
+        var feedbackDtoList = result.Items.Select(item => new FeedbackResponseDTO
+        {
+            MeetingId = item.MeetingId,
+            name = item.User.FullName,
+            Message = item.Message,
+            UpdatedBy = item.UpdatedBy,
+            CreatedBy = item.CreatedBy,
+            CreatedOn = item.CreatedOn,
+            UpdatedOn = item.UpdatedOn
+        }).ToList();
+
+        var paginatedDtoList = new Pagination<FeedbackResponseDTO>
+        {
+            Items = feedbackDtoList,
+            PageIndex = page,
+            PageSize = size
+        };
+
+        return new BaseModel<Pagination<FeedbackResponseDTO>>
+        {
+            Message = MessageResponseHelper.GetSuccessfully("feedback"),
+            IsSuccess = true,
+            StatusCode = StatusCodes.Status200OK,
+            ResponseRequestModel = paginatedDtoList
+        };
     }
+
 }

@@ -22,7 +22,7 @@ public class FeedbackController : ControllerBase
     
     [HttpGet("meeting/{meetingId}/user/{userId}")]
     [CustomAuthorize(UserRoleEnum.Admin)]
-    [ProducesResponseType(typeof(BaseModel<Pagination<FeedbackResponseDto>>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel<Pagination<FeedbackResponseDTO>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetFeedbacksByUserId(GetMeetingFeedbacksByUserIdRequest request)
@@ -33,7 +33,7 @@ public class FeedbackController : ControllerBase
     }
     [HttpGet("meeting/{meetingId}")]
     [CustomAuthorize(UserRoleEnum.Admin)]
-    [ProducesResponseType(typeof(BaseModel<Pagination<FeedbackResponseDto>>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel<Pagination<FeedbackResponseDTO>>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetFeedbacksByMeetingId( GetFeedbacksByMeetingIdRequest request)
@@ -44,7 +44,7 @@ public class FeedbackController : ControllerBase
     }
     
     [HttpGet("{feedbackId}")]
-    [ProducesResponseType(typeof(BaseModel<FeedbackResponseModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel<FeedbackModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetFeedbackById([FromRoute] Guid feedbackId)
@@ -54,7 +54,7 @@ public class FeedbackController : ControllerBase
         
     }
     [HttpGet]
-    [ProducesResponseType(typeof(BaseModel<FeedbackResponseModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel<FeedbackModel>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel), StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetFeedbackById([FromQuery] string mentorId, int page, int size)
@@ -75,7 +75,7 @@ public class FeedbackController : ControllerBase
         
     }
     [HttpPut("{feedbackId}")]
-    [ProducesResponseType(typeof(BaseModel<FeedbackResponseModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel<FeedbackModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UpdateFeedback(Guid feedbackId, string message)
@@ -83,5 +83,16 @@ public class FeedbackController : ControllerBase
         var result = await _feedbackService.UpdateFeedback(feedbackId, message);
         return StatusCode(result.StatusCode, result);
         
+    }
+
+    [HttpGet("/Feedbacks")]
+    [ProducesResponseType(typeof(BaseModel<FeedbackModel>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetAllFeedbacks([FromQuery] int page, [FromQuery] int size)
+    {
+        var result = await _feedbackService.GetAllFeedbacks(page,size);
+        return StatusCode(result.StatusCode, result);
+
     }
 }

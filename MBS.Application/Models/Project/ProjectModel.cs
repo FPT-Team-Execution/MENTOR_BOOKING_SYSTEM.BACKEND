@@ -7,9 +7,9 @@ namespace MBS.Application.Models.Project;
 
 public class ProjectResponseModel
 {
-    public ProjectResponseDto Project { get; set; }
+    public ProjectResponseDTO Project { get; set; }
 }
- public class ProjectResponseDto
+ public class ProjectResponseDTO
 {
     public Guid Id { get; set; }
     public string Title { get; set; }

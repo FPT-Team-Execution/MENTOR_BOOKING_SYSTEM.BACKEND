@@ -14,7 +14,7 @@ namespace MBS.Application.AutoMappers
 	{
         public FeedbackMapper()
         {
-            CreateMap<Feedback, FeedbackResponseDto>();
+            CreateMap<Feedback, FeedbackResponseDTO>();
 		}
     }
 }
