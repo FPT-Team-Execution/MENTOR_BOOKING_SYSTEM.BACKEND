@@ -15,5 +15,10 @@ public interface IFeedbackService
     Task<BaseModel<FeedbackResponseModel>> GetFeedbackById(Guid feedbackId);
     Task<BaseModel<CreateFeedbackResponseModel, CreateFeedbackRequestModel>> CreateFeedback(CreateFeedbackRequestModel request);
     Task<BaseModel<FeedbackResponseModel>> UpdateFeedback(Guid feedbackId, string message);
+    Task<BaseModel<Pagination<FeedbackByMentorDTO>>> GetFeedbackByMentorId(string mentorId, int page, int size);
+    Task<BaseModel<Pagination<GetAllFeedbackByMentorIdModel>>> GetAllFeedbacks(int page, int size);
+
+
+
 
 }

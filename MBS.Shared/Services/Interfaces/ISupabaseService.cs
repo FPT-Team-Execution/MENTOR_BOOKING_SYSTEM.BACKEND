@@ -4,6 +4,6 @@ namespace MBS.Shared.Services.Interfaces;
 
 public interface ISupabaseService
 {
-    Task<string> UploadFile(byte[] fileByte, string filePath, string bucketName);
+    Task<string> UploadFile(byte[] fileByte, string filePath, string bucketName, bool replace);
     string RetrievePublicUrl(string bucketName, string filePath);
 }

@@ -28,4 +28,19 @@ public class FeedBackRepository(IBaseDAO<Feedback> dao) : BaseRepository<Feedbac
             size: size
         );
     }
+
+    public Task<Pagination<Feedback>> GetFeedBacksByMentorId(string mentorId, int page, int size)
+    {
+        return _dao.GetPagingListAsync(
+            predicate: f => f.UserId == mentorId,
+            include: f => f.Include(f => f.User),
+            page: page,
+            size: size
+            );
+    }
+
+    public Task<Pagination<Feedback>> GetAllFeedbacks(int page, int size)
+    {
+        throw new NotImplementedException();
+    }
 }
