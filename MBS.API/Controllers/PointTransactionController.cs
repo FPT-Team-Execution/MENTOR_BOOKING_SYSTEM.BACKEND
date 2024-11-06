@@ -39,7 +39,7 @@ namespace MBS.API.Controllers
         [ProducesResponseType(typeof(BaseModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(BaseModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllPointTransaction([FromRoute] string studentId, [FromQuery] int page, [FromQuery] int size)
+        public async Task<IActionResult> GetAllPointTransactionByStudentId([FromRoute] string studentId, [FromQuery] int page, [FromQuery] int size)
         {
             var response = await _pointTransactionSerivce.GetPointTransactionByStudentId(studentId, page, size);
             return StatusCode(response.StatusCode, response);
