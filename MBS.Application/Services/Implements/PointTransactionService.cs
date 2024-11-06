@@ -33,24 +33,27 @@ namespace MBS.Application.Services.Implements
             var result = await _pointTransactionRepository.GetAllAsync();
             var ListToShow = new List<PointTransactionDTO>();
             foreach (var transaction in result) {
-                var userFound =await  _studentRepository.GetByUserIdAsync(transaction.UserId, include: m => m.Include(m => m.User));
+                var userFound = await  _studentRepository.GetByUserIdAsync(transaction.UserId, include: m => m.Include(m => m.User));
+                
                 var newTrans = new PointTransactionDTO
                 {
-                    Username = userFound.User.UserName,
+                    UserId = transaction.UserId,
+                    Username = userFound.User.FullName,
                     Amount = transaction.Amount,
-                    TransactionType = transaction.TransactionType,
+                    TransactionType = (TransactionTypeEnum)transaction.TransactionType,
                     CreatedOn = transaction.CreatedOn,
-                    Currency = transaction.Currency,
-                    Kind = transaction.Kind,
+                    Currency = (PointCurrencyEnum)transaction.Currency,
+                    Kind = (TransactionKindEnum)transaction.Kind,
                     RemainBalance = transaction.RemainBalance,
-                    Status = transaction.Status,
+                    Status = (TransactionStatusEnum)transaction.Status,
                 };
                 ListToShow.Add(newTrans);
-                
             }
+            var response = ListToShow.OrderByDescending(i => i.CreatedOn).ToList();
+
             var pagingPoint = new Pagination<PointTransactionDTO>
             {
-                Items = ListToShow,
+                Items = response,
                 PageSize = size,
                 PageIndex = page
 
