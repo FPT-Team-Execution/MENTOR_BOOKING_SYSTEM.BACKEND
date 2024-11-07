@@ -152,7 +152,8 @@ namespace MBS.Application.Services.Implements
             {
                 Items = response,
                 PageSize = size,
-                PageIndex = page
+                PageIndex = page,
+                TotalItems = result.Count(),
 
             };
             return new BaseModel<Pagination<PointTransactionDTO>>
