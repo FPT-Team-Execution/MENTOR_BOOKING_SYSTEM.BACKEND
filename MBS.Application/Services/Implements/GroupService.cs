@@ -157,7 +157,6 @@ namespace MBS.Application.Services.Implements
                 };
             }
 
-            //group. = MBS.Core.Enums.StatusEnum.Deactivated;
             var updateRs = _groupRepository.Update(group);
             if (!updateRs)
                 return new BaseModel
@@ -174,9 +173,9 @@ namespace MBS.Application.Services.Implements
             };
         }
 
-        public async Task<BaseModel<Pagination<GroupResponseDTO>>> GetGroups(int page, int size)
+        public async Task<BaseModel<Pagination<GroupResponseDTO>>> GetGroupsPageListAsync(int page, int size)
         {
-            var result = await _groupRepository.GetPagedListBaseAsync(page: page, size: size);
+            var result = await _groupRepository.GetPagedListBaseAsync(page, size);
 
             var groupDtoList = new List<GroupResponseDTO>();
             

@@ -159,7 +159,7 @@ namespace MBS.Application.Services.Implements
 
         public async Task<BaseModel<Pagination<PositionResponseDTO>>> GetPositions(int page, int size)
         {
-            var result = await _positionRepository.GetPagedListAsync(page: page, size: size);
+            var result = await _positionRepository.GetPagedListAsync(page, size);
             var positionDTOList = new List<PositionResponseDTO>();
 
             foreach (var item in result.Items)

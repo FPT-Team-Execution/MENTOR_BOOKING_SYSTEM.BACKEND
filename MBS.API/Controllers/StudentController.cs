@@ -66,15 +66,6 @@ namespace MBS.API.Controllers
 			return StatusCode(response.StatusCode, response);
 		}
 
-        [HttpGet("feedbacks/{studentId}")]
-        //[Authorize(Roles = nameof(UserRoleEnum.Admin))]
-        //[Authorize(Roles = nameof(UserRoleEnum.Student))]
-
-
-		public async Task<IActionResult> GetAllPointTransaction([FromRoute] string studentId, [FromQuery] int page, [FromQuery] int size)
-        {
-            var response = await _studentService.GetPointTransactionByStudentId(studentId, page, size);
-            return StatusCode(response.StatusCode, response);
-        }
+        
     }
 }

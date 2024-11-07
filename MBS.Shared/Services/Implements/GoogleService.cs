@@ -166,14 +166,12 @@ namespace MBS.Shared.Services.Implements
             //anonymous data object
             var bodyData = new
             {
-                summary = createRequest.Summary,
-                description = createRequest.Description,
-                start = new EventTime
+                Start = new EventTime
                 {
                     DateTime = ConvertUtils.FormatDateTime(createRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
                     TimeZone = "Asia/Ho_Chi_Minh"
                 },
-                end = new EventTime
+                End = new EventTime
                 {
                     DateTime = ConvertUtils.FormatDateTime(createRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
                     TimeZone = "Asia/Ho_Chi_Minh"
@@ -213,12 +211,12 @@ namespace MBS.Shared.Services.Implements
             //anonymous data object
             var bodyData = new
             {
-                start = new EventTime
+                Start = new EventTime
                 {
                     DateTime = ConvertUtils.FormatDateTime(updateRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
                     TimeZone = "Asia/Ho_Chi_Minh"
                 },
-                end = new EventTime
+                End = new EventTime
                 {
                     DateTime = ConvertUtils.FormatDateTime(updateRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
                     TimeZone = "Asia/Ho_Chi_Minh"

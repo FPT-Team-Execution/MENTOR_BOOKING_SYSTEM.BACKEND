@@ -30,9 +30,8 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 	private readonly IEmailService _emailService;
 	private readonly ITemplateService _templateService;
 	private readonly IClaimService _claimService;
-    private readonly IPointTransactionRepository _pointTransactionRepository;
 
-    public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository, IPointTransactionRepository pointTransactionRepository,
+    public StudentService(ILogger<StudentService> logger, IMapper mapper, IStudentRepository studentRepository,
 
         UserManager<ApplicationUser> userManager, IEmailService emailService,
 		ITemplateService templateService, IClaimService claimService) : base(logger, mapper)
@@ -42,7 +41,6 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 		_emailService = emailService;
 		_templateService = templateService;
 		_claimService = claimService;
-		_pointTransactionRepository = pointTransactionRepository;
 	}
 
 	public async Task<BaseModel<Pagination<StudentResponseDto>>> GetStudents(int page, int size, string? sortOrder)
@@ -124,41 +122,7 @@ public class StudentService : BaseService2<StudentService>, IStudentService
 		}
 	}
 
-    public async Task<BaseModel<Pagination<PointTransactionDTO>>> GetPointTransactionByStudentId(string studentId, int page, int size)
-    {
-        var result = await _pointTransactionRepository.GetTransactionByStudentIdPageList(studentId, page, size);
-
-        var transactionDtoList = result.Items.Select(transaction => new PointTransactionDTO
-        {
-            UserId = transaction.UserId,
-            Username = transaction.User.FullName,
-            Amount = transaction.Amount,
-            RemainBalance = transaction.RemainBalance,
-            Currency = PointCurrencyEnum.FPoint.ToString(),
-            TransactionType = transaction.TransactionType == 0 ? TransactionTypeEnum.Credit.ToString() : TransactionTypeEnum.Debit.ToString(),
-
-            Status = transaction.Status == 0 ? TransactionStatusEnum.Success.ToString() : TransactionStatusEnum.Fail.ToString(),
-
-            Kind = transaction.Kind == 0 ? TransactionKindEnum.Personal.ToString() : TransactionKindEnum.Project.ToString(),
-
-            CreatedOn = transaction.CreatedOn
-        }).ToList();
-
-        var paginatedDtoList = new Pagination<PointTransactionDTO>
-        {
-            Items = transactionDtoList,
-            PageIndex = page,
-            PageSize = size
-        };
-
-        return new BaseModel<Pagination<PointTransactionDTO>>
-        {
-            Message = MessageResponseHelper.GetSuccessfully("point transactions"),
-            IsSuccess = true,
-            StatusCode = StatusCodes.Status200OK,
-            ResponseRequestModel = paginatedDtoList
-        };
-    }
+    
 
     public async Task<BaseModel<GetStudentResponseModel, GetStudentRequestModel>> GetOwnProfile(
 		ClaimsPrincipal claimsPrincipal)
