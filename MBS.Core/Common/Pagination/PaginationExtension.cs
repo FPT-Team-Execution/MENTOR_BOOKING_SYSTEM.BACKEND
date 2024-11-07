@@ -27,7 +27,14 @@ public class PaginationExtension<T> where T : class
             throw new ArgumentException($"Page number ({page}) exceeds the total pages ({pagination.TotalPages}).");
         }
 
-
+        if (source is IQueryable<T> query)
+        {
+            pagination.Items = query.Skip((page - firstPage) * size).Take(size).ToList();
+        }
+        else
+        {
+            pagination.Items = source.Skip((page - firstPage) * size).Take(size).ToList();
+        }
 
         return pagination;
     }
