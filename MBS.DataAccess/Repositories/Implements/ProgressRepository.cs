@@ -15,10 +15,10 @@ public class ProgressRepository(IBaseDAO<Progress> dao) : BaseRepository<Progres
             predicate: p => p.ProjectId == projectId,
             orderBy: q => sortOrder == "asc" ? q.OrderBy(p => p.CreatedOn) : q.OrderByDescending(p => p.CreatedOn),
             include: q => q.Include(p => p.Project),
-            page: pageSize,
+            page: pageNumber,
             size: pageSize
             );
-        return null;
+        return progress;
     }
 
     public async Task<Progress?> GetProgressByIdAsync(Guid id)

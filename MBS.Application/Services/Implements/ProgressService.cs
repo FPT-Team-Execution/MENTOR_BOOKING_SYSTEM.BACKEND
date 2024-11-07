@@ -43,11 +43,12 @@ public class ProgressService : BaseService2<ProgressService>, IProgressService
             //* get progress and sort By create Time
             var progress =
                 await _progressRepository.GetProgressesAsync(request.ProjectId, request.Page, request.Size, "asc");
+        
             return new BaseModel<GetProgressByProjectIddResponse>()
             {
-                Message = MessageResponseHelper.ProjectNotFound(request.ProjectId.ToString()),
-                StatusCode = StatusCodes.Status404NotFound,
-                IsSuccess = false,
+                Message = MessageResponseHelper.GetSuccessfully("progress"),
+                StatusCode = StatusCodes.Status200OK,
+                IsSuccess = true,
                 ResponseRequestModel = new GetProgressByProjectIddResponse
                 {
                     Progresses = _mapper.Map<Pagination<ProgressResponseDto>>(progress),
