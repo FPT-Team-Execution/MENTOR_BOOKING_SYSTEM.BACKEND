@@ -13,8 +13,6 @@ public class Pagination<T> where T : class
     }
 
     public IEnumerable<T> Items { get; set; }
-    public int TotalItems
-    {
-        get => Items?.Count() ?? 0;  // Set based on the count of Items
-    }
+    public int TotalItems { get; set; }
+    
 }
