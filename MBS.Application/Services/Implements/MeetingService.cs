@@ -9,6 +9,8 @@ using MBS.Core.Common.Pagination;
 using MBS.Core.Entities;
 using MBS.Core.Enums;
 using MBS.DataAccess.Repositories.Interfaces;
+using MBS.Shared.Models.Google;
+using MBS.Shared.Models.Google.GoogleCalendar.Response;
 using MBS.Shared.Models.Google.GoogleMeeting.Response;
 using MBS.Shared.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -76,13 +78,14 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
         }
     }
 
-    public async Task<BaseModel<GetMeetingByProjectIdResponse, GetMeetingByProjectIdRequest>> GetMeetingsByProjectId(GetMeetingByProjectIdRequest request)
+    public async Task<BaseModel<GetMeetingByProjectIdResponse, GetMeetingByProjectIdRequest>> GetMeetingsByProjectId(
+        GetMeetingByProjectIdRequest request)
     {
         try
         {
             //get project to check
             var project = await _projectRepository.GetByIdAsync(request.ProjectId, "Id");
-            if(project == null)
+            if (project == null)
                 return new BaseModel<GetMeetingByProjectIdResponse, GetMeetingByProjectIdRequest>
                 {
                     Message = MessageResponseHelper.ProjectNotFound(request.ProjectId.ToString()),
@@ -92,13 +95,14 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
             //get request id list based projectId
             var requestsByProjectId = await _requestRepository.GetRequestByProjectIdAsync(request.ProjectId);
             var requestIdList = requestsByProjectId.Select(x => x.Id).ToList();
-            
+
             //get meeting based on request id list
             var meetings = await _meetingRepository.GetMeetingsByRequests(requestIdList);
             if (!string.IsNullOrEmpty(request.MeetingStatus))
             {
                 meetings = meetings.Where(x => x.Status == Enum.Parse<MeetingStatusEnum>(request.MeetingStatus));
             }
+
             return new BaseModel<GetMeetingByProjectIdResponse, GetMeetingByProjectIdRequest>()
             {
                 Message = MessageResponseHelper.GetSuccessfully("meetings"),
@@ -120,7 +124,6 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                 StatusCode = StatusCodes.Status500InternalServerError,
             };
         }
-        
     }
 
     public async Task<BaseModel<Pagination<MeetingResponseDto>>> GetMeetings(int page, int size)
@@ -147,7 +150,8 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
         }
     }
 
-    public async Task<BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>> CreateMeeting(string accessToken, CreateMeetingRequestModel request)
+    public async Task<BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>> CreateMeeting(
+        string accessToken, CreateMeetingRequestModel request)
     {
         try
         {
@@ -173,10 +177,17 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
             var googleMeetingUrl = string.Empty;
             if (request.IsOnline)
             {
-                GoogleMeetingResponse googleMeetingResponse = (GoogleMeetingResponse)await _googleService.CreateMeeting(accessToken);
-                if (googleMeetingResponse.IsSuccess)
-                    googleMeetingUrl = googleMeetingResponse.MeetingUri;
+                GoogleResponse googleMeetingResponse = await _googleService.CreateMeeting(accessToken);
+                if (!googleMeetingResponse.IsSuccess)
+                    return new BaseModel<CreateMeetingResponseModel, CreateMeetingRequestModel>
+                    {
+                        Message = ((GoogleErrorResponse)googleMeetingResponse).Error.Message,
+                        IsSuccess = false,
+                        StatusCode = ((GoogleErrorResponse)googleMeetingResponse).Error.Code
+                    };
+                googleMeetingUrl = ((GoogleMeetingResponse)googleMeetingResponse).MeetingUri;
             }
+
             //Create meeting
             var newMeeting = new Meeting()
             {
@@ -188,7 +199,7 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                 Status = MeetingStatusEnum.New
             };
             var addResult = await _meetingRepository.CreateAsync(newMeeting);
-            
+
             if (addResult)
             {
                 switch (requestCheck.ProjectId)
