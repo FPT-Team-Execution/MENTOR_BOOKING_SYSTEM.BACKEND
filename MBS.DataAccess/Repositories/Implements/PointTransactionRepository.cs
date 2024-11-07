@@ -17,6 +17,14 @@ namespace MBS.DataAccess.Repositories.Implements
         {
         }
 
+        public Task<Pagination<PointTransaction>> GetAllPageListAsync(int page, int size)
+        {
+            return _dao.GetPagingListAsync(
+               page: page,
+               size: size
+        );
+        }
+
         Task<Pagination<PointTransaction>> IPointTransactionRepository.GetTransactionByStudentIdPageList(string studentId, int page, int size)
         {
             return _dao.GetPagingListAsync(
