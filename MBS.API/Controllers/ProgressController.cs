@@ -27,6 +27,17 @@ public class ProgressController : ControllerBase
         return StatusCode(result.StatusCode, result);
         
     }
+    [HttpGet("get-complete")]
+    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor, UserRoleEnum.Student)]
+    [ProducesResponseType(typeof(BaseModel<GetProgressByProjectIddRequest>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetCompleteProgressPercent(GetCompleteProgressRequest request)
+    {
+        var result = await _progressService.GetCompleteProgressPercent(request);
+        return StatusCode(result.StatusCode, result);
+        
+    }
     
     [HttpPost("")]
     [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Student)]

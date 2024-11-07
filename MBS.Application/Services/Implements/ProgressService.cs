@@ -25,6 +25,68 @@ public class ProgressService : BaseService2<ProgressService>, IProgressService
         _progressRepository = progressRepository;
     }
 
+    public async Task<BaseModel<GetCompleteProgressResponse>> GetCompleteProgressPercent(GetCompleteProgressRequest request)
+    {
+        try
+        {
+            //* check project 
+            var project = await _projectRepository.GetByIdAsync(request.ProjectId, "Id");
+            if (project == null)
+                return new BaseModel<GetCompleteProgressResponse>()
+                {
+                    Message = MessageResponseHelper.ProjectNotFound(request.ProjectId.ToString()),
+                    StatusCode = StatusCodes.Status404NotFound,
+                    IsSuccess = false,
+                };
+
+            //* get progress and sort By create Time
+            var progresses = await _progressRepository.GetProgressesByProjectId(request.ProjectId);
+            var enumerable = progresses.ToList();
+            if (!enumerable.Any())
+            {
+                return new BaseModel<GetCompleteProgressResponse>()
+                {
+                    Message = MessageResponseHelper.GetSuccessfully("progress"),
+                    StatusCode = StatusCodes.Status200OK,
+                    IsSuccess = true,
+                    ResponseRequestModel = new GetCompleteProgressResponse
+                    {
+                        Percent = 0,
+                        Complete = [],
+                        NotComplete = [],
+
+                    }
+                };
+            }
+            var unComplete = enumerable.Where(p => p.IsComplete == false);
+            var complete = enumerable.Where(p => p.IsComplete == true);
+
+            return new BaseModel<GetCompleteProgressResponse>()
+            {
+                Message = MessageResponseHelper.GetSuccessfully("progress"),
+                StatusCode = StatusCodes.Status200OK,
+                IsSuccess = true,
+                ResponseRequestModel = new GetCompleteProgressResponse
+                {
+                   Percent =  (double)complete.Count() / enumerable.Count() * 100
+                   ,
+                   Complete = _mapper.Map<IEnumerable<ProgressResponseDto>>(complete),
+                   NotComplete = _mapper.Map<IEnumerable<ProgressResponseDto>>(unComplete),
+
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetCompleteProgressResponse>()
+            {
+                Message = MessageResponseHelper.ProjectNotFound(e.Message),
+                StatusCode = StatusCodes.Status500InternalServerError,
+                IsSuccess = false,
+            };
+        }
+    }
+
     public async Task<BaseModel<GetProgressByProjectIddResponse>> GetProgressesByProjectId(
         GetProgressByProjectIddRequest request)
     {

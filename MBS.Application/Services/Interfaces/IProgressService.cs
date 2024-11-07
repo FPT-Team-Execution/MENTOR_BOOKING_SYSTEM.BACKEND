@@ -7,6 +7,8 @@ namespace MBS.Application.Services.Interfaces;
 
 public interface IProgressService
 {
+    Task<BaseModel<GetCompleteProgressResponse>> GetCompleteProgressPercent(GetCompleteProgressRequest request);
+
     Task<BaseModel<GetProgressByProjectIddResponse>> GetProgressesByProjectId(GetProgressByProjectIddRequest request);
     Task<BaseModel<CreateProgressResponse>> CreateProgress(CreateProgressRequest request);
     // Task<BaseModel<CreateProgressesResponse>> CreateProgresses(CreateProgressesRequest request);
