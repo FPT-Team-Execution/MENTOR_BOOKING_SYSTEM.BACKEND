@@ -318,54 +318,6 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
         }
     }
 
-    // public async Task<BaseModel<ProjectResponseModel>> UpdateProjectStatus(Guid projectId, ProjectStatusEnum newStatus)
-    // {
-    // 	try
-    // 	{
-    // 		var projectUpdate = await _projectRepository.GetByIdAsync(projectId, "Id");
-    //
-    // 		if (projectUpdate == null)
-    // 			return new BaseModel<ProjectResponseModel>
-    // 			{
-    // 				Message = MessageResponseHelper.ProjectNotFound(projectId.ToString()),
-    // 				IsSuccess = false,
-    // 				StatusCode = StatusCodes.Status404NotFound,
-    // 			};
-    // 		//not allow to updated if this project closed
-    // 		if (projectUpdate.Status == ProjectStatusEnum.Closed)
-    // 		{
-    // 			return new BaseModel<ProjectResponseModel>
-    // 			{
-    // 				Message = MessageResponseHelper.ProjectClosed(projectId.ToString()),
-    // 				IsSuccess = false,
-    // 				StatusCode = StatusCodes.Status400BadRequest,
-    // 			};
-    // 		}
-    // 		//* update status
-    // 		projectUpdate.Status = newStatus;
-    // 		_unitOfWork.GetRepository<Project>().UpdateAsync(projectUpdate);
-    // 		return new BaseModel<ProjectResponseModel>
-    // 		{
-    // 			Message = MessageResponseHelper.UpdateSuccessfully("project"),
-    // 			IsSuccess = true,
-    // 			StatusCode = StatusCodes.Status200OK,
-    // 			ResponseRequestModel = new ProjectResponseModel
-    // 			{
-    // 				Project = _mapper.Map<ProjectResponseDto>(projectUpdate)
-    // 			}
-    // 		};
-    // 	}
-    // 	catch (Exception e)
-    // 	{
-    // 		return new BaseModel<ProjectResponseModel>
-    // 		{
-    // 			Message = e.Message,
-    // 			IsSuccess = false,
-    // 			StatusCode = StatusCodes.Status500InternalServerError,
-    // 		};
-    // 	}
-    // }
-
     public async Task<BaseModel<ProjectResponseModel>> GetProjectById(Guid projectId)
     {
         try
@@ -414,7 +366,6 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
-            //can not assign mentor to project which is not actived
             if (project.Status != ProjectStatusEnum.Activated)
             {
                 return new BaseModel<AssignMentorResponseModel>
@@ -425,7 +376,6 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
                 };
             }
 
-            //* update status
             project.MentorId = mentorId;
             var updateResult = _projectRepository.Update(project);
             if (updateResult)
@@ -456,10 +406,6 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
             };
         }
     }
-
-
-
-
 
     public async Task<BaseModel<Pagination<ProjectResponseDTO>>> GetAllProjects(int page, int size)
     {

@@ -276,16 +276,6 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
     {
         var result = await _feedbackRepository.GetPagedListAsync(page, size);
 
-        //var feedbackDtoList = result.Items.Select(item => new FeedbackResponseDTO
-        //{
-        //    MeetingId = item.MeetingId,
-        //    name = item.User.FullName,
-        //    Message = item.Message,
-        //    UpdatedBy = item.UpdatedBy,
-        //    CreatedBy = item.CreatedBy,
-        //    CreatedOn = item.CreatedOn,
-        //    UpdatedOn = item.UpdatedOn
-        //}).ToList();
         var feedbackDtoList = new List<FeedbackResponseDTO>();
         foreach (var item in result.Items) {
             var mentor = await _mentorRepository.GetByUserIdAsync(item.UserId, include: m => m.Include(m => m.User));
