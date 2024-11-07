@@ -196,7 +196,8 @@ namespace MBS.Application.Services.Implements
             {
                 Items = groupDtoList,
                 PageIndex = page,
-                PageSize = size
+                PageSize = size,
+                TotalPages = result.TotalPages
             };
 
             return new BaseModel<Pagination<GroupResponseDTO>>
@@ -219,8 +220,7 @@ namespace MBS.Application.Services.Implements
 
                 foreach (var group in groupFound)
                 {
-                    Student student =
-                        await _studentRepository.GetByUserIdAsync(group.StudentId, m => m.Include(x => x.User));
+                    Student student = await _studentRepository.GetByUserIdAsync(group.StudentId, m => m.Include(x => x.User));
                     if (student != null)
                     {
                         studentDTOs.Add(new StudentInGroupDTO

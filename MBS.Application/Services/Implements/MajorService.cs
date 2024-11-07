@@ -55,7 +55,8 @@ namespace MBS.Application.Services.Implements
             {
                 Items = MajorDTOList,
                 PageSize = size,
-                PageIndex = page
+                PageIndex = page,
+                TotalPages = result.TotalPages,
             };
             if (result == null)
             {
