@@ -12,6 +12,7 @@ public class GetGoogleCalendarEventsResponse : GoogleResponse
 public class GoogleCalendarEvent: GoogleResponse
 {
     public string Kind { get; set; } // "calendar#event"
+    public string Location { get; set; }
     public string Etag { get; set; }
     public string ICalUID { get; set; }
     public string Id { get; set; }

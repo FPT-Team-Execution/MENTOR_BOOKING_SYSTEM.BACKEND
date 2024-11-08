@@ -15,6 +15,13 @@ public interface ICalendarEventService
     Task<BaseModel<GetBusyEventResponse, GetBusyEventRequest>> GetBusyEvent(GetBusyEventRequest request);
     Task<BaseModel<UpdateCalendarEventResponseModel>> UpdateCalendarEvent(string calendarEventId, string accessToken, UpdateCalendarEventRequestModel request);
     Task<BaseModel> DeleteCalendarEvent(string calendarEventId);
-    // Task<BaseModel<Pagination<CalendarEvent>>> GetCalendarEventsByMentorIdPagination(string mentorId, int page, int size);
+    //create calendar with flow
+    /*
+        update request => accepted
+        create calendar event
+        create meeting
+     */
+    Task<BaseModel<CreateCalendarEventOneFlowResponse, CreateCalendarEventOneFlowRequest>> CreateCalendarEventOnelFlow(CreateCalendarEventOneFlowRequest request);
+
 
 }

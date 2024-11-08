@@ -20,7 +20,7 @@ namespace MBS.Shared.Services.Interfaces
         Task<GoogleResponse> DeleteEvent(string email, string eventId, string accessToken);
         Task<GoogleResponse> GetFreeBusyPeriod(FreeBusyParamters request);
         Task<GoogleResponse> CreateMeeting(string accessToken);
-
+        Task<GoogleResponse> InsertEventWithGoogleMeetCreate(string email, string accessToken, string location, CreateGoogleCalendarEventRequest createRequest, bool isOnline = false);
 
     }
 }

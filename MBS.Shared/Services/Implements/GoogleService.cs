@@ -121,7 +121,7 @@ namespace MBS.Shared.Services.Implements
         // {
         //     _claimService.SetCookieValue("Google.AccessToken", accessToken, expiredTime);
         // }
-        
+
         /// <summary>
         /// Get events from user calendar
         /// </summary>
@@ -151,6 +151,7 @@ namespace MBS.Shared.Services.Implements
             errorResult.IsSuccess = false;
             return errorResult;
         }
+
         /// <summary>
         /// Create event in user calendar
         /// </summary>
@@ -178,6 +179,65 @@ namespace MBS.Shared.Services.Implements
                     DateTime = ConvertUtils.FormatDateTime(createRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
                     TimeZone = "Asia/Ho_Chi_Minh"
                 }
+            };
+            var response = await WebUtils.PostAsync(
+                url,
+                data: bodyData,
+                headers: headers,
+                token: accessToken
+                );
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var successResult = WebUtils.HandleResponse<GoogleCalendarEvent>(response);
+                successResult.IsSuccess = true;
+                return successResult;
+            }
+            //Other response - error
+            var errorResult = WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            errorResult.IsSuccess = false;
+            return errorResult;
+
+        }
+        /// <summary>
+        /// Create event in user calendar with google meet create options
+        /// </summary>
+        /// <returns>Google Calendar Event</returns>
+        public async Task<GoogleResponse> InsertEventWithGoogleMeetCreate(string email, string accessToken, string location, CreateGoogleCalendarEventRequest createRequest, bool isOnline = false)
+        {
+            string url = $"https://www.googleapis.com/calendar/v3/calendars/{email}/events{(isOnline ? "?conferenceDataVersion = 1" : "")}";
+            var headers = new Dictionary<string, string>
+             {
+                 { "Accept-Charset", "utf-8" },
+                 { "Authorization", $"Bearer {accessToken}" }
+             };
+            //anonymous data object
+            var bodyData = new
+            {
+                summary = createRequest.Summary,
+                location = isOnline ? "Online" : location,
+                description = createRequest.Description,
+                start = new EventTime
+                {
+                    DateTime = ConvertUtils.FormatDateTime(createRequest.Start, "yyyy-MM-ddTHH:mm:ssK"),
+                    TimeZone = "Asia/Ho_Chi_Minh"
+                },
+                end = new EventTime
+                {
+                    DateTime = ConvertUtils.FormatDateTime(createRequest.End, "yyyy-MM-ddTHH:mm:ssK"),
+                    TimeZone = "Asia/Ho_Chi_Minh"
+                },
+                //conferenceData = isOnline ? new
+                //{
+                //    createRequest = new
+                //    {
+                //        requestId = Guid.NewGuid().ToString(),
+                //        conferenceSolutionKey = new
+                //        {
+                //            type = "hangoutsMeet"
+                //        }
+                //    }
+                //} : null
             };
             var response = await WebUtils.PostAsync(
                 url,
@@ -283,7 +343,7 @@ namespace MBS.Shared.Services.Implements
         {
             // Set the start time to midnight of the given date
             DateTime start = new DateTime(inputDay.Year, inputDay.Month, inputDay.Day, 0, 0, 0, DateTimeKind.Utc);
-    
+
             // Set the end time to one millisecond before midnight of the next day
             DateTime end = new DateTime(start.Year, start.Month, start.Day, 23, 59, 0, DateTimeKind.Utc);
 
@@ -302,7 +362,7 @@ namespace MBS.Shared.Services.Implements
             var bodyData = new FreeBusyRequest()
             {
                 TimeMin = ConvertUtils.FormatDateTime(start, "yyyy-MM-ddTHH:mm:ssK"),
-                TimeMax = ConvertUtils.FormatDateTime(end, "yyyy-MM-ddTHH:mm:ssK"),  
+                TimeMax = ConvertUtils.FormatDateTime(end, "yyyy-MM-ddTHH:mm:ssK"),
                 Items = new List<CalendarItem>
                 {
                     new CalendarItem
@@ -315,12 +375,12 @@ namespace MBS.Shared.Services.Implements
             HttpResponseMessage response = await WebUtils.PostAsync(url, bodyData, headers, request.AccessToken);
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                var successResult =  WebUtils.HandleResponse<FreeBusyResponse>(response);
+                var successResult = WebUtils.HandleResponse<FreeBusyResponse>(response);
                 successResult.IsSuccess = true;
                 return successResult;
             }
             //Other response - error
-            var errorResult =  WebUtils.HandleResponse<GoogleErrorResponse>(response);
+            var errorResult = WebUtils.HandleResponse<GoogleErrorResponse>(response);
             errorResult.IsSuccess = false;
             return errorResult;
         }
