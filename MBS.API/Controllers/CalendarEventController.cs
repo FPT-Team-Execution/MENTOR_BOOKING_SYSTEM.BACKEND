@@ -67,7 +67,19 @@ public class CalendarEventController : ControllerBase
         return StatusCode(result.StatusCode, result);
    
     }
-    
+    [HttpPost("create")]
+    [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Mentor)]
+    [ProducesResponseType(typeof(BaseModel<CreateCalendarEventOneFlowResponse, CreateCalendarEventOneFlowRequest>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateEventOnFlow([FromBody] CreateCalendarEventOneFlowRequest requestModel)
+    {
+        var result = await _calendarEventService.CreateCalendarEventOnelFlow(requestModel);
+        return StatusCode(result.StatusCode, result);
+
+    }
+
     [HttpPut("{calendarEventId}")]
     [CustomAuthorize(UserRoleEnum.Mentor)]
     [ProducesResponseType(typeof(BaseModel<UpdateCalendarEventResponseModel>),StatusCodes.Status200OK)]
