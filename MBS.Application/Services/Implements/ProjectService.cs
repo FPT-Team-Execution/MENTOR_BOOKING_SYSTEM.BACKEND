@@ -427,7 +427,9 @@ public class ProjectService : BaseService2<ProjectService>, IProjectService
         {
             Items = projectDtoList,
             PageIndex = page,
-            PageSize = size
+            PageSize = size,
+            TotalItems = getAll.TotalItems,
+            TotalPages = getAll.TotalPages
         };
 
         return new BaseModel<Pagination<ProjectResponseDTO>>

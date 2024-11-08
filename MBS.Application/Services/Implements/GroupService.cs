@@ -197,7 +197,9 @@ namespace MBS.Application.Services.Implements
                 Items = groupDtoList,
                 PageIndex = page,
                 PageSize = size,
-                TotalPages = result.TotalPages
+                TotalPages = result.TotalPages,
+                TotalItems = result.TotalItems
+                
             };
 
             return new BaseModel<Pagination<GroupResponseDTO>>

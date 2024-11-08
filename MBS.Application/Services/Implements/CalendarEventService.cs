@@ -538,44 +538,4 @@ public class CalendarEventService : BaseService2<CalendarEventService>, ICalenda
             };
         }
     }
-
-    // public async Task<BaseModel<Pagination<CalendarEvent>>> GetCalendarEventsByMentorIdPagination(string mentorId, int page, int size)
-    // {
-    //     try
-    //     {
-    //         var mentor = await _mentorRepository.GetByIdAsync(mentorId, "UserId");
-    //         if (mentor == null)
-    //         {
-    //             return new BaseModel<Pagination<CalendarEvent>>
-    //             {
-    //                 Message = MessageResponseHelper.UserNotFound(),
-    //                 IsSuccess = false,
-    //                 StatusCode = StatusCodes.Status404NotFound,
-    //             };
-    //         }
-    //         //find events by mentor
-    //         var events = await _unitOfWork.GetRepository<CalendarEvent>().GetPagingListAsync(
-    //             predicate: e => e.MentorId == mentor.UserId,
-    //             page: page,
-    //             size: size
-    //             );
-    //
-    //         return new BaseModel<Pagination<CalendarEvent>>
-    //         {
-    //             Message = MessageResponseHelper.GetSuccessfully("events"),
-    //             IsSuccess = true,
-    //             StatusCode = StatusCodes.Status200OK,
-    //             ResponseRequestModel = events
-    //         };
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         return new BaseModel<Pagination<CalendarEvent>>
-    //         {
-    //             Message = e.Message,
-    //             IsSuccess = false,
-    //             StatusCode = StatusCodes.Status500InternalServerError,
-    //         };
-    //     }
-    // }
 }

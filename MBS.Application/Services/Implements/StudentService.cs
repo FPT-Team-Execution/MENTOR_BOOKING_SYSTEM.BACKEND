@@ -148,7 +148,9 @@ public class StudentService : BaseService2<StudentService>, IStudentService
         {
             Items = transactionDtoList,
             PageIndex = page,
-            PageSize = size
+            PageSize = size,
+			TotalPages = result.TotalPages,
+			TotalItems = result.TotalItems 
         };
 
         return new BaseModel<Pagination<PointTransactionDTO>>
