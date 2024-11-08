@@ -44,6 +44,20 @@ public class GroupRepository(IBaseDAO<Group> dao) : BaseRepository<Group>(dao), 
                 );
     }
 
+    //public async Task<bool> RemoveGroupByProjectAndStudentIdAsync(Guid projectId, string studentId )
+    //{
+    //    var check = false;
+    //    try
+    //    {
+    //        var groupFound = await _dao.SingleOrDefaultAsync(m => m.ProjectId == projectId && m.StudentId == studentId);
+    //        _dao.Delete(groupFound);
+    //        check = true;
+    //    }
+    //    catch (Exception)
+    //    {
 
-
+    //        check = false;
+    //    }
+    //    return check;
+    //}
 }

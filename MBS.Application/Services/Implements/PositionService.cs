@@ -179,6 +179,7 @@ namespace MBS.Application.Services.Implements
                 PageSize = size,
                 PageIndex = page,
                 TotalPages = result.TotalPages,
+                TotalItems = result.TotalItems
             };
 
             if (result == null)
