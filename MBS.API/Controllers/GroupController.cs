@@ -70,6 +70,16 @@ namespace MBS.API.Controllers
 			return StatusCode((int)response.StatusCode, response);
         }
 
+		[HttpDelete]
+		[CustomAuthorize(UserRoleEnum.Admin)]
+		[EndpointSummary("Remove specific member in group")]
+		public async Task<IActionResult> RemoveMemberInGroup([FromQuery] Guid projectId, [FromQuery] string studentId)
+		{
+			var response = await _groupService.RemoveStudentInGroupByProjectAndStudentIdAsync(projectId, studentId);
+			return StatusCode(response.StatusCode, response);
+		}
+
+
         [HttpGet("students/search/{searchItem}")]
         public async Task<IActionResult> GetStudentsInGroup(string searchItem)
         {
@@ -77,4 +87,5 @@ namespace MBS.API.Controllers
             return StatusCode((int)response.StatusCode, response);
         }
     }
+
 }

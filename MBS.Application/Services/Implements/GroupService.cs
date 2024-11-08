@@ -179,14 +179,14 @@ namespace MBS.Application.Services.Implements
             var result = await _groupRepository.GetPagedListBaseAsync(page: page, size: size);
 
             var groupDtoList = new List<GroupResponseDTO>();
-            
+
             foreach (var group in result.Items)
             {
-                var studentFound = await _studentRepository.GetByUserIdAsync(group.StudentId, include: m => m.Include( t => t.User));
+                var studentFound = await _studentRepository.GetByUserIdAsync(group.StudentId, include: m => m.Include(t => t.User));
                 var groupDto = new GroupResponseDTO
                 {
                     ProjectName = group.Project.Title,
-                    StudentName =  studentFound.User.FullName,
+                    StudentName = studentFound.User.FullName,
                     PositionName = group.Position.Name
                 };
                 groupDtoList.Add(groupDto);
@@ -298,6 +298,28 @@ namespace MBS.Application.Services.Implements
                 IsSuccess = true,
                 StatusCode = StatusCodes.Status200OK,
                 ResponseRequestModel = response
+            };
+        }
+
+        public async Task<BaseModel> RemoveStudentInGroupByProjectAndStudentIdAsync(Guid projectId, string studentId)
+        {
+            var memberFound = await _groupRepository.GetGroupByProjectAndStudentIdAsync(projectId, studentId);
+            if(memberFound != null)
+            {
+                _groupRepository.Delete(memberFound);
+                return new BaseModel
+                {
+                    IsSuccess = true,
+                    Message = "Remove successfully",
+                    StatusCode = StatusCodes.Status200OK
+
+                };
+            }
+            return new BaseModel
+            {
+                IsSuccess = false,
+                Message = "Remove false",
+                StatusCode = StatusCodes.Status200OK
             };
         }
     }

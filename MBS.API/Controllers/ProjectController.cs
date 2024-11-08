@@ -87,6 +87,7 @@ namespace MBS.API.Controllers
         }
 
         [HttpGet("")]
+        [CustomAuthorize(UserRoleEnum.Admin)]
         public async Task<IActionResult> GetAllProjects([FromQuery] int page, [FromQuery] int size)
         {
             var result = await _projectService.GetAllProjects(page, size);
