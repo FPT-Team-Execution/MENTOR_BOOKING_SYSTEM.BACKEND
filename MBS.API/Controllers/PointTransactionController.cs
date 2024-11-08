@@ -33,7 +33,7 @@ namespace MBS.API.Controllers
             return StatusCode(response.StatusCode, response);
         }
 
-        [HttpGet("feedbacks/{studentId}")]
+        [HttpGet("{studentId}")]
         [CustomAuthorize(UserRoleEnum.Admin, UserRoleEnum.Student)]
         [ProducesResponseType(typeof(BaseModel<CreateCalendarResponseModel, CreateCalendarRequestModel>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(BaseModel), StatusCodes.Status400BadRequest)]
