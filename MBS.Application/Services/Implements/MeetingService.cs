@@ -281,14 +281,20 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status404NotFound,
                 };
-            if (meeting.Status != MeetingStatusEnum.New || meeting.Status != MeetingStatusEnum.Delayed)
+            //if (meeting.Status != MeetingStatusEnum.New || meeting.Status != MeetingStatusEnum.Delayed)
+            //    return new BaseModel<MeetingResponseModel>
+            //    {
+            //        Message = MessageResponseHelper.InvalidMeetingSatus(meetingId.ToString()),
+            //        IsSuccess = false,
+            //        StatusCode = StatusCodes.Status400BadRequest,
+            //    };
+            if (meeting.Status == MeetingStatusEnum.Done || meeting.Status == MeetingStatusEnum.Canceled)
                 return new BaseModel<MeetingResponseModel>
                 {
                     Message = MessageResponseHelper.InvalidMeetingSatus(meetingId.ToString()),
                     IsSuccess = false,
                     StatusCode = StatusCodes.Status400BadRequest,
                 };
-
             //Update request
             meeting.Description = request.Description;
             meeting.Location = request.Location;
