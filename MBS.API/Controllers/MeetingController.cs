@@ -26,7 +26,7 @@ public class MeetingController : ControllerBase
         
     }
     [HttpGet("project/{projectId}")]
-    [ProducesResponseType(typeof(BaseModel<MeetingResponseModel>),StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel<GetMeetingByProjectIdResponse>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status500InternalServerError)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetMeetingsByProjectId(GetMeetingByProjectIdRequest request)
@@ -35,7 +35,18 @@ public class MeetingController : ControllerBase
         return StatusCode(result.StatusCode, result);
         
     }
-    
+    [HttpGet("request/{requestId}")]
+    [ProducesResponseType(typeof(BaseModel<GetMeetingByRequestIdResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status500InternalServerError)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status404NotFound)]
+    [ProducesResponseType(typeof(BaseModel), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetMeetingsByRequestId(GetMeetingByRequestIdRequest request)
+    {
+        var result = await _meetingService.GetMeetingsByRequestId(request);
+        return StatusCode(result.StatusCode, result);
+
+    }
+
     [HttpGet("{meetingId}")]
     [ProducesResponseType(typeof(BaseModel<MeetingResponseModel>),StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BaseModel),StatusCodes.Status404NotFound)]

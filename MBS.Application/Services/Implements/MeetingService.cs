@@ -329,4 +329,56 @@ public class MeetingService : BaseService2<MeetingService>, IMeetingService
             };
         }
     }
+
+    public async Task<BaseModel<GetMeetingByRequestIdResponse, GetMeetingByRequestIdRequest>> GetMeetingsByRequestId(GetMeetingByRequestIdRequest request)
+    {
+        try
+        {
+            //get request to check ~ if requets status is rejected -> no meeting 
+            var requestCheck = await _requestRepository.GetByIdAsync(request.RequestId, "Id");
+            if (requestCheck == null)
+                return new BaseModel<GetMeetingByRequestIdResponse, GetMeetingByRequestIdRequest>
+                {
+                    Message = MessageResponseHelper.RequestNotFound(request.RequestId.ToString()),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+
+            if (requestCheck.Status == RequestStatusEnum.Rejected)
+                return new BaseModel<GetMeetingByRequestIdResponse, GetMeetingByRequestIdRequest>
+                {
+                    Message = MessageResponseHelper.InvalidRequestStatus(request.RequestId.ToString(), RequestStatusEnum.Accepted.ToString()),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status400BadRequest,
+                };
+
+            //get meeting based on request id 
+            var meetings = await _meetingRepository.GetMeetingsByRequest(requestCheck.Id);
+            if (!string.IsNullOrEmpty(request.MeetingStatus))
+            {
+                meetings = meetings.Where(x => x.Status == Enum.Parse<MeetingStatusEnum>(request.MeetingStatus));
+            }
+
+            return new BaseModel<GetMeetingByRequestIdResponse, GetMeetingByRequestIdRequest>()
+            {
+                Message = MessageResponseHelper.GetSuccessfully("meetings"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                RequestModel = request,
+                ResponseModel = new GetMeetingByRequestIdResponse
+                {
+                    Meetings = _mapper.Map<IEnumerable<MeetingResponseDto>>(meetings)
+                }
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<GetMeetingByRequestIdResponse, GetMeetingByRequestIdRequest>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
 }
