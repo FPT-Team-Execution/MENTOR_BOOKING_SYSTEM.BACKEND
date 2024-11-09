@@ -165,13 +165,14 @@ namespace MBS.Application.Services.Implements
             foreach (var item in result.Items)
             {
                 var positionFound = await _positionRepository.GetPositionByIdAsync(item.Id);
-                if(positionFound.Status == Core.Enums.StatusEnum.Activated)
+                if(positionFound.Status.Equals(Core.Enums.StatusEnum.Activated))
                 {
                     var positionDTO = new PositionResponseDTO
                     {
                         id = item.Id,
                         Name = positionFound.Name,
                         Description = positionFound.Description,
+                        Status = Core.Enums.StatusEnum.Activated.ToString()
                     };
                     positionDTOList.Add(positionDTO);
                 }
