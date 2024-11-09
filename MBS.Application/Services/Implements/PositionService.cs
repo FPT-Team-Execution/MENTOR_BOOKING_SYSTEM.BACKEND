@@ -165,12 +165,16 @@ namespace MBS.Application.Services.Implements
             foreach (var item in result.Items)
             {
                 var positionFound = await _positionRepository.GetPositionByIdAsync(item.Id);
-                var positionDTO = new PositionResponseDTO
+                if(positionFound.Status == Core.Enums.StatusEnum.Activated)
                 {
-                    Name = positionFound.Name,
-                    Description = positionFound.Description,
-                };
-                positionDTOList.Add(positionDTO);
+                    var positionDTO = new PositionResponseDTO
+                    {
+                        id = item.Id,
+                        Name = positionFound.Name,
+                        Description = positionFound.Description,
+                    };
+                    positionDTOList.Add(positionDTO);
+                }
             }
 
             var paginatedPosition = new Pagination<PositionResponseDTO>
