@@ -246,8 +246,7 @@ public class SkillService : BaseService2<SkillService>, ISkillService
                 Items = skillDTOList,
                 PageSize = size,
                 PageIndex = page, 
-                TotalItems = result.TotalItems,
-                TotalPages = result.TotalPages
+                TotalItems = result.TotalItems
             };
 
             return new BaseModel<Pagination<SkillSummaryResponseDTO>>
