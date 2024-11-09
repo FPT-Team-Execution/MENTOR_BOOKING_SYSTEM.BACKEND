@@ -18,105 +18,111 @@ namespace MBS.Application.Services.Implements;
 
 public class RequestService : BaseService2<RequestService>, IRequestService
 {
-	private readonly IMentorRepository _mentorRepository;
-	private readonly IProjectRepository _projectRepository;
-	private readonly ICalendarEventRepository _eventRepository;
-	private readonly IRequestRepository _requestRepository;
-	private readonly UserManager<ApplicationUser> _userManager;
-	private readonly IStudentRepository _studentRepository;
-	private readonly IGroupRepository _groupRepository;
-	private readonly IPointTransactionSerivce _pointTransactionSerivce;
+    private readonly IMentorRepository _mentorRepository;
+    private readonly IProjectRepository _projectRepository;
+    private readonly ICalendarEventRepository _eventRepository;
+    private readonly IRequestRepository _requestRepository;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IStudentRepository _studentRepository;
+    private readonly IGroupRepository _groupRepository;
+    private readonly IPointTransactionSerivce _pointTransactionSerivce;
 
-	public RequestService(
-		IMentorRepository mentorRepository,
-		IProjectRepository projectRepository,
-		ICalendarEventRepository eventRepository,
-		IRequestRepository requestRepository,
-		IStudentRepository studentRepository,
-		UserManager<ApplicationUser> userManager,
-		ILogger<RequestService> logger,
-		IPointTransactionSerivce pointTransactionSerivce,
-		IMapper mapper, IGroupRepository groupRepository) : base(logger, mapper)
-	{
-		_mentorRepository = mentorRepository;
-		_projectRepository = projectRepository;
-		_eventRepository = eventRepository;
-		_userManager = userManager;
-		_groupRepository = groupRepository;
-		_requestRepository = requestRepository;
-		this._studentRepository = studentRepository;
-		_pointTransactionSerivce = pointTransactionSerivce;
-	}
+    public RequestService(
+        IPointTransactionSerivce pointTransactionSerivce,
+        IMentorRepository mentorRepository,
+        IProjectRepository projectRepository,
+        ICalendarEventRepository eventRepository,
+        IRequestRepository requestRepository,
+        IStudentRepository studentRepository,
+        UserManager<ApplicationUser> userManager,
+        ILogger<RequestService> logger,
+        IMapper mapper, IGroupRepository groupRepository) : base(logger, mapper)
+    {
+        _pointTransactionSerivce = pointTransactionSerivce;
+        _mentorRepository = mentorRepository;
+        _projectRepository = projectRepository;
+        _eventRepository = eventRepository;
+        _userManager = userManager;
+        _groupRepository = groupRepository;
+        _requestRepository = requestRepository;
+        this._studentRepository = studentRepository;
+    }
 
-	public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByProjectId(GetRequestByProjectIdPaginationRequest request)
-	{
-		try
-		{
-			//TODO: check project
-			var projectCheck = await _projectRepository.GetByIdAsync(request.ProjectId, "Id");
-			if (projectCheck == null)
-			{
-				return new BaseModel<Pagination<RequestResponseDto>>
-				{
-					Message = MessageResponseHelper.ProjectNotFound(request.ProjectId.ToString()),
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status404NotFound,
-				};
-			}
-			var requests = await _requestRepository.GetRequestByProjectIdPaginationAsync(request.ProjectId, request.Page, request.Size, request.SortOrder, request.RequestStatus);
-			return new BaseModel<Pagination<RequestResponseDto>>
-			{
-				Message = MessageResponseHelper.GetSuccessfully("requests"),
-				IsSuccess = true,
-				StatusCode = StatusCodes.Status200OK,
-				ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
-			};
-		}
-		catch (Exception e)
-		{
-			return new BaseModel<Pagination<RequestResponseDto>>
-			{
-				Message = e.Message,
-				IsSuccess = false,
-				StatusCode = StatusCodes.Status500InternalServerError,
-			};
-		}
-	}
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByProjectId(
+        GetRequestByProjectIdPaginationRequest request)
+    {
+        try
+        {
+            //TODO: check project
+            var projectCheck = await _projectRepository.GetByIdAsync(request.ProjectId, "Id");
+            if (projectCheck == null)
+            {
+                return new BaseModel<Pagination<RequestResponseDto>>
+                {
+                    Message = MessageResponseHelper.ProjectNotFound(request.ProjectId.ToString()),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
 
-	public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByUserId(GetRequestByUserIdPaginationRequest request)
-	{
-		try
-		{
-			//TODO: check user
-			var studentCheck = await _studentRepository.GetByIdAsync(request.UserId, "UserId");
-			if (studentCheck == null)
-			{
-				return new BaseModel<Pagination<RequestResponseDto>>
-				{
-					Message = MessageResponseHelper.UserNotFound(),
-					IsSuccess = false,
-					StatusCode = StatusCodes.Status404NotFound,
-				};
-			}
-			var requests = await _requestRepository.GetRequestByUserIdPaginationAsync(request.UserId, request.Page, request.Size, request.SortOrder, request.Status);
-			return new BaseModel<Pagination<RequestResponseDto>>
-			{
-				Message = MessageResponseHelper.GetSuccessfully("requests"),
-				IsSuccess = true,
-				StatusCode = StatusCodes.Status200OK,
-				ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
-			};
-		}
-		catch (Exception e)
-		{
-			return new BaseModel<Pagination<RequestResponseDto>>
-			{
-				Message = e.Message,
-				IsSuccess = false,
-				StatusCode = StatusCodes.Status500InternalServerError,
-			};
-		}
-	}
+            var requests = await _requestRepository.GetRequestByProjectIdPaginationAsync(request.ProjectId,
+                request.Page, request.Size, request.SortOrder, request.RequestStatus);
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("requests"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
+
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByUserId(
+        GetRequestByUserIdPaginationRequest request)
+    {
+        try
+        {
+            //TODO: check user
+            var studentCheck = await _studentRepository.GetByIdAsync(request.UserId, "UserId");
+            if (studentCheck == null)
+            {
+                return new BaseModel<Pagination<RequestResponseDto>>
+                {
+                    Message = MessageResponseHelper.UserNotFound(),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status404NotFound,
+                };
+            }
+
+            var requests = await _requestRepository.GetRequestByUserIdPaginationAsync(request.UserId, request.Page,
+                request.Size, request.SortOrder, request.Status);
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = MessageResponseHelper.GetSuccessfully("requests"),
+                IsSuccess = true,
+                StatusCode = StatusCodes.Status200OK,
+                ResponseRequestModel = _mapper.Map<Pagination<RequestResponseDto>>(requests)
+            };
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<Pagination<RequestResponseDto>>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
 
 	public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequests(GetRequestsPaginationRequest request)
 	{
@@ -225,28 +231,47 @@ public class RequestService : BaseService2<RequestService>, IRequestService
 					StatusCode = StatusCodes.Status404NotFound,
 				};
 
-			// check student point
-			switch (request.ProjectId)
-			{
-				case null:
-					{
-						var student = await _studentRepository.GetByUserIdAsync(request.CreaterId, include: x => x.Include(x => x.User));
-						if (student.WalletPoint < 100)
-						{
-							return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
-							{
-								Message = MessageResponseHelper.InvalidBalancePoint(student.User.FullName),
-								IsSuccess = false,
-								StatusCode = StatusCodes.Status400BadRequest,
-							};
-						}
+            // check student point
+            switch (request.ProjectId)
+            {
+                case null:
+                {
+                    var student =
+                        await _studentRepository.GetByUserIdAsync(request.CreaterId,
+                            include: x => x.Include(x => x.User));
+                    if (student.WalletPoint < 100)
+                    {
+                        return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
+                        {
+                            Message = MessageResponseHelper.InvalidBalancePoint(student.User.FullName),
+                            IsSuccess = false,
+                            StatusCode = StatusCodes.Status400BadRequest,
+                        };
+                    }
 
-						await _pointTransactionSerivce.ModifyStudentPoint(new Models.PointTransaction.ModifyStudentPointRequestModel()
-						{
-							Amount = 100,
-							TransactionType = nameof(TransactionTypeEnum.Debit),
-							StudentId = student.UserId,
-						});
+                    break;
+                }
+                default:
+                {
+                    var groups = await _groupRepository.GetGroupByProjectIdAsync((Guid)request.ProjectId);
+                    foreach (var group in groups)
+                    {
+                        var student = await _studentRepository.GetByUserIdAsync(group.StudentId,
+                            include: x => x.Include(x => x.User));
+                        if (student.WalletPoint < 100)
+                        {
+                            return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
+                            {
+                                Message = MessageResponseHelper.InvalidBalancePoint(student.User.FullName),
+                                IsSuccess = false,
+                                StatusCode = StatusCodes.Status400BadRequest,
+                            };
+                        }
+                    }
+
+                    break;
+                }
+            }
 
 						break;
 					}
