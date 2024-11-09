@@ -197,7 +197,8 @@ namespace MBS.Application.Services.Implements
                 Items = groupDtoList,
                 PageIndex = page,
                 PageSize = size,
-                TotalItems = result.TotalItems
+                TotalItems = result.TotalItems,
+                TotalPages = result.TotalPages
                 
             };
 

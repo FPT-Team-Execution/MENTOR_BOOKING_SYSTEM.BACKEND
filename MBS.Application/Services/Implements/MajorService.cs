@@ -276,7 +276,8 @@ namespace MBS.Application.Services.Implements
 				Items = majors,
 				PageIndex = request.Page,
 				PageSize = request.Size,
-				TotalItems = mentorMajors.TotalItems
+				TotalItems = mentorMajors.TotalItems,
+				TotalPages = mentorMajors.TotalPages
 			};
 
 			return new BaseModel<Pagination<MajorResponseDTO>>()
