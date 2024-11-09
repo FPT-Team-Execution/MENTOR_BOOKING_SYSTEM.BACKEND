@@ -149,7 +149,7 @@ namespace MBS.Application.Services.Implements
                 };
                 ListToShow.Add(newTrans);
             }
-            var response = ListToShow.OrderBy(i => i.CreatedOn).ToList();
+            var response = ListToShow.OrderByDescending(i => i.CreatedOn).ToList();
 
             var pagingPoint = new Pagination<PointTransactionDTO>
             {
@@ -191,7 +191,7 @@ namespace MBS.Application.Services.Implements
 
             var paginatedDtoList = new Pagination<PointTransactionDTO>
             {
-                Items = transactionDtoList,
+                Items = transactionDtoList.OrderByDescending(x=> x.CreatedOn),
                 PageIndex = page,
                 PageSize = size,
                 TotalItems = result.TotalItems,
