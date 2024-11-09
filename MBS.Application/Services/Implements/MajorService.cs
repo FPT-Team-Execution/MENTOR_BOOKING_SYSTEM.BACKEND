@@ -276,7 +276,6 @@ namespace MBS.Application.Services.Implements
 				Items = majors,
 				PageIndex = request.Page,
 				PageSize = request.Size,
-				TotalPages = majors.Count,
 				TotalItems = mentorMajors.TotalItems
 			};
 

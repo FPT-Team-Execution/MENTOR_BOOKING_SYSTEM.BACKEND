@@ -258,7 +258,8 @@ public class FeedbackService : BaseService2<FeedbackService>, IFeedbackService
         {
             Items = feedbackDtoList,
             PageIndex = page,
-            PageSize = size
+            PageSize = size,
+            TotalItems = result.TotalItems
         };
 
         return new BaseModel<Pagination<FeedbackByMentorDTO>>

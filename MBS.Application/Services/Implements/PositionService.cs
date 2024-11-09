@@ -178,7 +178,6 @@ namespace MBS.Application.Services.Implements
                 Items = positionDTOList,
                 PageSize = size,
                 PageIndex = page,
-                TotalPages = result.TotalPages,
                 TotalItems = result.TotalItems
             };
 
