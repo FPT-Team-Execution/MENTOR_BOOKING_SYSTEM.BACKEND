@@ -37,16 +37,18 @@ namespace MBS.Application.Services.Implements
             foreach (var item in result.Items) 
             {
                 var majorFound = await _majorRepository.GetMajorByIdAsync(item.Id);
-				var majorDTO = new MajorResponseDTO
-				{
-					Id = majorFound.Id,
-					Name = majorFound.Name,
-					ParentName = majorFound.ParentMajor?.Name,
-					CreatedOn = majorFound.CreatedOn,
-					UpdatedOn = majorFound.UpdatedOn,
-					Status = majorFound.Status.ToString()
-				};
-                MajorDTOList.Add(majorDTO);
+				if (majorFound.Status == Core.Enums.StatusEnum.Activated) {
+                    var majorDTO = new MajorResponseDTO
+                    {
+                        Id = majorFound.Id,
+                        Name = majorFound.Name,
+                        ParentName = majorFound.ParentMajor?.Name,
+                        CreatedOn = majorFound.CreatedOn,
+                        UpdatedOn = majorFound.UpdatedOn,
+                        Status = majorFound.Status.ToString()
+                    };
+                    MajorDTOList.Add(majorDTO);
+                }
 
                 
             }
