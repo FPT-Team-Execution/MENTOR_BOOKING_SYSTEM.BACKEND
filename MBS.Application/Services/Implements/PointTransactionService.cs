@@ -149,7 +149,7 @@ namespace MBS.Application.Services.Implements
                 };
                 ListToShow.Add(newTrans);
             }
-            var response = ListToShow.OrderByDescending(i => i.CreatedOn).ToList();
+            var response = ListToShow.OrderBy(i => i.CreatedOn).ToList();
 
             var pagingPoint = new Pagination<PointTransactionDTO>
             {
