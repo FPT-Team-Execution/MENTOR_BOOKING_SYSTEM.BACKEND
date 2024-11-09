@@ -65,7 +65,8 @@ namespace MBS.Application.Services.Implements
 			{
 				Amount = 400,
 				StudentId = request.StudentId,
-				TransactionType = nameof(TransactionTypeEnum.Credit)
+				TransactionType = nameof(TransactionTypeEnum.Credit),
+				Kind = nameof(TransactionKindEnum.Project),
 			});
 
 			return new BaseModel<CreateNewGroupResponseModel, CreateNewGroupRequestModel>
@@ -339,7 +340,9 @@ namespace MBS.Application.Services.Implements
 			{
 				Amount = 400,
 				StudentId = memberFound.StudentId,
-				TransactionType = nameof(TransactionTypeEnum.Debit)
+				TransactionType = nameof(TransactionTypeEnum.Debit),
+				Kind = nameof(TransactionKindEnum.Project),
+				
 			});
 
 			return new BaseModel
