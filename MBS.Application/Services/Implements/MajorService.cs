@@ -37,7 +37,7 @@ namespace MBS.Application.Services.Implements
             foreach (var item in result.Items) 
             {
                 var majorFound = await _majorRepository.GetMajorByIdAsync(item.Id);
-				if (majorFound.Status == Core.Enums.StatusEnum.Activated) {
+				if (majorFound.Status.Equals(Core.Enums.StatusEnum.Activated)) {
                     var majorDTO = new MajorResponseDTO
                     {
                         Id = majorFound.Id,
@@ -45,7 +45,7 @@ namespace MBS.Application.Services.Implements
                         ParentName = majorFound.ParentMajor?.Name,
                         CreatedOn = majorFound.CreatedOn,
                         UpdatedOn = majorFound.UpdatedOn,
-                        Status = majorFound.Status.ToString()
+                        Status =  Core.Enums.StatusEnum.Activated.ToString()
                     };
                     MajorDTOList.Add(majorDTO);
                 }
