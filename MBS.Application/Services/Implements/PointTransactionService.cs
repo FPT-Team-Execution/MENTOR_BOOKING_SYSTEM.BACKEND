@@ -63,7 +63,8 @@ namespace MBS.Application.Services.Implements
                             pointTransaction.RemainBalance = student.WalletPoint;
                             pointTransaction.Status = TransactionStatusEnum.Success;
                             pointTransaction.Kind = Enum.Parse<TransactionKindEnum>(request.Kind);
-                            break;
+							pointTransaction.CreatedOn = DateTime.UtcNow;
+							break;
                         }
                     case var type when type == nameof(TransactionTypeEnum.Debit).ToUpper():
                         {
@@ -72,6 +73,7 @@ namespace MBS.Application.Services.Implements
                             pointTransaction.RemainBalance = student.WalletPoint;
                             pointTransaction.Status = TransactionStatusEnum.Success;
                             pointTransaction.Kind = Enum.Parse<TransactionKindEnum>(request.Kind);
+                            pointTransaction.CreatedOn = DateTime.UtcNow;
                             break;
                         }
                 }
