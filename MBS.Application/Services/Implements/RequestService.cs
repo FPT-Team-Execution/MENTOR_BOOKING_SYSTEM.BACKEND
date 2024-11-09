@@ -1,3 +1,4 @@
+using System.Transactions;
 using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
@@ -24,8 +25,10 @@ public class RequestService : BaseService2<RequestService>, IRequestService
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IStudentRepository _studentRepository;
     private readonly IGroupRepository _groupRepository;
+    private readonly IPointTransactionSerivce _pointTransactionSerivce;
 
     public RequestService(
+        IPointTransactionSerivce pointTransactionSerivce,
         IMentorRepository mentorRepository,
         IProjectRepository projectRepository,
         ICalendarEventRepository eventRepository,
@@ -35,6 +38,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
         ILogger<RequestService> logger,
         IMapper mapper, IGroupRepository groupRepository) : base(logger, mapper)
     {
+        _pointTransactionSerivce = pointTransactionSerivce;
         _mentorRepository = mentorRepository;
         _projectRepository = projectRepository;
         _eventRepository = eventRepository;
@@ -44,7 +48,8 @@ public class RequestService : BaseService2<RequestService>, IRequestService
         this._studentRepository = studentRepository;
     }
 
-    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByProjectId(GetRequestByProjectIdPaginationRequest request)
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByProjectId(
+        GetRequestByProjectIdPaginationRequest request)
     {
         try
         {
@@ -59,7 +64,9 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             }
-            var requests = await _requestRepository.GetRequestByProjectIdPaginationAsync(request.ProjectId, request.Page, request.Size, request.SortOrder, request.RequestStatus);
+
+            var requests = await _requestRepository.GetRequestByProjectIdPaginationAsync(request.ProjectId,
+                request.Page, request.Size, request.SortOrder, request.RequestStatus);
             return new BaseModel<Pagination<RequestResponseDto>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("requests"),
@@ -79,7 +86,8 @@ public class RequestService : BaseService2<RequestService>, IRequestService
         }
     }
 
-    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByUserId(GetRequestByUserIdPaginationRequest request)
+    public async Task<BaseModel<Pagination<RequestResponseDto>>> GetRequestsByUserId(
+        GetRequestByUserIdPaginationRequest request)
     {
         try
         {
@@ -94,7 +102,9 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                     StatusCode = StatusCodes.Status404NotFound,
                 };
             }
-            var requests = await _requestRepository.GetRequestByUserIdPaginationAsync(request.UserId, request.Page, request.Size, request.SortOrder, request.Status);
+
+            var requests = await _requestRepository.GetRequestByUserIdPaginationAsync(request.UserId, request.Page,
+                request.Size, request.SortOrder, request.Status);
             return new BaseModel<Pagination<RequestResponseDto>>
             {
                 Message = MessageResponseHelper.GetSuccessfully("requests"),
@@ -226,7 +236,9 @@ public class RequestService : BaseService2<RequestService>, IRequestService
             {
                 case null:
                 {
-                    var student = await _studentRepository.GetByUserIdAsync(request.CreaterId, include:x=>x.Include(x=>x.User));
+                    var student =
+                        await _studentRepository.GetByUserIdAsync(request.CreaterId,
+                            include: x => x.Include(x => x.User));
                     if (student.WalletPoint < 100)
                     {
                         return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
@@ -241,11 +253,11 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                 }
                 default:
                 {
-                    
                     var groups = await _groupRepository.GetGroupByProjectIdAsync((Guid)request.ProjectId);
                     foreach (var group in groups)
                     {
-                        var student = await _studentRepository.GetByUserIdAsync(group.StudentId, include:x=>x.Include(x=>x.User));
+                        var student = await _studentRepository.GetByUserIdAsync(group.StudentId,
+                            include: x => x.Include(x => x.User));
                         if (student.WalletPoint < 100)
                         {
                             return new BaseModel<CreateRequestResponseModel, CreateRequestRequestModel>
@@ -256,6 +268,7 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                             };
                         }
                     }
+
                     break;
                 }
             }
@@ -389,27 +402,70 @@ public class RequestService : BaseService2<RequestService>, IRequestService
             //    };
 
             //Update request
-            //request.CalendarEventId = requestModel.CalendarEventId;
-            request.Title = requestModel.Title;
-            request.Status = requestModel.Status;
-            var updateResult = _requestRepository.Update(request);
-            if (updateResult)
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            {
+                //request.CalendarEventId = requestModel.CalendarEventId;
+                request.Title = requestModel.Title;
+                request.Status = requestModel.Status;
+                var updateResult = _requestRepository.Update(request);
+                //reject -> refund point
+                switch (request.ProjectId)
+                {
+                    case null:
+                    {
+                        var student = await _studentRepository.GetByUserIdAsync(request.CreaterId,
+                            include: x => x.Include(x => x.User));
+                        await _pointTransactionSerivce.ModifyStudentPoint(
+                            new Models.PointTransaction.ModifyStudentPointRequestModel()
+                            {
+                                Amount = 100,
+                                TransactionType = nameof(TransactionTypeEnum.Debit),
+                                StudentId = student.UserId,
+                            });
+                        break;
+                    }
+                    default:
+                    {
+                        var groups = await _groupRepository.GetGroupByProjectIdAsync((Guid)request.ProjectId);
+                        foreach (var group in groups)
+                        {
+                            var student = await _studentRepository.GetByUserIdAsync(group.StudentId,
+                                include: x => x.Include(x => x.User));
+                            await _pointTransactionSerivce.ModifyStudentPoint(
+                                new Models.PointTransaction.ModifyStudentPointRequestModel()
+                                {
+                                    Amount = 100,
+                                    TransactionType = nameof(TransactionTypeEnum.Debit),
+                                    StudentId = student.UserId,
+                                });
+                        }
+
+                        break;
+                    }
+                }
+
+                if (updateResult)
+                {
+                    transactionScope.Complete();
+                    return new BaseModel<RequestResponseModel>
+                    {
+                        Message = MessageResponseHelper.UpdateSuccessfully("event"),
+                        IsSuccess = true,
+                        StatusCode = StatusCodes.Status200OK,
+                        ResponseRequestModel = new RequestResponseModel()
+                        {
+                            Request = _mapper.Map<RequestResponseDto>(request),
+                        }
+                    };
+                }
+
                 return new BaseModel<RequestResponseModel>
                 {
-                    Message = MessageResponseHelper.UpdateSuccessfully("event"),
-                    IsSuccess = true,
-                    StatusCode = StatusCodes.Status200OK,
-                    ResponseRequestModel = new RequestResponseModel()
-                    {
-                        Request = _mapper.Map<RequestResponseDto>(request),
-                    }
+                    Message = MessageResponseHelper.UpdateFailed("event"),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status500InternalServerError,
                 };
-            return new BaseModel<RequestResponseModel>
-            {
-                Message = MessageResponseHelper.UpdateFailed("event"),
-                IsSuccess = false,
-                StatusCode = StatusCodes.Status500InternalServerError,
-            };
+            }
         }
         catch (Exception e)
         {
