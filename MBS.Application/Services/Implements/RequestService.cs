@@ -1,3 +1,4 @@
+using System.Transactions;
 using AutoMapper;
 using MBS.Application.Helpers;
 using MBS.Application.Models.General;
@@ -390,56 +391,99 @@ public class RequestService : BaseService2<RequestService>, IRequestService
 			//        IsSuccess = false,
 			//        StatusCode = StatusCodes.Status404NotFound,
 
-			//    };
-			//check calendar and meeting
-			//if(calendarEvent.Start <= DateTime.Now)
-			//    return new BaseModel<RequestResponseModel>
-			//    {
-			//        Message = MessageResponseHelper.CalendarInThePast(requestModel.CalendarEventId),
-			//        IsSuccess = false,
-			//        StatusCode = StatusCodes.Status400BadRequest,
+            //    };
+            //check calendar and meeting
+            //if(calendarEvent.Start <= DateTime.Now)
+            //    return new BaseModel<RequestResponseModel>
+            //    {
+            //        Message = MessageResponseHelper.CalendarInThePast(requestModel.CalendarEventId),
+            //        IsSuccess = false,
+            //        StatusCode = StatusCodes.Status400BadRequest,
 
-			//    };
-			//if(calendarEvent.Meeting != null && calendarEvent.Meeting.Status == MeetingStatusEnum.New)
-			//    return new BaseModel<RequestResponseModel>
-			//    {
-			//        Message = MessageResponseHelper.BusyCalendar(requestModel.CalendarEventId),
-			//        IsSuccess = false,
-			//        StatusCode = StatusCodes.Status400BadRequest,
+            //    };
+            //if(calendarEvent.Meeting != null && calendarEvent.Meeting.Status == MeetingStatusEnum.New)
+            //    return new BaseModel<RequestResponseModel>
+            //    {
+            //        Message = MessageResponseHelper.BusyCalendar(requestModel.CalendarEventId),
+            //        IsSuccess = false,
+            //        StatusCode = StatusCodes.Status400BadRequest,
 
-			//    };
+            //    };
 
-			//Update request
-			//request.CalendarEventId = requestModel.CalendarEventId;
-			request.Title = requestModel.Title;
-			request.Status = requestModel.Status;
-			var updateResult = _requestRepository.Update(request);
-			if (updateResult)
-				return new BaseModel<RequestResponseModel>
-				{
-					Message = MessageResponseHelper.UpdateSuccessfully("event"),
-					IsSuccess = true,
-					StatusCode = StatusCodes.Status200OK,
-					ResponseRequestModel = new RequestResponseModel()
-					{
-						Request = _mapper.Map<RequestResponseDto>(request),
-					}
-				};
-			return new BaseModel<RequestResponseModel>
-			{
-				Message = MessageResponseHelper.UpdateFailed("event"),
-				IsSuccess = false,
-				StatusCode = StatusCodes.Status500InternalServerError,
-			};
-		}
-		catch (Exception e)
-		{
-			return new BaseModel<RequestResponseModel>
-			{
-				Message = e.Message,
-				IsSuccess = false,
-				StatusCode = StatusCodes.Status500InternalServerError,
-			};
-		}
-	}
+            //Update request
+            using var transactionScope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            {
+                //request.CalendarEventId = requestModel.CalendarEventId;
+                request.Title = requestModel.Title;
+                request.Status = requestModel.Status;
+                var updateResult = _requestRepository.Update(request);
+                //reject -> refund point
+                switch (request.ProjectId)
+                {
+                    case null:
+                    {
+                        var student = await _studentRepository.GetByUserIdAsync(request.CreaterId,
+                            include: x => x.Include(x => x.User));
+                        await _pointTransactionSerivce.ModifyStudentPoint(
+                            new Models.PointTransaction.ModifyStudentPointRequestModel()
+                            {
+                                Amount = 100,
+                                TransactionType = nameof(TransactionTypeEnum.Debit),
+                                StudentId = student.UserId,
+                            });
+                        break;
+                    }
+                    default:
+                    {
+                        var groups = await _groupRepository.GetGroupByProjectIdAsync((Guid)request.ProjectId);
+                        foreach (var group in groups)
+                        {
+                            var student = await _studentRepository.GetByUserIdAsync(group.StudentId,
+                                include: x => x.Include(x => x.User));
+                            await _pointTransactionSerivce.ModifyStudentPoint(
+                                new Models.PointTransaction.ModifyStudentPointRequestModel()
+                                {
+                                    Amount = 100,
+                                    TransactionType = nameof(TransactionTypeEnum.Debit),
+                                    StudentId = student.UserId,
+                                });
+                        }
+
+                        break;
+                    }
+                }
+
+                if (updateResult)
+                {
+                    transactionScope.Complete();
+                    return new BaseModel<RequestResponseModel>
+                    {
+                        Message = MessageResponseHelper.UpdateSuccessfully("event"),
+                        IsSuccess = true,
+                        StatusCode = StatusCodes.Status200OK,
+                        ResponseRequestModel = new RequestResponseModel()
+                        {
+                            Request = _mapper.Map<RequestResponseDto>(request),
+                        }
+                    };
+                }
+
+                return new BaseModel<RequestResponseModel>
+                {
+                    Message = MessageResponseHelper.UpdateFailed("event"),
+                    IsSuccess = false,
+                    StatusCode = StatusCodes.Status500InternalServerError,
+                };
+            }
+        }
+        catch (Exception e)
+        {
+            return new BaseModel<RequestResponseModel>
+            {
+                Message = e.Message,
+                IsSuccess = false,
+                StatusCode = StatusCodes.Status500InternalServerError,
+            };
+        }
+    }
 }
