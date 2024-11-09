@@ -254,7 +254,8 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                             Amount = 100,
                             TransactionType = nameof(TransactionTypeEnum.Debit),
                             StudentId = student.UserId,
-                        });
+							Kind = nameof(TransactionKindEnum.Personal),
+						});
                     break;
                  
                 }
@@ -286,7 +287,8 @@ public class RequestService : BaseService2<RequestService>, IRequestService
                                 Amount = 100,
                                 TransactionType = nameof(TransactionTypeEnum.Debit),
                                 StudentId = student.UserId,
-                            });
+								Kind = nameof(TransactionKindEnum.Project),
+							});
                     }
 
                     break;
