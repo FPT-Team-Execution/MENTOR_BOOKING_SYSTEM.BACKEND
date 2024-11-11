@@ -178,6 +178,9 @@ namespace MBS.Application.Services.Implements
                 }
             }
 
+
+         
+
             var paginatedPosition = new Pagination<PositionResponseDTO>
             {
                 Items = positionDTOList,
