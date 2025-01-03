@@ -20,7 +20,7 @@ namespace MBS.Application.DependencyInjections
                 {
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultScheme =  JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 })
                 .AddJwtBearer(options =>
                 {
@@ -44,12 +44,12 @@ namespace MBS.Application.DependencyInjections
                     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 });
 
-              // .AddGoogle(options =>
-              // {
-              //     options.ClientId = configuration["Google:Authentication:ClientId"]!; 
-              //     options.ClientSecret = configuration["Google:Authentication:ClientSecret"]!;
-              //     options.SaveTokens = true;
-              // });
+            // .AddGoogle(options =>
+            // {
+            //     options.ClientId = configuration["Google:Authentication:ClientId"]!; 
+            //     options.ClientSecret = configuration["Google:Authentication:ClientSecret"]!;
+            //     options.SaveTokens = true;
+            // });
 
             return services;
         }
